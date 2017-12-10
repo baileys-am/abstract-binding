@@ -11,11 +11,10 @@ namespace AbstractBinding.RecipientInternals
     {
         private readonly object _obj;
         private readonly IReadOnlyDictionary<string, RegisteredEvent> _events;
+        private readonly IReadOnlyDictionary<string, RegisteredProperty> _properties;
         private readonly IReadOnlyDictionary<string, RegisteredMethod> _methods;
 
         public string ObjectId { get; private set; }
-
-        public IReadOnlyDictionary<string, RegisteredProperty> Properties { get; private set; }
 
         public RegisteredObject(string objectId,
                                 object obj,
@@ -26,7 +25,7 @@ namespace AbstractBinding.RecipientInternals
             ObjectId = String.IsNullOrEmpty(objectId) ? throw new ArgumentNullException(nameof(objectId)) : objectId;
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
             _events = events ?? throw new ArgumentNullException(nameof(events));
-            Properties = properties ?? throw new ArgumentNullException(nameof(properties));
+            _properties = properties ?? throw new ArgumentNullException(nameof(properties));
             _methods = methods ?? throw new ArgumentNullException(nameof(methods));
         }
 
@@ -56,9 +55,9 @@ namespace AbstractBinding.RecipientInternals
 
         public object GetValue(string propertyId)
         {
-            if (Properties.ContainsKey(propertyId))
+            if (_properties.ContainsKey(propertyId))
             {
-                return Properties[propertyId].GetValue();
+                return _properties[propertyId].GetValue();
             }
             else
             {
@@ -68,7 +67,7 @@ namespace AbstractBinding.RecipientInternals
 
         public void SetValue(string propertyId, object value)
         {
-            if (Properties.ContainsKey(propertyId))
+            if (_properties.ContainsKey(propertyId))
             {
                 throw new NotImplementedException();
             }

@@ -77,17 +77,8 @@ namespace AbstractBinding
                         return _serializer.SerializeObject(invokeResponse);
                     case RequestType.propertyGet:
                         var propertyGetRequest = _serializer.DeserializeObject<PropertyGetRequest>(request);
-                        var propertyGetObject = _registeredObjects[propertyGetRequest.objectId];
-                        object propertyGetValue = null;
-                        try
-                        {
-                            propertyGetValue = propertyGetObject.Properties[propertyGetRequest.propertyId].GetValue();
-                        }
-                        catch (Exception)
-                        {
-                            throw;
-                        }
-
+                        var propertyGetObj = _registeredObjects[propertyGetRequest.objectId];
+                        object propertyGetValue = propertyGetObj.GetValue(propertyGetRequest.propertyId);
                         var propertyGetResponse = new PropertyGetResponse()
                         {
                             objectId = propertyGetRequest.objectId,
