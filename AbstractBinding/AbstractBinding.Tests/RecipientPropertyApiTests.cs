@@ -25,5 +25,33 @@ namespace AbstractBinding.Tests
             // Initialize registered object mock
             _regObjectMock = new Mock<IRegisteredObject>();
         }
+
+        [TestMethod]
+        [TestCategory(_testCategory)]
+        public void GetValueWithoutExceptionTest()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        [TestCategory(_testCategory)]
+        public void GetValueWithExceptionTest()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        [TestCategory(_testCategory)]
+        public void SetValueWithoutExceptionTest()
+        {
+            Assert.Fail();
+        }
+
+        [TestMethod]
+        [TestCategory(_testCategory)]
+        public void SetValueWithExceptionTest()
+        {
+            Assert.Fail();
+        }
     }
 }
