@@ -21,6 +21,18 @@ namespace AbstractBinding.Tests
 
             // Initialize serializer  mock
             _serializerMock = new Mock<ISerializer>();
+            _serializerMock.Setup(o => o.SerializeObject(It.IsAny<object>())).Returns<object>(obj =>
+            {
+                return Serializer.Serialize(obj);
+            });
+            _serializerMock.Setup(o => o.DeserializeObject<Request>(It.IsAny<string>())).Returns<string>((serObj) =>
+            {
+                return Serializer.Deserialize<Request>(serObj);
+            });
+            _serializerMock.Setup(o => o.DeserializeObject<PropertyGetRequest>(It.IsAny<string>())).Returns<string>(serObj =>
+            {
+                return Serializer.Deserialize<PropertyGetRequest>(serObj);
+            });
 
             // Initialize registered object mock
             _regObjectMock = new Mock<IRegisteredObject>();
@@ -30,7 +42,26 @@ namespace AbstractBinding.Tests
         [TestCategory(_testCategory)]
         public void GetValueWithoutExceptionTest()
         {
-            Assert.Fail();
+            // Arrange
+            string objectId = "objId1";
+            string expectedValue = "toBeExpected";
+            _regObjectMock.Setup(o => o.StringValueProperty).Returns(expectedValue);
+            var recipient = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var requestObj = new PropertyGetRequest()
+            {
+                objectId = objectId,
+                propertyId = nameof(IRegisteredObject.StringValueProperty)
+            };
+
+            // Act
+            recipient.Register(objectId, _regObjectMock.Object);
+            string response = recipient.Request(Serializer.Serialize(requestObj));
+
+            // Assert
+            var responseObj = Serializer.Deserialize<PropertyGetResponse>(response);
+            Assert.AreEqual(requestObj.objectId, responseObj.objectId);
+            Assert.AreEqual(requestObj.propertyId, responseObj.propertyId);
+            Assert.AreEqual(expectedValue, responseObj.value);
         }
 
         [TestMethod]

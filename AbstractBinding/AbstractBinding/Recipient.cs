@@ -22,17 +22,18 @@ namespace AbstractBinding
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
 
             var eventFactory = new RegisteredEventFactory(_service, _serializer);
+            var propertyFactory = new RegisteredPropertyFactory();
             var methodFactory = new RegisteredMethodFactory(_service, _serializer);
-            _objectFactory = new RegisteredObjectFactory(eventFactory, methodFactory);
+            _objectFactory = new RegisteredObjectFactory(eventFactory, propertyFactory, methodFactory);
         }
 
-        public void Register(string id, object obj)
+        public void Register<T>(string objectId, T obj)
         {
             // Create registered object
-            var registeredObect = _objectFactory.Create(id, obj);
+            var registeredObect = _objectFactory.Create(objectId, obj);
 
             // Store registered object
-            _registeredObjects.Add(registeredObect.ObjectId, registeredObect);
+            _registeredObjects.Add(objectId, registeredObect);
         }
 
         public string Request(string request)
@@ -98,10 +99,10 @@ namespace AbstractBinding
                 case RequestType.invoke:
                     var invokeRequest = _serializer.DeserializeObject<InvokeRequest>(request);
                     var invokeObj = _registeredObjects[invokeRequest.objectId];
-                    object result = null;
+                    object invokeResult = null;
                     try
                     {
-                        result = invokeObj.Methods[invokeRequest.methodId].Invoke(invokeRequest.methodArgs);
+                        invokeResult = invokeObj.Methods[invokeRequest.methodId].Invoke(invokeRequest.methodArgs);
                     }
                     catch (Exception ex)
                     {
@@ -117,13 +118,33 @@ namespace AbstractBinding
 #pragma warning restore EA003 // Catch block swallows an exception
                     }
                    
-                    var response = new InvokeResponse()
+                    var invokeResponse = new InvokeResponse()
                     {
                         objectId = invokeRequest.objectId,
                         methodId = invokeRequest.methodId,
-                        result = result
+                        result = invokeResult
                     };
-                    return _serializer.SerializeObject(response);
+                    return _serializer.SerializeObject(invokeResponse);
+                case RequestType.propertyGet:
+                    var propertyGetRequest = _serializer.DeserializeObject<PropertyGetRequest>(request);
+                    var propertyGetObject = _registeredObjects[propertyGetRequest.objectId];
+                    object propertyGetValue = null;
+                    try
+                    {
+                        propertyGetValue = propertyGetObject.Properties[propertyGetRequest.propertyId].GetValue();
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                    
+                    var propertyGetResponse = new PropertyGetResponse()
+                    {
+                        objectId = propertyGetRequest.objectId,
+                        propertyId = propertyGetRequest.propertyId,
+                        value = propertyGetValue
+                    };
+                    return _serializer.SerializeObject(propertyGetResponse);
                 default:
                     throw new InvalidOperationException($"Unsupported request type: {requestObj.requestType}");
             }

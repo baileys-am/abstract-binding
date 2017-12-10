@@ -10,6 +10,8 @@ namespace AbstractBinding.Tests
     {
         event EventHandler NotifyOnNonDataChanged;
         
+        string StringValueProperty { get; set; }
+
         void VoidReturnMethod(params object[] args);
     }
 }
