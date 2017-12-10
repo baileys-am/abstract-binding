@@ -10,11 +10,11 @@ namespace AbstractBinding.RecipientInternals
     internal class RegisteredObject
     {
         private readonly object _obj;
+        private readonly IReadOnlyDictionary<string, RegisteredEvent> _events;
 
         public string ObjectId { get; private set; }
 
         public IReadOnlyDictionary<string, RegisteredMethod> Methods { get; private set; }
-        public IReadOnlyDictionary<string, RegisteredEvent> Events { get; private set; }
         public IReadOnlyDictionary<string, RegisteredProperty> Properties { get; private set; }
 
         public RegisteredObject(string objectId,
@@ -25,16 +25,16 @@ namespace AbstractBinding.RecipientInternals
         {
             ObjectId = String.IsNullOrEmpty(objectId) ? throw new ArgumentNullException(nameof(objectId)) : objectId;
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
-            Events = events ?? throw new ArgumentNullException(nameof(events));
+            _events = events ?? throw new ArgumentNullException(nameof(events));
             Properties = properties ?? throw new ArgumentNullException(nameof(properties));
             Methods = methods ?? throw new ArgumentNullException(nameof(methods));
         }
 
         public void Subscribe(string eventId)
         {
-            if (Events.ContainsKey(eventId))
+            if (_events.ContainsKey(eventId))
             {
-                Events[eventId].Subscribe();
+                _events[eventId].Subscribe();
             }
             else
             {
@@ -44,9 +44,9 @@ namespace AbstractBinding.RecipientInternals
 
         public void Unsubscribe(string eventId)
         {
-            if (Events.ContainsKey(eventId))
+            if (_events.ContainsKey(eventId))
             {
-                Events[eventId].Unsubscribe();
+                _events[eventId].Unsubscribe();
             }
             else
             {

@@ -65,7 +65,7 @@
     <Compile Include="Messages\Response.cs" />
     <Compile Include="RecipientInternals\RegisteredProperty.cs" />
     <Compile Include="RecipientInternals\RegisteredPropertyFactory.cs" />
-    <Compile Include="RecipientMethodException.cs" />
+    <Compile Include="RecipientBindingException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

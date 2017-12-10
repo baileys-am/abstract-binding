@@ -45,24 +45,7 @@ namespace AbstractBinding
                 case RequestType.subscribe:
                     var subscribeRequest = _serializer.DeserializeObject<SubscribeRequest>(request);
                     var subscribeObj = _registeredObjects[subscribeRequest.objectId];
-                    try
-                    {
-                        subscribeObj.Events[subscribeRequest.eventId].Subscribe();
-                    }
-                    catch (Exception ex)
-                    {
-                        var exResponse = new ExceptionResponse()
-                        {
-                            objectId = subscribeRequest.objectId,
-                            methodId = subscribeRequest.eventId,
-                            exception = new RecipientMethodException($"Failed to invoke {subscribeRequest.eventId} on {subscribeRequest.objectId}", ex)
-                        };
-
-#pragma warning disable EA003 // Catch block swallows an exception
-                        return _serializer.SerializeObject(exResponse);
-#pragma warning restore EA003 // Catch block swallows an exception
-                    }
-
+                    subscribeObj.Subscribe(subscribeRequest.eventId);
                     var subscribeResponse = new SubscribeResponse()
                     {
                         objectId = subscribeRequest.objectId,
@@ -72,24 +55,7 @@ namespace AbstractBinding
                 case RequestType.unsubscribe:
                     var unsubscribeRequest = _serializer.DeserializeObject<UnsubscribeRequest>(request);
                     var unsubscribeObj = _registeredObjects[unsubscribeRequest.objectId];
-                    try
-                    {
-                        unsubscribeObj.Events[unsubscribeRequest.eventId].Unsubscribe();
-                    }
-                    catch (Exception ex)
-                    {
-                        var exResponse = new ExceptionResponse()
-                        {
-                            objectId = unsubscribeRequest.objectId,
-                            methodId = unsubscribeRequest.eventId,
-                            exception = new RecipientMethodException($"Failed to invoke {unsubscribeRequest.eventId} on {unsubscribeRequest.objectId}", ex)
-                        };
-
-#pragma warning disable EA003 // Catch block swallows an exception
-                        return _serializer.SerializeObject(exResponse);
-#pragma warning restore EA003 // Catch block swallows an exception
-                    }
-
+                    unsubscribeObj.Unsubscribe(unsubscribeRequest.eventId);
                     var unsubscribeResponse = new UnsubscribeResponse()
                     {
                         objectId = unsubscribeRequest.objectId,
@@ -110,7 +76,7 @@ namespace AbstractBinding
                         {
                             objectId = invokeRequest.objectId,
                             methodId = invokeRequest.methodId,
-                            exception = new RecipientMethodException($"Failed to invoke {invokeRequest.methodId} on {invokeRequest.objectId}", ex)
+                            exception = new RecipientBindingException($"Failed to invoke {invokeRequest.methodId} on {invokeRequest.objectId}", ex)
                         };
 
 #pragma warning disable EA003 // Catch block swallows an exception
