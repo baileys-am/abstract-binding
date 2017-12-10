@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Messages
 {
+    [Serializable]
     internal class PropertySetResponse : Response
     {
 #pragma warning disable IDE1006 // Naming Styles
