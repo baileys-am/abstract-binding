@@ -29,14 +29,6 @@ namespace AbstractBinding.Tests
             {
                 return Serializer.Deserialize<Request>(serObj);
             });
-            _serializerMock.Setup(o => o.DeserializeObject<SubscribeRequest>(It.IsAny<string>())).Returns<string>((serObj) =>
-            {
-                return Serializer.Deserialize<SubscribeRequest>(serObj);
-            });
-            _serializerMock.Setup(o => o.DeserializeObject<UnsubscribeRequest>(It.IsAny<string>())).Returns<string>((serObj) =>
-            {
-                return Serializer.Deserialize<UnsubscribeRequest>(serObj);
-            });
             _serializerMock.Setup(o => o.DeserializeObject<InvokeRequest>(It.IsAny<string>())).Returns<string>((serObj) =>
             {
                 return Serializer.Deserialize<InvokeRequest>(serObj);
