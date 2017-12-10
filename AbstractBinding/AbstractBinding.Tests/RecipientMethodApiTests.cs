@@ -52,7 +52,7 @@ namespace AbstractBinding.Tests
             var requestObj = new InvokeRequest()
             {
                 objectId = objectId,
-                methodId = "VoidReturnMethod",
+                methodId = nameof(IRegisteredObject.VoidReturnMethod),
                 methodArgs = new object[] { args0, args1 }
             };
 
@@ -90,7 +90,7 @@ namespace AbstractBinding.Tests
             var requestObj = new InvokeRequest()
             {
                 objectId = objectId,
-                methodId = "VoidReturnMethod",
+                methodId = nameof(IRegisteredObject.VoidReturnMethod),
                 methodArgs = new object[] { args0, args1 }
             };
 
