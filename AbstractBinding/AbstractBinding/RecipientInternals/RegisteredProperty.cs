@@ -9,7 +9,6 @@ namespace AbstractBinding.RecipientInternals
 {
     internal class RegisteredProperty
     {
-        private readonly string _objectId;
         private readonly object _obj;
         private readonly PropertyInfo _propertyInfo;
 
@@ -18,7 +17,7 @@ namespace AbstractBinding.RecipientInternals
 
         public RegisteredProperty(string objectId, object obj, PropertyInfo propertyInfo)
         {
-            _objectId = objectId ?? throw new ArgumentNullException(nameof(objectId));
+            ObjectId = objectId ?? throw new ArgumentNullException(nameof(objectId));
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
             _propertyInfo = propertyInfo ?? throw new ArgumentNullException(nameof(propertyInfo));
 
