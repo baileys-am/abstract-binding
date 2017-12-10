@@ -40,14 +40,28 @@ namespace AbstractBinding.RecipientInternals
 
         public void Subscribe()
         {
-            // Add the event handler
-            _eventInfo.AddEventHandler(_obj, _handler);
+            try
+            {
+                // Add the event handler
+                _eventInfo.AddEventHandler(_obj, _handler);
+            }
+            catch (Exception ex)
+            {
+                throw new RecipientBindingException($"Failed to subscribe to {EventId} on {ObjectId}", ex);
+            }
         }
 
         public void Unsubscribe()
         {
-            // Remove the event handler
-            _eventInfo.RemoveEventHandler(_obj, _handler);
+            try
+            {
+                // Remove the event handler
+                _eventInfo.RemoveEventHandler(_obj, _handler);
+            }
+            catch (Exception ex)
+            {
+                throw new RecipientBindingException($"Failed to unsubscribe from {EventId} on {ObjectId}", ex);
+            }
         }
 
         private void _eventHandler(object sender, EventArgs e)

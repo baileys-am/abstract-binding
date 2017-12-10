@@ -8,23 +8,23 @@ using System.Threading.Tasks;
 namespace AbstractBinding
 {
     [Serializable]
-    public class RecipientMethodException : Exception
+    public class RecipientBindingException : Exception
     {
-        public RecipientMethodException()
+        public RecipientBindingException()
         {
         }
 
-        public RecipientMethodException(string message) :
+        public RecipientBindingException(string message) :
             base(message)
         {
         }
 
-        public RecipientMethodException(string message, Exception innerException) :
+        public RecipientBindingException(string message, Exception innerException) :
             base(message, innerException)
         {
         }
 
-        public RecipientMethodException(SerializationInfo info, StreamingContext context) :
+        public RecipientBindingException(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
         }

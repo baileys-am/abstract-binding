@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 namespace AbstractBinding.Messages
 {
     [Serializable]
-    internal class SubscribeResponse : Response
+    internal class PropertySetResponse : Response
     {
 #pragma warning disable IDE1006 // Naming Styles
         public string objectId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 
 #pragma warning disable IDE1006 // Naming Styles
-        public string eventId { get; set; }
+        public string propertyId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 
-        public SubscribeResponse()
+        public PropertySetResponse()
         {
-            responseType = ResponseType.subscribe;
+            responseType = ResponseType.propertySet;
         }
     }
 }

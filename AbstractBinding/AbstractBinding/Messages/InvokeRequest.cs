@@ -10,6 +10,10 @@ namespace AbstractBinding.Messages
     internal class InvokeRequest : Request
     {
 #pragma warning disable IDE1006 // Naming Styles
+        public string objectId { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
+
+#pragma warning disable IDE1006 // Naming Styles
         public string methodId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 

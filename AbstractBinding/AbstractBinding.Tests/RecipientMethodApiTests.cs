@@ -29,14 +29,6 @@ namespace AbstractBinding.Tests
             {
                 return Serializer.Deserialize<Request>(serObj);
             });
-            _serializerMock.Setup(o => o.DeserializeObject<SubscribeRequest>(It.IsAny<string>())).Returns<string>((serObj) =>
-            {
-                return Serializer.Deserialize<SubscribeRequest>(serObj);
-            });
-            _serializerMock.Setup(o => o.DeserializeObject<UnsubscribeRequest>(It.IsAny<string>())).Returns<string>((serObj) =>
-            {
-                return Serializer.Deserialize<UnsubscribeRequest>(serObj);
-            });
             _serializerMock.Setup(o => o.DeserializeObject<InvokeRequest>(It.IsAny<string>())).Returns<string>((serObj) =>
             {
                 return Serializer.Deserialize<InvokeRequest>(serObj);
@@ -60,7 +52,7 @@ namespace AbstractBinding.Tests
             var requestObj = new InvokeRequest()
             {
                 objectId = objectId,
-                methodId = "VoidReturnMethod",
+                methodId = nameof(IRegisteredObject.VoidReturnMethod),
                 methodArgs = new object[] { args0, args1 }
             };
 
@@ -98,7 +90,7 @@ namespace AbstractBinding.Tests
             var requestObj = new InvokeRequest()
             {
                 objectId = objectId,
-                methodId = "VoidReturnMethod",
+                methodId = nameof(IRegisteredObject.VoidReturnMethod),
                 methodArgs = new object[] { args0, args1 }
             };
 
@@ -112,8 +104,6 @@ namespace AbstractBinding.Tests
             _regObjectMock.Verify();
 
             var responseObj = Serializer.Deserialize<ExceptionResponse>(response);
-            Assert.AreEqual(objectId, responseObj.objectId);
-            Assert.AreEqual(requestObj.methodId, responseObj.methodId);
             Assert.IsTrue(responseObj.exception.Message.Contains(objectId) &&
                           responseObj.exception.Message.Contains(requestObj.methodId));
         }

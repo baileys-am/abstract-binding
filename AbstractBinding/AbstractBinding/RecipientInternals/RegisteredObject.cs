@@ -9,46 +9,83 @@ namespace AbstractBinding.RecipientInternals
 {
     internal class RegisteredObject
     {
-        private readonly RegisteredEventFactory _eventFactory;
-        private readonly RegisteredMethodFactory _methodFactory;
         private readonly object _obj;
-        private readonly Dictionary<string, RegisteredMethod> _methods = new Dictionary<string, RegisteredMethod>();
-        private readonly Dictionary<string, RegisteredEvent> _events = new Dictionary<string, RegisteredEvent>();
+        private readonly IReadOnlyDictionary<string, RegisteredEvent> _events;
+        private readonly IReadOnlyDictionary<string, RegisteredProperty> _properties;
+        private readonly IReadOnlyDictionary<string, RegisteredMethod> _methods;
 
         public string ObjectId { get; private set; }
-        
-        public IReadOnlyDictionary<string, RegisteredMethod> Methods => _methods;
 
-        public IReadOnlyDictionary<string, RegisteredEvent> Events => _events;
-
-        public RegisteredObject(RegisteredEventFactory eventFactory, RegisteredMethodFactory methodFactory, string objectId, object obj)
+        public RegisteredObject(string objectId,
+                                object obj,
+                                IReadOnlyDictionary<string, RegisteredEvent> events,
+                                IReadOnlyDictionary<string, RegisteredProperty> properties,
+                                IReadOnlyDictionary<string, RegisteredMethod> methods)
         {
-            _eventFactory = eventFactory ?? throw new ArgumentNullException(nameof(eventFactory));
-            _methodFactory = methodFactory ?? throw new ArgumentNullException(nameof(methodFactory));
             ObjectId = String.IsNullOrEmpty(objectId) ? throw new ArgumentNullException(nameof(objectId)) : objectId;
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
-            
-            // Register events
-            foreach (var eventInfo in _obj.GetType().GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
-            {
-                // Create registered event
-                var registeredEvent = _eventFactory.Create(ObjectId, _obj, eventInfo);
+            _events = events ?? throw new ArgumentNullException(nameof(events));
+            _properties = properties ?? throw new ArgumentNullException(nameof(properties));
+            _methods = methods ?? throw new ArgumentNullException(nameof(methods));
+        }
 
-                // Store registered event
-                _events.Add(registeredEvent.EventId, registeredEvent);
+        public void Subscribe(string eventId)
+        {
+            if (_events.ContainsKey(eventId))
+            {
+                _events[eventId].Subscribe();
             }
-
-            // Register methods
-            foreach (var methodInfo in _obj.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                                                     .Where(m => m.IsPublic &&
-                                                                !m.IsSpecialName &&
-                                                                 m.GetBaseDefinition().DeclaringType != typeof(object)))
+            else
             {
-                // Create registered method
-                var registeredMethod = _methodFactory.Create(ObjectId, _obj, methodInfo);
-                
-                // Store registered method
-                _methods.Add(registeredMethod.MethodId, registeredMethod);
+                throw new InvalidOperationException($"Object, {ObjectId}, does have event named {eventId}");
+            }
+        }
+
+        public void Unsubscribe(string eventId)
+        {
+            if (_events.ContainsKey(eventId))
+            {
+                _events[eventId].Unsubscribe();
+            }
+            else
+            {
+                throw new InvalidOperationException($"Object, {ObjectId}, does have event named {eventId}");
+            }
+        }
+
+        public object GetValue(string propertyId)
+        {
+            if (_properties.ContainsKey(propertyId))
+            {
+                return _properties[propertyId].GetValue();
+            }
+            else
+            {
+                throw new InvalidOperationException($"Object, {ObjectId}, does have property named {propertyId}");
+            }
+        }
+
+        public void SetValue(string propertyId, object value)
+        {
+            if (_properties.ContainsKey(propertyId))
+            {
+                _properties[propertyId].SetValue(value);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Object, {ObjectId}, does have property named {propertyId}");
+            }
+        }
+
+        public object Invoke(string methodId, params object[] args)
+        {
+            if (_methods.ContainsKey(methodId))
+            {
+                return _methods[methodId].Invoke(args);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Object, {ObjectId}, does have method named {methodId}");
             }
         }
     }

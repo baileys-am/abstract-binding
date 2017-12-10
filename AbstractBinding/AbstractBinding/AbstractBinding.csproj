@@ -42,7 +42,11 @@
   <ItemGroup>
     <Compile Include="Messages\EventNotification.cs" />
     <Compile Include="Messages\ExceptionResponse.cs" />
+    <Compile Include="Messages\PropertyGetRequest.cs" />
     <Compile Include="Messages\InvokeResponse.cs" />
+    <Compile Include="Messages\PropertyGetResponse.cs" />
+    <Compile Include="Messages\PropertySetRequest.cs" />
+    <Compile Include="Messages\PropertySetResponse.cs" />
     <Compile Include="Messages\SubscribeRequest.cs" />
     <Compile Include="Messages\SubscribeResponse.cs" />
     <Compile Include="Messages\UnsubscribeRequest.cs" />
@@ -61,7 +65,9 @@
     <Compile Include="RecipientInternals\RegisteredObjectFactory.cs" />
     <Compile Include="Messages\Request.cs" />
     <Compile Include="Messages\Response.cs" />
-    <Compile Include="RecipientMethodException.cs" />
+    <Compile Include="RecipientInternals\RegisteredProperty.cs" />
+    <Compile Include="RecipientInternals\RegisteredPropertyFactory.cs" />
+    <Compile Include="RecipientBindingException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

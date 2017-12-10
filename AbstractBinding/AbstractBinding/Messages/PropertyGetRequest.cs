@@ -6,20 +6,19 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Messages
 {
-    [Serializable]
-    internal class SubscribeResponse : Response
+    internal class PropertyGetRequest : Request
     {
 #pragma warning disable IDE1006 // Naming Styles
         public string objectId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 
 #pragma warning disable IDE1006 // Naming Styles
-        public string eventId { get; set; }
+        public string propertyId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 
-        public SubscribeResponse()
+        public PropertyGetRequest()
         {
-            responseType = ResponseType.subscribe;
+            requestType = RequestType.propertyGet;
         }
     }
 }
