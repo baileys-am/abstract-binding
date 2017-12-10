@@ -9,6 +9,10 @@ namespace AbstractBinding.Messages
     internal class PropertyGetResponse : Response
     {
 #pragma warning disable IDE1006 // Naming Styles
+        public string objectId { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
+
+#pragma warning disable IDE1006 // Naming Styles
         public string propertyId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 

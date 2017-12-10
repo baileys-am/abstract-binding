@@ -31,7 +31,14 @@ namespace AbstractBinding.RecipientInternals
         
         public object Invoke(params object[] objs)
         {
-            return _methodInfo.Invoke(_obj, new object[] { objs });
+            try
+            {
+                return _methodInfo.Invoke(_obj, new object[] { objs });
+            }
+            catch (Exception ex)
+            {
+                throw new RecipientBindingException($"Failed to invoke {MethodId} on {ObjectId}", ex);
+            }
         }
     }
 }

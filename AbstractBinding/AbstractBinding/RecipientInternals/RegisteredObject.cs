@@ -11,10 +11,10 @@ namespace AbstractBinding.RecipientInternals
     {
         private readonly object _obj;
         private readonly IReadOnlyDictionary<string, RegisteredEvent> _events;
+        private readonly IReadOnlyDictionary<string, RegisteredMethod> _methods;
 
         public string ObjectId { get; private set; }
 
-        public IReadOnlyDictionary<string, RegisteredMethod> Methods { get; private set; }
         public IReadOnlyDictionary<string, RegisteredProperty> Properties { get; private set; }
 
         public RegisteredObject(string objectId,
@@ -27,7 +27,7 @@ namespace AbstractBinding.RecipientInternals
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
             _events = events ?? throw new ArgumentNullException(nameof(events));
             Properties = properties ?? throw new ArgumentNullException(nameof(properties));
-            Methods = methods ?? throw new ArgumentNullException(nameof(methods));
+            _methods = methods ?? throw new ArgumentNullException(nameof(methods));
         }
 
         public void Subscribe(string eventId)
@@ -80,9 +80,9 @@ namespace AbstractBinding.RecipientInternals
 
         public object Invoke(string methodId, params object[] args)
         {
-            if (Methods.ContainsKey(methodId))
+            if (_methods.ContainsKey(methodId))
             {
-                return Methods[methodId].Invoke(args);
+                return _methods[methodId].Invoke(args);
             }
             else
             {

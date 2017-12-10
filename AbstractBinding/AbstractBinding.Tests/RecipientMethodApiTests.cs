@@ -104,8 +104,6 @@ namespace AbstractBinding.Tests
             _regObjectMock.Verify();
 
             var responseObj = Serializer.Deserialize<ExceptionResponse>(response);
-            Assert.AreEqual(objectId, responseObj.objectId);
-            Assert.AreEqual(requestObj.methodId, responseObj.methodId);
             Assert.IsTrue(responseObj.exception.Message.Contains(objectId) &&
                           responseObj.exception.Message.Contains(requestObj.methodId));
         }

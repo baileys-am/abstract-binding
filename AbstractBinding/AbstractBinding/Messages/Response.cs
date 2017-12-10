@@ -21,9 +21,5 @@ namespace AbstractBinding.Messages
 #pragma warning disable IDE1006 // Naming Styles
         public ResponseType responseType { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
-
-#pragma warning disable IDE1006 // Naming Styles
-        public string objectId { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
     }
 }

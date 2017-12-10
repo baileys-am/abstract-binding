@@ -40,80 +40,76 @@ namespace AbstractBinding
         {
             var requestObj = _serializer.DeserializeObject<Request>(request ?? throw new ArgumentNullException(nameof(request)));
 
-            switch (requestObj.requestType)
+            try
             {
-                case RequestType.subscribe:
-                    var subscribeRequest = _serializer.DeserializeObject<SubscribeRequest>(request);
-                    var subscribeObj = _registeredObjects[subscribeRequest.objectId];
-                    subscribeObj.Subscribe(subscribeRequest.eventId);
-                    var subscribeResponse = new SubscribeResponse()
-                    {
-                        objectId = subscribeRequest.objectId,
-                        eventId = subscribeRequest.eventId
-                    };
-                    return _serializer.SerializeObject(subscribeResponse);
-                case RequestType.unsubscribe:
-                    var unsubscribeRequest = _serializer.DeserializeObject<UnsubscribeRequest>(request);
-                    var unsubscribeObj = _registeredObjects[unsubscribeRequest.objectId];
-                    unsubscribeObj.Unsubscribe(unsubscribeRequest.eventId);
-                    var unsubscribeResponse = new UnsubscribeResponse()
-                    {
-                        objectId = unsubscribeRequest.objectId,
-                        eventId = unsubscribeRequest.eventId
-                    };
-                    return _serializer.SerializeObject(unsubscribeResponse);
-                case RequestType.invoke:
-                    var invokeRequest = _serializer.DeserializeObject<InvokeRequest>(request);
-                    var invokeObj = _registeredObjects[invokeRequest.objectId];
-                    object invokeResult = null;
-                    try
-                    {
-                        invokeResult = invokeObj.Methods[invokeRequest.methodId].Invoke(invokeRequest.methodArgs);
-                    }
-                    catch (Exception ex)
-                    {
-                        var exResponse = new ExceptionResponse()
+                switch (requestObj.requestType)
+                {
+                    case RequestType.subscribe:
+                        var subscribeRequest = _serializer.DeserializeObject<SubscribeRequest>(request);
+                        var subscribeObj = _registeredObjects[subscribeRequest.objectId];
+                        subscribeObj.Subscribe(subscribeRequest.eventId);
+                        var subscribeResponse = new SubscribeResponse()
+                        {
+                            objectId = subscribeRequest.objectId,
+                            eventId = subscribeRequest.eventId
+                        };
+                        return _serializer.SerializeObject(subscribeResponse);
+                    case RequestType.unsubscribe:
+                        var unsubscribeRequest = _serializer.DeserializeObject<UnsubscribeRequest>(request);
+                        var unsubscribeObj = _registeredObjects[unsubscribeRequest.objectId];
+                        unsubscribeObj.Unsubscribe(unsubscribeRequest.eventId);
+                        var unsubscribeResponse = new UnsubscribeResponse()
+                        {
+                            objectId = unsubscribeRequest.objectId,
+                            eventId = unsubscribeRequest.eventId
+                        };
+                        return _serializer.SerializeObject(unsubscribeResponse);
+                    case RequestType.invoke:
+                        var invokeRequest = _serializer.DeserializeObject<InvokeRequest>(request);
+                        var invokeObj = _registeredObjects[invokeRequest.objectId];
+                        object invokeResult = invokeObj.Invoke(invokeRequest.methodId, invokeRequest.methodArgs);
+                        var invokeResponse = new InvokeResponse()
                         {
                             objectId = invokeRequest.objectId,
                             methodId = invokeRequest.methodId,
-                            exception = new RecipientBindingException($"Failed to invoke {invokeRequest.methodId} on {invokeRequest.objectId}", ex)
+                            result = invokeResult
                         };
+                        return _serializer.SerializeObject(invokeResponse);
+                    case RequestType.propertyGet:
+                        var propertyGetRequest = _serializer.DeserializeObject<PropertyGetRequest>(request);
+                        var propertyGetObject = _registeredObjects[propertyGetRequest.objectId];
+                        object propertyGetValue = null;
+                        try
+                        {
+                            propertyGetValue = propertyGetObject.Properties[propertyGetRequest.propertyId].GetValue();
+                        }
+                        catch (Exception)
+                        {
+                            throw;
+                        }
+
+                        var propertyGetResponse = new PropertyGetResponse()
+                        {
+                            objectId = propertyGetRequest.objectId,
+                            propertyId = propertyGetRequest.propertyId,
+                            value = propertyGetValue
+                        };
+                        return _serializer.SerializeObject(propertyGetResponse);
+                    default:
+                        throw new InvalidOperationException($"Unsupported request type: {requestObj.requestType}");
+                }
+            }
+            catch (RecipientBindingException ex)
+            {
+                var exceptionResponseObj = new ExceptionResponse()
+                {
+                    exception = ex
+                };
 
 #pragma warning disable EA003 // Catch block swallows an exception
-                        return _serializer.SerializeObject(exResponse);
-#pragma warning restore EA003 // Catch block swallows an exception
-                    }
-                   
-                    var invokeResponse = new InvokeResponse()
-                    {
-                        objectId = invokeRequest.objectId,
-                        methodId = invokeRequest.methodId,
-                        result = invokeResult
-                    };
-                    return _serializer.SerializeObject(invokeResponse);
-                case RequestType.propertyGet:
-                    var propertyGetRequest = _serializer.DeserializeObject<PropertyGetRequest>(request);
-                    var propertyGetObject = _registeredObjects[propertyGetRequest.objectId];
-                    object propertyGetValue = null;
-                    try
-                    {
-                        propertyGetValue = propertyGetObject.Properties[propertyGetRequest.propertyId].GetValue();
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
-                    
-                    var propertyGetResponse = new PropertyGetResponse()
-                    {
-                        objectId = propertyGetRequest.objectId,
-                        propertyId = propertyGetRequest.propertyId,
-                        value = propertyGetValue
-                    };
-                    return _serializer.SerializeObject(propertyGetResponse);
-                default:
-                    throw new InvalidOperationException($"Unsupported request type: {requestObj.requestType}");
+                return _serializer.SerializeObject(exceptionResponseObj);
             }
+#pragma warning restore EA003 // Catch block swallows an exception
         }
     }
 }

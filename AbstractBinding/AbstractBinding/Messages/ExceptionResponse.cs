@@ -10,10 +10,6 @@ namespace AbstractBinding.Messages
     internal class ExceptionResponse : Response
     {
 #pragma warning disable IDE1006 // Naming Styles
-        public string methodId { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
-
-#pragma warning disable IDE1006 // Naming Styles
         public RecipientBindingException exception { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 
