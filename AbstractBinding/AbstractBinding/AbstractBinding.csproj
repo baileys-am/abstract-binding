@@ -45,6 +45,8 @@
     <Compile Include="Messages\PropertyGetRequest.cs" />
     <Compile Include="Messages\InvokeResponse.cs" />
     <Compile Include="Messages\PropertyGetResponse.cs" />
+    <Compile Include="Messages\PropertySetRequest.cs" />
+    <Compile Include="Messages\PropertySetResponse.cs" />
     <Compile Include="Messages\SubscribeRequest.cs" />
     <Compile Include="Messages\SubscribeResponse.cs" />
     <Compile Include="Messages\UnsubscribeRequest.cs" />

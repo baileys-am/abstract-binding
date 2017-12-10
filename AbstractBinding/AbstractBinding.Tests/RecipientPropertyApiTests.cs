@@ -33,6 +33,10 @@ namespace AbstractBinding.Tests
             {
                 return Serializer.Deserialize<PropertyGetRequest>(serObj);
             });
+            _serializerMock.Setup(o => o.DeserializeObject<PropertySetRequest>(It.IsAny<string>())).Returns<string>(serObj =>
+            {
+                return Serializer.Deserialize<PropertySetRequest>(serObj);
+            });
 
             // Initialize registered object mock
             _regObjectMock = new Mock<IRegisteredObject>();
@@ -75,7 +79,28 @@ namespace AbstractBinding.Tests
         [TestCategory(_testCategory)]
         public void SetValueWithoutExceptionTest()
         {
-            Assert.Fail();
+            // Arrange
+            string objectId = "objId1";
+            string expectedValue = "toBeExpected";
+            _regObjectMock.Setup(o => o.StringValueProperty).Returns(expectedValue);
+            var recipient = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var requestObj = new PropertySetRequest()
+            {
+                objectId = objectId,
+                propertyId = nameof(IRegisteredObject.StringValueProperty),
+                value = expectedValue
+            };
+
+            // Act
+            recipient.Register(objectId, _regObjectMock.Object);
+            string response = recipient.Request(Serializer.Serialize(requestObj));
+
+            // Assert
+            Assert.AreEqual(expectedValue, _regObjectMock.Object.StringValueProperty);
+
+            var responseObj = Serializer.Deserialize<PropertySetResponse>(response);
+            Assert.AreEqual(requestObj.objectId, responseObj.objectId);
+            Assert.AreEqual(requestObj.propertyId, responseObj.propertyId);
         }
 
         [TestMethod]

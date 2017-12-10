@@ -9,13 +9,16 @@ namespace AbstractBinding.RecipientInternals
 {
     internal class RegisteredProperty
     {
+        private readonly string _objectId;
         private readonly object _obj;
         private readonly PropertyInfo _propertyInfo;
 
+        public string ObjectId { get; private set; }
         public string PropertyId { get; private set; }
 
-        public RegisteredProperty(object obj, PropertyInfo propertyInfo)
+        public RegisteredProperty(string objectId, object obj, PropertyInfo propertyInfo)
         {
+            _objectId = objectId ?? throw new ArgumentNullException(nameof(objectId));
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
             _propertyInfo = propertyInfo ?? throw new ArgumentNullException(nameof(propertyInfo));
 
@@ -24,7 +27,26 @@ namespace AbstractBinding.RecipientInternals
 
         public object GetValue()
         {
-            return _propertyInfo.GetValue(_obj);
+            try
+            {
+                return _propertyInfo.GetValue(_obj);
+            }
+            catch (Exception ex)
+            {
+                throw new RecipientBindingException($"Failed to get {PropertyId} value on {ObjectId}", ex);
+            }
+        }
+
+        public void SetValue(object value)
+        {
+            try
+            {
+                _propertyInfo.SetValue(_obj, value);
+            }
+            catch (Exception ex)
+            {
+                throw new RecipientBindingException($"Failed to get {PropertyId} value on {ObjectId}", ex);
+            }
         }
     }
 }

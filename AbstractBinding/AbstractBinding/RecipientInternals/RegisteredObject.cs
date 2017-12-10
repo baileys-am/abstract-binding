@@ -69,7 +69,7 @@ namespace AbstractBinding.RecipientInternals
         {
             if (_properties.ContainsKey(propertyId))
             {
-                throw new NotImplementedException();
+                _properties[propertyId].SetValue(value);
             }
             else
             {

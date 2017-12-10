@@ -10,18 +10,14 @@ namespace AbstractBinding.RecipientInternals
 {
     public class RegisteredMethod
     {
-        private readonly IAbstractService _service;
-        private readonly ISerializer _serializer;
         private readonly object _obj;
         private readonly MethodInfo _methodInfo;
 
         public string ObjectId { get; private set; }
         public string MethodId { get; private set; }
 
-        public RegisteredMethod(IAbstractService service, ISerializer serializer, string objectId, object obj, MethodInfo methodInfo)
+        public RegisteredMethod(string objectId, object obj, MethodInfo methodInfo)
         {
-            _service = service ?? throw new ArgumentNullException(nameof(service));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
             _methodInfo = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
 

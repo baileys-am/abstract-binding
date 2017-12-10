@@ -7,7 +7,7 @@ namespace AbstractBinding.RecipientInternals
     {
         public RegisteredProperty Create(string objectId, object obj, PropertyInfo propertyInfo)
         {
-            return new RegisteredProperty(obj, propertyInfo);
+            return new RegisteredProperty(objectId, obj, propertyInfo);
         }
     }
 }

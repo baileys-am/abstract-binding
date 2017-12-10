@@ -11,7 +11,8 @@ namespace AbstractBinding.Messages
         subscribe,
         unsubscribe,
         invoke,
-        propertyGet
+        propertyGet,
+        propertySet
     }
 
     [Serializable]
@@ -19,10 +20,6 @@ namespace AbstractBinding.Messages
     {
 #pragma warning disable IDE1006 // Naming Styles
         public RequestType requestType { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
-
-#pragma warning disable IDE1006 // Naming Styles
-        public string objectId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
     }
 }

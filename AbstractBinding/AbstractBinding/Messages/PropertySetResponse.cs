@@ -6,20 +6,19 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Messages
 {
-    [Serializable]
-    internal class UnsubscribeRequest : Request
+    internal class PropertySetResponse : Response
     {
 #pragma warning disable IDE1006 // Naming Styles
         public string objectId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 
 #pragma warning disable IDE1006 // Naming Styles
-        public string eventId { get; set; }
+        public string propertyId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 
-        public UnsubscribeRequest()
+        public PropertySetResponse()
         {
-            requestType = RequestType.unsubscribe;
+            responseType = ResponseType.propertySet;
         }
     }
 }

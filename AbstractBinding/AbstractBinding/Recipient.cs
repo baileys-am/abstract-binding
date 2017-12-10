@@ -23,7 +23,7 @@ namespace AbstractBinding
 
             var eventFactory = new RegisteredEventFactory(_service, _serializer);
             var propertyFactory = new RegisteredPropertyFactory();
-            var methodFactory = new RegisteredMethodFactory(_service, _serializer);
+            var methodFactory = new RegisteredMethodFactory();
             _objectFactory = new RegisteredObjectFactory(eventFactory, propertyFactory, methodFactory);
         }
 
@@ -86,6 +86,16 @@ namespace AbstractBinding
                             value = propertyGetValue
                         };
                         return _serializer.SerializeObject(propertyGetResponse);
+                    case RequestType.propertySet:
+                        var propertySetRequest = _serializer.DeserializeObject<PropertySetRequest>(request);
+                        var propertySetObj = _registeredObjects[propertySetRequest.objectId];
+                        propertySetObj.SetValue(propertySetRequest.propertyId, propertySetRequest.value);
+                        var propertySetResponse = new PropertyGetResponse()
+                        {
+                            objectId = propertySetRequest.objectId,
+                            propertyId = propertySetRequest.propertyId
+                        };
+                        return _serializer.SerializeObject(propertySetResponse);
                     default:
                         throw new InvalidOperationException($"Unsupported request type: {requestObj.requestType}");
                 }
