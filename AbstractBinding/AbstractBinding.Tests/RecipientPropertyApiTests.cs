@@ -62,6 +62,10 @@ namespace AbstractBinding.Tests
             string response = recipient.Request(Serializer.Serialize(requestObj));
 
             // Assert
+            _serializerMock.Verify();
+            _serviceMock.Verify();
+            _regObjectMock.Verify();
+
             var responseObj = Serializer.Deserialize<PropertyGetResponse>(response);
             Assert.AreEqual(requestObj.objectId, responseObj.objectId);
             Assert.AreEqual(requestObj.propertyId, responseObj.propertyId);
@@ -72,7 +76,28 @@ namespace AbstractBinding.Tests
         [TestCategory(_testCategory)]
         public void GetValueWithExceptionTest()
         {
-            Assert.Fail();
+            // Arrange
+            string objectId = "objId1";
+            _regObjectMock.SetupGet(o => o.StringValueProperty).Throws(new NotImplementedException());
+            var recipient = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var requestObj = new PropertyGetRequest()
+            {
+                objectId = objectId,
+                propertyId = nameof(IRegisteredObject.StringValueProperty)
+            };
+
+            // Act
+            recipient.Register(objectId, _regObjectMock.Object);
+            string response = recipient.Request(Serializer.Serialize(requestObj));
+
+            // Assert
+            _serializerMock.Verify();
+            _serviceMock.Verify();
+            _regObjectMock.Verify();
+
+            var responseObj = Serializer.Deserialize<ExceptionResponse>(response);
+            Assert.IsTrue(responseObj.exception.Message.Contains(objectId) &&
+                          responseObj.exception.Message.Contains(nameof(IRegisteredObject.StringValueProperty)));
         }
 
         [TestMethod]
@@ -96,6 +121,10 @@ namespace AbstractBinding.Tests
             string response = recipient.Request(Serializer.Serialize(requestObj));
 
             // Assert
+            _serializerMock.Verify();
+            _serviceMock.Verify();
+            _regObjectMock.Verify();
+
             Assert.AreEqual(expectedValue, _regObjectMock.Object.StringValueProperty);
 
             var responseObj = Serializer.Deserialize<PropertySetResponse>(response);
@@ -107,7 +136,29 @@ namespace AbstractBinding.Tests
         [TestCategory(_testCategory)]
         public void SetValueWithExceptionTest()
         {
-            Assert.Fail();
+            // Arrange
+            string objectId = "objId1";
+            _regObjectMock.SetupSet(o => o.StringValueProperty = It.IsAny<string>()).Throws(new NotImplementedException());
+            var recipient = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var requestObj = new PropertySetRequest()
+            {
+                objectId = objectId,
+                propertyId = nameof(IRegisteredObject.StringValueProperty),
+                value = "toBeExpected"
+            };
+
+            // Act
+            recipient.Register(objectId, _regObjectMock.Object);
+            string response = recipient.Request(Serializer.Serialize(requestObj));
+
+            // Assert
+            _serializerMock.Verify();
+            _serviceMock.Verify();
+            _regObjectMock.Verify();
+
+            var responseObj = Serializer.Deserialize<ExceptionResponse>(response);
+            Assert.IsTrue(responseObj.exception.Message.Contains(objectId) &&
+                          responseObj.exception.Message.Contains(nameof(IRegisteredObject.StringValueProperty)));
         }
     }
 }
