@@ -9,12 +9,11 @@ namespace AbstractBinding.Tests
     public class RecipientEventApiTests
     {
         private const string _testCategory = "Recipient Event API";
-        private Mock<IAbstractService> _serviceMock;
-        private Mock<ISerializer> _serializerMock;
-        private Mock<IRegisteredObject> _regObjectMock;
-
-        [TestInitialize()]
-        public void Initialize()
+        private readonly Mock<IAbstractService> _serviceMock;
+        private readonly Mock<ISerializer> _serializerMock;
+        private readonly Mock<IRegisteredObject> _regObjectMock;
+        
+        public RecipientEventApiTests()
         {
             // Initialize service mock
             _serviceMock = new Mock<IAbstractService>();
