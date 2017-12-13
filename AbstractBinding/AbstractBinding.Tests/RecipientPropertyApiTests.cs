@@ -12,9 +12,8 @@ namespace AbstractBinding.Tests
         private Mock<IAbstractService> _serviceMock;
         private Mock<ISerializer> _serializerMock;
         private Mock<IRegisteredObject> _regObjectMock;
-
-        [TestInitialize()]
-        public void Initialize()
+        
+        public RecipientPropertyApiTests()
         {
             // Initialize service mock
             _serviceMock = new Mock<IAbstractService>();
