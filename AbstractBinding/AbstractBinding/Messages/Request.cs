@@ -12,7 +12,8 @@ namespace AbstractBinding.Messages
         unsubscribe,
         invoke,
         propertyGet,
-        propertySet
+        propertySet,
+        getBindings
     }
 
     [Serializable]

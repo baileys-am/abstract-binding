@@ -40,8 +40,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IAbstractClient.cs" />
+    <Compile Include="EventDescription.cs" />
+    <Compile Include="MethodDescription.cs" />
+    <Compile Include="ObjectDescription.cs" />
+    <Compile Include="ObjectDescriptionFactory.cs" />
+    <Compile Include="PropertyDescription.cs" />
     <Compile Include="Messages\EventNotification.cs" />
     <Compile Include="Messages\ExceptionResponse.cs" />
+    <Compile Include="Messages\GetBindingDescriptionsRequest.cs" />
+    <Compile Include="Messages\GetBindingDescriptionsResponse.cs" />
     <Compile Include="Messages\PropertyGetRequest.cs" />
     <Compile Include="Messages\InvokeResponse.cs" />
     <Compile Include="Messages\PropertyGetResponse.cs" />
@@ -68,6 +76,9 @@
     <Compile Include="RecipientInternals\RegisteredProperty.cs" />
     <Compile Include="RecipientInternals\RegisteredPropertyFactory.cs" />
     <Compile Include="RecipientBindingException.cs" />
+    <Compile Include="Sender.cs" />
+    <Compile Include="SenderInternals\RuntimeObject.cs" />
+    <Compile Include="SenderInternals\RuntimeObjectFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

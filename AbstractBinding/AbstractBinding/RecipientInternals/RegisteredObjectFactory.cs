@@ -24,8 +24,8 @@ namespace AbstractBinding.RecipientInternals
         {
             // Create events
             var events = new Dictionary<string, RegisteredEvent>();
-            foreach (var eventInfo in typeof(T).GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).
-                                                Where(e => !e.IsSpecialName))
+            foreach (var eventInfo in typeof(T).GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                                               .Where(e => !e.IsSpecialName))
             {
                 // Create registered event
                 var registeredEvent = _eventFactory.Create(objectId, obj, eventInfo);
@@ -34,10 +34,10 @@ namespace AbstractBinding.RecipientInternals
                 events.Add(registeredEvent.EventId, registeredEvent);
             }
 
-            // Register properties
+            // Create properties
             var properties = new Dictionary<string, RegisteredProperty>();
             foreach (var propertyInfo in typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                                                   .Where(p => !p.IsSpecialName))
+                                                  .Where(p => !p.IsSpecialName))
             {
                 // Create registered property
                 var registeredProperty = _propertyFactory.Create(objectId, obj, propertyInfo);
@@ -46,7 +46,7 @@ namespace AbstractBinding.RecipientInternals
                 properties.Add(registeredProperty.PropertyId, registeredProperty);
             }
 
-            // Register methods
+            // Create methods
             var methods = new Dictionary<string, RegisteredMethod>();
             foreach (var methodInfo in typeof(T).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
                                                 .Where(m => !m.IsSpecialName &&
