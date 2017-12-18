@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AbstractBinding.Messages;
 
 namespace AbstractBinding.SenderInternals
 {
@@ -23,6 +24,29 @@ namespace AbstractBinding.SenderInternals
         public bool Subscribe(Type interfaceType, string name, EventHandler result)
         {
             _eventHandlers.Add(name, result);
+            var request = new SubscribeRequest()
+            {
+                objectId = _objectId,
+                eventId = name
+            };
+            var resp = _client.Request(_serializer.SerializeObject(request));
+            var respObj = _serializer.DeserializeObject<Response>(resp);
+
+            switch (respObj.responseType)
+            {
+                case ResponseType.exception:
+                    var respEx = _serializer.DeserializeObject<ExceptionResponse>(resp);
+                    throw respEx.exception;
+                case ResponseType.subscribe:
+                    var subEx = _serializer.DeserializeObject<SubscribeResponse>(resp);
+                    if (subEx.objectId != _objectId || subEx.eventId != name )
+                    {
+                        throw new Exception(); 
+                    }
+                    break;
+                default:
+                    throw new Exception();
+            }
             return true;
         }
 
