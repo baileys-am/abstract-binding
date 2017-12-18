@@ -13,7 +13,8 @@ namespace AbstractBinding.Messages
         invoke,
         exception,
         propertyGet,
-        propertySet
+        propertySet,
+        getBindings
     }
 
     [Serializable]
