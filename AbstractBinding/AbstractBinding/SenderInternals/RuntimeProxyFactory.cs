@@ -29,49 +29,54 @@ namespace AbstractBinding.SenderInternals
 
         public RuntimeProxy Create(Type type)
         {
+            return (RuntimeProxy)GetType().GetMethod(nameof(Create), new Type[] { }).GetGenericMethodDefinition().MakeGenericMethod(type).Invoke(this, null);
+        }
+
+        public T Create<T>()
+        {
             // Verify type is interface
-            if (!type.IsInterface)
+            if (!typeof(T).IsInterface)
             {
-                throw new ArgumentException("Type must be an interface.", nameof(type));
+                throw new InvalidOperationException("Generic argument must be an interface.");
             }
 
             // Create proxy if new
-            if (!_proxies.Keys.Contains(type))
+            if (!_proxies.Keys.Contains(typeof(T)))
             {
                 // Initialize type builder
-                TypeBuilder typeBuilder = _moduleBuilder.DefineType($"{type.Name}Proxy", TypeAttributes.Public);
+                TypeBuilder typeBuilder = _moduleBuilder.DefineType($"{typeof(T).Name}Proxy", TypeAttributes.Public);
 
                 // Define parent and interface
                 typeBuilder.SetParent(typeof(RuntimeProxy));
                 typeBuilder.CreatePassThroughConstructors(typeof(RuntimeProxy));
-                typeBuilder.AddInterfaceImplementation(type);
+                typeBuilder.AddInterfaceImplementation(typeof(T));
 
                 // Implement events
-                foreach (var eventInfo in type.GetContractEvents())
+                foreach (var eventInfo in typeof(T).GetContractEvents())
                 {
                     ImplementEvent(typeBuilder, eventInfo);
                 }
 
                 // Implement properties
-                foreach (var propertyInfo in type.GetContractProperties())
+                foreach (var propertyInfo in typeof(T).GetContractProperties())
                 {
                     ImplementProperty(typeBuilder, propertyInfo);
                 }
 
                 // Implement methods
-                foreach (var methodInfo in type.GetContractMethods())
+                foreach (var methodInfo in typeof(T).GetContractMethods())
                 {
                     ImplementMethod(typeBuilder, methodInfo);
                 }
 
                 // Create and return new type instance
                 var newType = typeBuilder.CreateType();
-                _proxies.Add(type, newType);
-                return (RuntimeProxy)Activator.CreateInstance(newType, _client, _serializer);
+                _proxies.Add(typeof(T), newType);
+                return (T)Activator.CreateInstance(newType, _client, _serializer);
             }
             else
             {
-                return (RuntimeProxy)Activator.CreateInstance(_proxies[type], _client, _serializer);
+                return (T)Activator.CreateInstance(_proxies[typeof(T)], _client, _serializer);
             }
         }
 
