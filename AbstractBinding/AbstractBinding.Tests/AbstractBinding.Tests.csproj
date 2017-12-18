@@ -58,6 +58,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IRegisteredObject2.cs" />
     <Compile Include="RecipientEventApiTests.cs" />
     <Compile Include="RecipientMethodApiTests.cs" />
     <Compile Include="Serializer.cs" />

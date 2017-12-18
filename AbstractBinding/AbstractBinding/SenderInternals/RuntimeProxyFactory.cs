@@ -16,6 +16,7 @@ namespace AbstractBinding.SenderInternals
         private readonly AssemblyName _assName;
         private readonly AssemblyBuilder _assBuilder;
         private readonly ModuleBuilder _moduleBuilder;
+        private readonly Dictionary<Type, Type> _proxies = new Dictionary<Type, Type>();
 
         public RuntimeProxyFactory(IAbstractClient client, ISerializer serializer)
         {
@@ -34,35 +35,44 @@ namespace AbstractBinding.SenderInternals
                 throw new ArgumentException("Type must be an interface.", nameof(type));
             }
 
-            // Initialize type builder
-            TypeBuilder typeBuilder = _moduleBuilder.DefineType($"{type.Name}Proxy", TypeAttributes.Public);
-
-            // Define parent and interface
-            typeBuilder.SetParent(typeof(RuntimeProxy));
-            typeBuilder.CreatePassThroughConstructors(typeof(RuntimeProxy));
-            typeBuilder.AddInterfaceImplementation(type);
-
-            // Implement events
-            foreach (var eventInfo in type.GetContractEvents())
+            // Create proxy if new
+            if (!_proxies.Keys.Contains(type))
             {
-                ImplementEvent(typeBuilder, eventInfo);
-            }
+                // Initialize type builder
+                TypeBuilder typeBuilder = _moduleBuilder.DefineType($"{type.Name}Proxy", TypeAttributes.Public);
 
-            // Implement properties
-            foreach (var propertyInfo in type.GetContractProperties())
+                // Define parent and interface
+                typeBuilder.SetParent(typeof(RuntimeProxy));
+                typeBuilder.CreatePassThroughConstructors(typeof(RuntimeProxy));
+                typeBuilder.AddInterfaceImplementation(type);
+
+                // Implement events
+                foreach (var eventInfo in type.GetContractEvents())
+                {
+                    ImplementEvent(typeBuilder, eventInfo);
+                }
+
+                // Implement properties
+                foreach (var propertyInfo in type.GetContractProperties())
+                {
+                    ImplementProperty(typeBuilder, propertyInfo);
+                }
+
+                // Implement methods
+                foreach (var methodInfo in type.GetContractMethods())
+                {
+                    ImplementMethod(typeBuilder, methodInfo);
+                }
+
+                // Create and return new type instance
+                var newType = typeBuilder.CreateType();
+                _proxies.Add(type, newType);
+                return (RuntimeProxy)Activator.CreateInstance(newType, _client, _serializer);
+            }
+            else
             {
-                ImplementProperty(typeBuilder, propertyInfo);
+                return (RuntimeProxy)Activator.CreateInstance(_proxies[type], _client, _serializer);
             }
-
-            // Implement methods
-            foreach (var methodInfo in type.GetContractMethods())
-            {
-                ImplementMethod(typeBuilder, methodInfo);
-            }
-
-            // Create and return new type instance
-            var newType = typeBuilder.CreateType();
-            return (RuntimeProxy)Activator.CreateInstance(newType, _client, _serializer);
         }
 
         private void ImplementEvent(TypeBuilder typeBuilder, EventInfo eventInfo)

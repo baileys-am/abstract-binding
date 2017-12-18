@@ -59,24 +59,34 @@ namespace AbstractBinding.Tests
         public void SynchronizeBindingsTest()
         {
             // Arrange
-            string objectId = "obj1Id";
+            string objectId1 = "objId1";
+            string objectId2 = "objId2";
+            string objectId3 = "objId3";
             var objectDescriptionFactory = new ObjectDescriptionFactory();
             _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>((req) =>
             {
                 var resp = new GetBindingDescriptionsResponse();
-                resp.bindings.Add(objectId, objectDescriptionFactory.Create<IRegisteredObject>());
+                resp.bindings.Add(objectId1, objectDescriptionFactory.Create<IRegisteredObject>());
+                resp.bindings.Add(objectId2, objectDescriptionFactory.Create<IRegisteredObject>());
+                resp.bindings.Add(objectId3, objectDescriptionFactory.Create<IRegisteredObject2>());
                 return Serializer.Serialize(resp);
             });
             var sender = new Sender(_clientMock.Object, _serializerMock.Object);
 
             // Act
             sender.Register<IRegisteredObject>();
+            sender.Register<IRegisteredObject2>();
             sender.SynchronizeBindings();
-            var bindings = sender.GetBindingsByType<IRegisteredObject>();
+            var bindings1 = sender.GetBindingsByType<IRegisteredObject>();
+            var bindings2 = sender.GetBindingsByType<IRegisteredObject2>();
 
             // Assert
-            Assert.AreEqual(1, bindings.Keys.Count());
-            Assert.AreEqual(objectId, bindings.Keys.ElementAt(0));
+            Assert.AreEqual(2, bindings1.Keys.Count());
+            Assert.AreEqual(objectId1, bindings1.Keys.ElementAt(0));
+            Assert.AreEqual(objectId2, bindings1.Keys.ElementAt(1));
+
+            Assert.AreEqual(1, bindings2.Keys.Count());
+            Assert.AreEqual(objectId3, bindings2.Keys.ElementAt(0));
         }
     }
 }
