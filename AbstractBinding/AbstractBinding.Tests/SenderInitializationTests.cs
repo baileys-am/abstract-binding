@@ -64,24 +64,19 @@ namespace AbstractBinding.Tests
             _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>((req) =>
             {
                 var resp = new GetBindingDescriptionsResponse();
-                resp.bindings.Add(objectId, objectDescriptionFactory.Create<EmptyInterface>());
+                resp.bindings.Add(objectId, objectDescriptionFactory.Create<IRegisteredObject>());
                 return Serializer.Serialize(resp);
             });
             var sender = new Sender(_clientMock.Object, _serializerMock.Object);
 
             // Act
-            sender.Register<EmptyInterface>();
+            sender.Register<IRegisteredObject>();
             sender.SynchronizeBindings();
-            var bindings = sender.GetBindingsByType<EmptyInterface>();
+            var bindings = sender.GetBindingsByType<IRegisteredObject>();
 
             // Assert
             Assert.AreEqual(1, bindings.Keys.Count());
             Assert.AreEqual(objectId, bindings.Keys.ElementAt(0));
         }
-    }
-
-    public interface EmptyInterface
-    {
-
     }
 }

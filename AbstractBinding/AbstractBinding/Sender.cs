@@ -13,8 +13,8 @@ namespace AbstractBinding
         private readonly IAbstractClient _client;
         private readonly ISerializer _serializer;
         private readonly ObjectDescriptionFactory _objDescFactory;
-        private readonly RuntimeObjectFactory _runtimeObjFactory;
-        private readonly Dictionary<string, object> _runtimeObjects = new Dictionary<string, object>();
+        private readonly RuntimeProxyFactory _runtimeProxyFactory;
+        private readonly Dictionary<string, RuntimeProxy> _runtimeProxies = new Dictionary<string, RuntimeProxy>();
         private readonly Dictionary<Type, ObjectDescription> _registeredTypes = new Dictionary<Type, ObjectDescription>();
 
         public IEnumerable<Type> RegisteredTypes => _registeredTypes.Keys;
@@ -25,15 +25,19 @@ namespace AbstractBinding
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
 
             _objDescFactory = new ObjectDescriptionFactory();
-            _runtimeObjFactory = new RuntimeObjectFactory();
+            _runtimeProxyFactory = new RuntimeProxyFactory(_client, _serializer);
         }
 
         public void Register<T>()
         {
             var objDesc = _objDescFactory.Create<T>();
-            if (_registeredTypes.ContainsKey(typeof(T)) || _registeredTypes.ContainsValue(objDesc))
+            if (_registeredTypes.ContainsKey(typeof(T)))
             {
                 throw new InvalidOperationException("Type is already registered.");
+            }
+            else if (_registeredTypes.ContainsValue(objDesc))
+            {
+                throw new InvalidOperationException("Type description is equivalent to a type that is already registered.");
             }
             else
             {
@@ -59,13 +63,14 @@ namespace AbstractBinding
                     var getBindingsRespObj = _serializer.DeserializeObject<GetBindingDescriptionsResponse>(resp);
 
                     // Dispose and clear current runtime objects
-                    //foreach (var obj in _runtimeObjects.Values)
-                    //{
-                    //    obj.Dispose();
-                    //}
-                    _runtimeObjects.Clear();
+                    foreach (var obj in _runtimeProxies.Values)
+                    {
+                        obj.Dispose();
+                    }
+                    _runtimeProxies.Clear();
 
                     // For reach binding create runtime object
+                    var exceptions = new List<Exception>();
                     foreach (var obj in getBindingsRespObj.bindings)
                     {
                         var regType = _registeredTypes.FirstOrDefault(d => d.Value.Equals(obj.Value));
@@ -73,12 +78,18 @@ namespace AbstractBinding
                         if (regType.Key != null && regType.Value != null)
                         {
                             // Create runtime object
-                            _runtimeObjects.Add(obj.Key, _runtimeObjFactory.Create(regType.Key));
+                            _runtimeProxies.Add(obj.Key, _runtimeProxyFactory.Create(regType.Key));
                         }
                         else
                         {
-                            //TODO: Create aggregate exception
+                            //TODO: Make custom exception containing the binding object' description.
+                            throw new Exception($"Registered type could be found with object description for {obj.Key}");
                         }
+                    }
+
+                    if (exceptions.Count != 0)
+                    {
+                        throw new AggregateException(exceptions);
                     }
                     break;
                 default:
@@ -88,7 +99,7 @@ namespace AbstractBinding
 
         public IReadOnlyDictionary<string, T> GetBindingsByType<T>()
         {
-            return _runtimeObjects.Where(kvp => kvp.Value is T).ToDictionary(kvp => kvp.Key, kvp => (T)kvp.Value);
+            return _runtimeProxies.Where(kvp => kvp.Value is T).ToDictionary(kvp => kvp.Key, kvp => (T)(kvp.Value as object));
         }
     }
 }

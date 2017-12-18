@@ -15,22 +15,22 @@ namespace AbstractBinding
 
         public Dictionary<string, MethodDescription> Methods { get; set; } = new Dictionary<string, MethodDescription>();
 
-        public bool Equals(ObjectDescription objDesc)
+        public bool Equals(ObjectDescription desc)
         {
-            return Events.Keys.SequenceEqual(objDesc.Events.Keys) &&
-                   Properties.Keys.SequenceEqual(objDesc.Properties.Keys) &&
-                   Methods.Keys.SequenceEqual(objDesc.Methods.Keys);// &&
-                   //Events.Values.SequenceEqual(objDesc.Events.Values) &&
-                   //Properties.Values.SequenceEqual(objDesc.Properties.Values) &&
-                   //Methods.Values.SequenceEqual(objDesc.Methods.Values);
+            return Events.Keys.SequenceEqual(desc.Events.Keys) &&
+                   Properties.Keys.SequenceEqual(desc.Properties.Keys) &&
+                   Methods.Keys.SequenceEqual(desc.Methods.Keys) &&
+                   Events.Values.SequenceEqual(desc.Events.Values) &&
+                   Properties.Values.SequenceEqual(desc.Properties.Values) &&
+                   Methods.Values.SequenceEqual(desc.Methods.Values);
         }
 
         public override bool Equals(object obj)
         {
             switch (obj)
             {
-                case ObjectDescription objDesc:
-                    return this.Equals(objDesc);
+                case ObjectDescription desc:
+                    return this.Equals(desc);
                 default:
                     return base.Equals(obj);
             }

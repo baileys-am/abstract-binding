@@ -43,6 +43,7 @@
     <Compile Include="IAbstractClient.cs" />
     <Compile Include="EventDescription.cs" />
     <Compile Include="MethodDescription.cs" />
+    <Compile Include="ExpressionExtensions.cs" />
     <Compile Include="ObjectDescription.cs" />
     <Compile Include="ObjectDescriptionFactory.cs" />
     <Compile Include="PropertyDescription.cs" />
@@ -77,8 +78,10 @@
     <Compile Include="RecipientInternals\RegisteredPropertyFactory.cs" />
     <Compile Include="RecipientBindingException.cs" />
     <Compile Include="Sender.cs" />
-    <Compile Include="SenderInternals\RuntimeObject.cs" />
-    <Compile Include="SenderInternals\RuntimeObjectFactory.cs" />
+    <Compile Include="SenderInternals\RuntimeProxy.cs" />
+    <Compile Include="SenderInternals\RuntimeProxyFactory.cs" />
+    <Compile Include="TypeBuilderExtensions.cs" />
+    <Compile Include="TypeExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

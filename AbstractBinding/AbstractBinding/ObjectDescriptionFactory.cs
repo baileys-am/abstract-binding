@@ -13,8 +13,7 @@ namespace AbstractBinding
         {
             // Create event descriptions
             var events = new Dictionary<string, EventDescription>();
-            foreach (var eventInfo in typeof(T).GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                                               .Where(e => !e.IsSpecialName))
+            foreach (var eventInfo in typeof(T).GetContractEvents())
             {
                 // Store registered event
                 events.Add(eventInfo.Name, new EventDescription());
@@ -22,8 +21,7 @@ namespace AbstractBinding
 
             // Create property descriptions
             var properties = new Dictionary<string, PropertyDescription>();
-            foreach (var propertyInfo in typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                                                  .Where(p => !p.IsSpecialName))
+            foreach (var propertyInfo in typeof(T).GetContractProperties())
             {
                 // Store registered property
                 properties.Add(propertyInfo.Name, new PropertyDescription());
@@ -31,9 +29,7 @@ namespace AbstractBinding
 
             // Create methods descriptions
             var methods = new Dictionary<string, MethodDescription>();
-            foreach (var methodInfo in typeof(T).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                                                .Where(m => !m.IsSpecialName &&
-                                                             m.GetBaseDefinition().DeclaringType != typeof(object)))
+            foreach (var methodInfo in typeof(T).GetContractMethods())
             {
                 methods.Add(methodInfo.Name, new MethodDescription());
             }
