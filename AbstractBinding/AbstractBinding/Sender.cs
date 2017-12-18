@@ -78,7 +78,7 @@ namespace AbstractBinding
                         if (regType.Key != null && regType.Value != null)
                         {
                             // Create runtime object
-                            _runtimeProxies.Add(obj.Key, _runtimeProxyFactory.Create(regType.Key));
+                            _runtimeProxies.Add(obj.Key, _runtimeProxyFactory.Create(regType.Key, obj.Key));
                         }
                         else
                         {

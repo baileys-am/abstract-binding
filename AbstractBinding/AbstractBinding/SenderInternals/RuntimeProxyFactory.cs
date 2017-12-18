@@ -27,12 +27,12 @@ namespace AbstractBinding.SenderInternals
             _moduleBuilder = _assBuilder.DefineDynamicModule(_assName.FullName);
         }
 
-        public RuntimeProxy Create(Type type)
+        public RuntimeProxy Create(Type type, string objectId)
         {
-            return (RuntimeProxy)GetType().GetMethod(nameof(Create), new Type[] { }).GetGenericMethodDefinition().MakeGenericMethod(type).Invoke(this, null);
+            return (RuntimeProxy)GetType().GetMethod(nameof(Create), new Type[] { typeof(string) }).GetGenericMethodDefinition().MakeGenericMethod(type).Invoke(this, new object[] { objectId });
         }
 
-        public T Create<T>()
+        public T Create<T>(string objectId)
         {
             // Verify type is interface
             if (!typeof(T).IsInterface)
@@ -41,7 +41,7 @@ namespace AbstractBinding.SenderInternals
             }
 
             // Create proxy if new
-            if (!_proxies.Keys.Contains(typeof(T)))
+            if (!_proxies.TryGetValue(typeof(T), out Type type))
             {
                 // Initialize type builder
                 TypeBuilder typeBuilder = _moduleBuilder.DefineType($"{typeof(T).Name}Proxy", TypeAttributes.Public);
@@ -70,14 +70,11 @@ namespace AbstractBinding.SenderInternals
                 }
 
                 // Create and return new type instance
-                var newType = typeBuilder.CreateType();
-                _proxies.Add(typeof(T), newType);
-                return (T)Activator.CreateInstance(newType, _client, _serializer);
+                type = typeBuilder.CreateType();
+                _proxies.Add(typeof(T), type);
             }
-            else
-            {
-                return (T)Activator.CreateInstance(_proxies[typeof(T)], _client, _serializer);
-            }
+
+            return (T)Activator.CreateInstance(_proxies[typeof(T)], objectId, _client, _serializer);
         }
 
         private void ImplementEvent(TypeBuilder typeBuilder, EventInfo eventInfo)

@@ -8,12 +8,14 @@ namespace AbstractBinding.SenderInternals
 {
     internal class RuntimeProxy : IDisposable
     {
+        private readonly string _objectId;
         private readonly IAbstractClient _client;
         private readonly ISerializer _serializer;
         private readonly Dictionary<string, EventHandler> _eventHandlers = new Dictionary<string, EventHandler>();
 
-        public RuntimeProxy(IAbstractClient client, ISerializer serializer)
+        public RuntimeProxy(string objectId, IAbstractClient client, ISerializer serializer)
         {
+            _objectId = objectId ?? throw new ArgumentNullException(nameof(objectId));
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
