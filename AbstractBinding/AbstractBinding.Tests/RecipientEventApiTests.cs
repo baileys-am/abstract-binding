@@ -87,6 +87,47 @@ namespace AbstractBinding.Tests
 
         [TestMethod]
         [TestCategory(_testCategory)]
+        public void SubscribeWithArgsTest()
+        {
+            // Arrange
+            var objectId = "objId1";
+            string notification = null;
+            _serviceMock.Setup(o => o.Callback(It.IsAny<string>())).Callback<string>((resp) =>
+            {
+                notification = resp;
+            });
+            var server = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var requestObj = new SubscribeRequest()
+            {
+                objectId = objectId,
+                eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
+            };
+            var expectedEventArgs = new DataChangedEventArgs("eventName", 2.0);
+
+            // Act
+            server.Register(objectId, _regObjectMock.Object);
+            string response = server.Request(Serializer.Serialize(requestObj));
+            _regObjectMock.Raise(o => o.NotifyOnDataChanged += null, expectedEventArgs);
+
+            // Assert
+            _serializerMock.Verify();
+            _serviceMock.Verify();
+            _regObjectMock.Verify();
+
+            var notificationObj = Serializer.Deserialize<EventNotification>(notification);
+            Assert.AreEqual(NotificationType.eventInvoked, notificationObj.notificationType);
+            Assert.AreEqual(requestObj.objectId, notificationObj.objectId);
+            Assert.AreEqual(requestObj.eventId, notificationObj.eventId);
+            Assert.IsTrue(Serializer.JsonCompare(expectedEventArgs, notificationObj.eventArgs));
+
+            var responseObj = Serializer.Deserialize<SubscribeResponse>(response);
+            Assert.AreEqual(ResponseType.subscribe, responseObj.responseType);
+            Assert.AreEqual(requestObj.objectId, responseObj.objectId);
+            Assert.AreEqual(requestObj.eventId, responseObj.eventId);
+        }
+
+        [TestMethod]
+        [TestCategory(_testCategory)]
         public void UnsubscribeTest()
         {
             // Arrange
