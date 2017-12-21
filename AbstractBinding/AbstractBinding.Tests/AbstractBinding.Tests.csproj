@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IRegisteredObject2.cs" />
+    <Compile Include="MethodProxyTests.cs" />
     <Compile Include="RecipientEventApiTests.cs" />
     <Compile Include="RecipientMethodApiTests.cs" />
     <Compile Include="Serializer.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="RecipientPropertyApiTests.cs" />
     <Compile Include="SenderInitializationTests.cs" />
     <Compile Include="EventProxyTests.cs" />
+    <Compile Include="PropertyProxyTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
