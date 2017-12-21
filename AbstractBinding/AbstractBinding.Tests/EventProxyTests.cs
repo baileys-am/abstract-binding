@@ -41,6 +41,18 @@ namespace AbstractBinding.Tests
             {
                 return Serializer.Deserialize<UnsubscribeResponse>(serObj);
             });
+            _serializerMock.Setup(o => o.DeserializeObject<GetBindingDescriptionsResponse>(It.IsAny<string>())).Returns<string>((serObj) =>
+            {
+                return Serializer.Deserialize<GetBindingDescriptionsResponse>(serObj);
+            });
+            _serializerMock.Setup(o => o.DeserializeObject<Notification>(It.IsAny<string>())).Returns<string>((serObj) =>
+            {
+                return Serializer.Deserialize<Notification>(serObj);
+            });
+            _serializerMock.Setup(o => o.DeserializeObject<EventNotification>(It.IsAny<string>())).Returns<string>((serObj) =>
+            {
+                return Serializer.Deserialize<EventNotification>(serObj);
+            });
         }
 
         [TestMethod]
@@ -369,6 +381,101 @@ namespace AbstractBinding.Tests
 
             // Assert
             _clientMock.VerifyAll();
+        }
+
+        [TestMethod]
+        [TestCategory(_testCategory)]
+        public void EventNotificationNoArgsTest()
+        {
+            // Arrange
+            string objectId = "objId1";
+            var objectDescriptionFactory = new ObjectDescriptionFactory();
+            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>((req) =>
+            {
+                var resp = new GetBindingDescriptionsResponse();
+                resp.bindings.Add(objectId, objectDescriptionFactory.Create<IRegisteredObject>());
+                return Serializer.Serialize(resp);
+            });
+            var sender = new Sender(_clientMock.Object, _serializerMock.Object);
+            sender.Register<IRegisteredObject>();
+            sender.SynchronizeBindings();
+            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            {
+                return Serializer.Serialize(new SubscribeResponse()
+                {
+                    objectId = objectId,
+                    eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
+                });
+            });
+            var objProxy = sender.GetBindingsByType<IRegisteredObject>()[objectId];
+            bool eventRaised = false;
+            objProxy.NotifyOnNonDataChanged += (s, e) => { eventRaised = true; };
+
+            var notification = new EventNotification()
+            {
+                objectId = objectId,
+                eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged),
+                eventArgs = null
+            };
+
+            // Act
+            _clientMock.Raise(o => o.NotificationReceived += null, new NotificationEventArgs(Serializer.Serialize(notification)));
+
+            // Assert
+            _clientMock.Verify();
+            Assert.IsTrue(eventRaised);
+        }
+
+        [TestMethod]
+        [TestCategory(_testCategory)]
+        public void EventNotificationWithArgsTest()
+        {
+            // Arrange
+            string objectId = "objId1";
+            var objectDescriptionFactory = new ObjectDescriptionFactory();
+            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>((req) =>
+            {
+                var resp = new GetBindingDescriptionsResponse();
+                resp.bindings.Add(objectId, objectDescriptionFactory.Create<IRegisteredObject>());
+                return Serializer.Serialize(resp);
+            });
+            var sender = new Sender(_clientMock.Object, _serializerMock.Object);
+            sender.Register<IRegisteredObject>();
+            sender.SynchronizeBindings();
+            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            {
+                return Serializer.Serialize(new SubscribeResponse()
+                {
+                    objectId = objectId,
+                    eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
+                });
+            });
+            var objProxy = sender.GetBindingsByType<IRegisteredObject>()[objectId];
+            bool eventRaised = false;
+            objProxy.NotifyOnDataChanged += (s, e) => { eventRaised = true; };
+            _serializerMock.Setup(o => o.DeserializeObject<EventNotification>(It.IsAny<string>())).Returns<string>((serObj) =>
+            {
+                var notif = Serializer.Deserialize<EventNotification>(serObj);
+                return new EventNotification()
+                {
+                    objectId = notif.objectId,
+                    eventId = notif.eventId,
+                    eventArgs = Serializer.Deserialize<DataChangedEventArgs>(Serializer.Serialize(notif.eventArgs))
+                };
+            });
+            var notification = new EventNotification()
+            {
+                objectId = objectId,
+                eventId = nameof(IRegisteredObject.NotifyOnDataChanged),
+                eventArgs = new DataChangedEventArgs("dataChanged", 2)
+            };
+
+            // Act
+            _clientMock.Raise(o => o.NotificationReceived += null, new NotificationEventArgs(Serializer.Serialize(notification)));
+
+            // Assert
+            _clientMock.Verify();
+            Assert.IsTrue(eventRaised);
         }
     }
 }

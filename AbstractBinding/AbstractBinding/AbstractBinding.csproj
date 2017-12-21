@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="IAbstractClient.cs" />
     <Compile Include="EventDescription.cs" />
+    <Compile Include="InvalidNotificationException.cs" />
     <Compile Include="InvalidResponseException.cs" />
     <Compile Include="MethodDescription.cs" />
     <Compile Include="ExpressionExtensions.cs" />
