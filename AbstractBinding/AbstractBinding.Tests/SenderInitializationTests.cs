@@ -13,7 +13,6 @@ namespace AbstractBinding.Tests
 
         private readonly Mock<IAbstractClient> _clientMock;
         private readonly Mock<ISerializer> _serializerMock;
-        private readonly Mock<IRegisteredObject> _regObjectMock;
 
         public SenderInitializationTests()
         {
@@ -34,9 +33,6 @@ namespace AbstractBinding.Tests
             {
                 return Serializer.Deserialize<GetBindingDescriptionsResponse>(serObj);
             });
-
-            // Initialize registered object mock
-            _regObjectMock = new Mock<IRegisteredObject>();
         }
 
         [TestMethod]
@@ -50,6 +46,9 @@ namespace AbstractBinding.Tests
             sender.Register<IRegisteredObject>();
 
             // Assert
+            _clientMock.Verify();
+            _serializerMock.Verify();
+
             Assert.AreEqual(1, sender.RegisteredTypes.Count());
             Assert.AreEqual(typeof(IRegisteredObject), sender.RegisteredTypes.ElementAt(0));
         }
@@ -81,6 +80,9 @@ namespace AbstractBinding.Tests
             var bindings2 = sender.GetBindingsByType<IRegisteredObject2>();
 
             // Assert
+            _clientMock.Verify();
+            _serializerMock.Verify();
+
             Assert.AreEqual(2, bindings1.Keys.Count());
             Assert.AreEqual(objectId1, bindings1.Keys.ElementAt(0));
             Assert.AreEqual(objectId2, bindings1.Keys.ElementAt(1));

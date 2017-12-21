@@ -30,7 +30,13 @@ namespace AbstractBinding.RecipientInternals
             EventId = _eventInfo.Name;
 
             // Create delegate event handler
-            _handler = Delegate.CreateDelegate(_eventInfo.EventHandlerType, this, nameof(_eventHandler));
+            _handler = Delegate.CreateDelegate(
+                eventInfo.EventHandlerType,
+                this,
+                GetType().GetMethod(nameof(_eventHandler), BindingFlags.NonPublic | BindingFlags.Instance)
+                         .GetGenericMethodDefinition()
+                         .MakeGenericMethod(eventInfo.EventHandlerType.GetMethod("Invoke").GetParameters()[1].ParameterType),
+                true);
         }
 
         ~RegisteredEvent()
@@ -64,12 +70,12 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        private void _eventHandler(object sender, EventArgs e)
+        private void _eventHandler<T>(object sender, T e)
         {
             var notification = new EventNotification()
             {
                 eventId = EventId,
-                objectId =  ObjectId,
+                objectId = ObjectId,
                 eventArgs = e
             };
             var serializedNotification = _serializer.SerializeObject(notification);

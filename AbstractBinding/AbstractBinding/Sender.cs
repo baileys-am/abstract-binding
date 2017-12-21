@@ -26,6 +26,13 @@ namespace AbstractBinding
 
             _objDescFactory = new ObjectDescriptionFactory();
             _runtimeProxyFactory = new RuntimeProxyFactory(_client, _serializer);
+
+            _client.NotificationReceived += _client_NotificationReceived;
+        }
+
+        ~Sender()
+        {
+            _client.NotificationReceived -= _client_NotificationReceived;
         }
 
         public void Register<T>()
@@ -78,7 +85,7 @@ namespace AbstractBinding
                         if (regType.Key != null && regType.Value != null)
                         {
                             // Create runtime object
-                            _runtimeProxies.Add(obj.Key, _runtimeProxyFactory.Create(regType.Key));
+                            _runtimeProxies.Add(obj.Key, _runtimeProxyFactory.Create(regType.Key, obj.Key));
                         }
                         else
                         {
@@ -93,13 +100,29 @@ namespace AbstractBinding
                     }
                     break;
                 default:
-                    throw new ArgumentException("Response from client was invalid. Expected response type(s): exception, getBindings.", nameof(resp));
+                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.getBindings}', but received '{respObj.responseType}'.");
             }
         }
 
         public IReadOnlyDictionary<string, T> GetBindingsByType<T>()
         {
             return _runtimeProxies.Where(kvp => kvp.Value is T).ToDictionary(kvp => kvp.Key, kvp => (T)(kvp.Value as object));
+        }
+
+        private void _client_NotificationReceived(object sender, NotificationEventArgs e)
+        {
+            // Parse notification
+            var notifObj = _serializer.DeserializeObject<Notification>(e.Notification);
+
+            switch (notifObj.notificationType)
+            {
+                case NotificationType.eventInvoked:
+                    var eventNotifObj = _serializer.DeserializeObject<EventNotification>(e.Notification);
+                    _runtimeProxies[eventNotifObj.objectId].OnNotify(eventNotifObj.eventId, eventNotifObj.eventArgs);
+                    break;
+                default:
+                    throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
+            }
         }
     }
 }

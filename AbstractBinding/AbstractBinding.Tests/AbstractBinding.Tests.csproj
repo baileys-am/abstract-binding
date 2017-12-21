@@ -67,6 +67,7 @@
     <Compile Include="RecipientInitializationTests.cs" />
     <Compile Include="RecipientPropertyApiTests.cs" />
     <Compile Include="SenderInitializationTests.cs" />
+    <Compile Include="EventProxyTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
