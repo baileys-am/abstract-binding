@@ -30,8 +30,15 @@ namespace AbstractBinding
 
         public static object GetDefault(this Type type)
         {
-            Func<object> f = GetDefault<object>;
-            return f.Method.GetGenericMethodDefinition().MakeGenericMethod(type).Invoke(null, null);
+            if (type == typeof(void))
+            {
+                return null;
+            }
+            else
+            {
+                Func<object> f = GetDefault<object>;
+                return f.Method.GetGenericMethodDefinition().MakeGenericMethod(type).Invoke(null, null);
+            }
         }
 
         private static T GetDefault<T>()
