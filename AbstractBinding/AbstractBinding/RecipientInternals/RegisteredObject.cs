@@ -29,11 +29,11 @@ namespace AbstractBinding.RecipientInternals
             _methods = methods ?? throw new ArgumentNullException(nameof(methods));
         }
 
-        public void Subscribe(string eventId)
+        public void Subscribe(string eventId, IRecipientCallback callback)
         {
             if (_events.ContainsKey(eventId))
             {
-                _events[eventId].Subscribe();
+                _events[eventId].Subscribe(callback);
             }
             else
             {
@@ -41,11 +41,11 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public void Unsubscribe(string eventId)
+        public void Unsubscribe(string eventId, IRecipientCallback callback)
         {
             if (_events.ContainsKey(eventId))
             {
-                _events[eventId].Unsubscribe();
+                _events[eventId].Unsubscribe(callback);
             }
             else
             {

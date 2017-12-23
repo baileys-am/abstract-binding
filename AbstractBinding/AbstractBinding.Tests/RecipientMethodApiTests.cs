@@ -9,14 +9,14 @@ namespace AbstractBinding.Tests
     public class RecipientMethodApiTests
     {
         private const string _testCategory = "Recipient Method API";
-        private Mock<IAbstractService> _serviceMock;
+        private Mock<IRecipientCallback> _serviceMock;
         private Mock<ISerializer> _serializerMock;
         private Mock<IRegisteredObject> _regObjectMock;
         
         public RecipientMethodApiTests()
         {
             // Initialize service mock
-            _serviceMock = new Mock<IAbstractService>();
+            _serviceMock = new Mock<IRecipientCallback>();
 
             // Initialize serializer  mock
             _serializerMock = new Mock<ISerializer>();
@@ -47,7 +47,7 @@ namespace AbstractBinding.Tests
             string args1 = "test";
 
             _regObjectMock.Setup(o => o.VoidReturnMethod(new object[] { args0, args1 }));
-            var server = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var server = new Recipient(_serializerMock.Object);
             var requestObj = new InvokeRequest()
             {
                 objectId = objectId,
@@ -85,7 +85,7 @@ namespace AbstractBinding.Tests
                 exception = new NotImplementedException("THIS IS AN EMERGENCY BROADCAST!");
                 throw exception;
             });
-            var server = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var server = new Recipient(_serializerMock.Object);
             var requestObj = new InvokeRequest()
             {
                 objectId = objectId,

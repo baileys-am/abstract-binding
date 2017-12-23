@@ -8,14 +8,14 @@ namespace AbstractBinding.Tests
     public class RecipientInitializationTests
     {
         private const string _testCategory = "Recipient Initialization";
-        private Mock<IAbstractService> _serviceMock;
+        private Mock<IRecipientCallback> _serviceMock;
         private Mock<ISerializer> _serializerMock;
         private Mock<IRegisteredObject> _regObjectMock;
         
         public RecipientInitializationTests()
         {
             // Initialize service mock
-            _serviceMock = new Mock<IAbstractService>();
+            _serviceMock = new Mock<IRecipientCallback>();
 
             // Initialize serializer  mock
             _serializerMock = new Mock<ISerializer>();
@@ -30,7 +30,7 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             var objectId = "objId1";
-            var server = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var server = new Recipient(_serializerMock.Object);
 
             // Act
             server.Register(objectId, _regObjectMock.Object);

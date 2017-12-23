@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding
 {
-    public interface IAbstractService
+    public interface IRecipientCallback
     {
-        void Callback(string response);
+        void Callback(string notification);
     }
 }
+

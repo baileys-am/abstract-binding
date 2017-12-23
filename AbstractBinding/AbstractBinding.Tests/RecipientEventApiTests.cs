@@ -9,14 +9,14 @@ namespace AbstractBinding.Tests
     public class RecipientEventApiTests
     {
         private const string _testCategory = "Recipient Event API";
-        private readonly Mock<IAbstractService> _serviceMock;
+        private readonly Mock<IRecipientCallback> _callbackMock;
         private readonly Mock<ISerializer> _serializerMock;
         private readonly Mock<IRegisteredObject> _regObjectMock;
         
         public RecipientEventApiTests()
         {
             // Initialize service mock
-            _serviceMock = new Mock<IAbstractService>();
+            _callbackMock = new Mock<IRecipientCallback>();
 
             // Initialize serializer  mock
             _serializerMock = new Mock<ISerializer>();
@@ -52,11 +52,11 @@ namespace AbstractBinding.Tests
             // Arrange
             var objectId = "objId1";
             string notification = null;
-            _serviceMock.Setup(o => o.Callback(It.IsAny<string>())).Callback<string>((resp) =>
+            _callbackMock.Setup(o => o.Callback(It.IsAny<string>())).Callback<string>((resp) =>
             {
                 notification = resp;
             });
-            var server = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var server = new Recipient(_serializerMock.Object);
             var requestObj = new SubscribeRequest()
             {
                 objectId = objectId,
@@ -65,12 +65,12 @@ namespace AbstractBinding.Tests
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            string response = server.Request(Serializer.Serialize(requestObj));
+            string response = server.Request(Serializer.Serialize(requestObj), _callbackMock.Object);
             _regObjectMock.Raise(o => o.NotifyOnNonDataChanged += null, EventArgs.Empty);
 
             // Assert
             _serializerMock.Verify();
-            _serviceMock.Verify();
+            _callbackMock.Verify();
             _regObjectMock.Verify();
 
             var notificationObj = Serializer.Deserialize<EventNotification>(notification);
@@ -92,11 +92,11 @@ namespace AbstractBinding.Tests
             // Arrange
             var objectId = "objId1";
             string notification = null;
-            _serviceMock.Setup(o => o.Callback(It.IsAny<string>())).Callback<string>((resp) =>
+            _callbackMock.Setup(o => o.Callback(It.IsAny<string>())).Callback<string>((resp) =>
             {
                 notification = resp;
             });
-            var server = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var server = new Recipient(_serializerMock.Object);
             var requestObj = new SubscribeRequest()
             {
                 objectId = objectId,
@@ -106,12 +106,12 @@ namespace AbstractBinding.Tests
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            string response = server.Request(Serializer.Serialize(requestObj));
+            string response = server.Request(Serializer.Serialize(requestObj), _callbackMock.Object);
             _regObjectMock.Raise(o => o.NotifyOnDataChanged += null, expectedEventArgs);
 
             // Assert
             _serializerMock.Verify();
-            _serviceMock.Verify();
+            _callbackMock.Verify();
             _regObjectMock.Verify();
 
             var notificationObj = Serializer.Deserialize<EventNotification>(notification);
@@ -133,11 +133,11 @@ namespace AbstractBinding.Tests
             // Arrange
             var objectId = "objId1";
             string nullIfPassed = String.Empty;
-            _serviceMock.Setup(o => o.Callback(It.IsAny<string>())).Callback<string>((resp) =>
+            _callbackMock.Setup(o => o.Callback(It.IsAny<string>())).Callback<string>((resp) =>
             {
                 nullIfPassed = null;
             });
-            var server = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var server = new Recipient(_serializerMock.Object);
             var subscribeRequestObj = new SubscribeRequest()
             {
                 objectId = objectId,
@@ -151,13 +151,13 @@ namespace AbstractBinding.Tests
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            server.Request(Serializer.Serialize(subscribeRequestObj));
-            string response = server.Request(Serializer.Serialize(unsubscribeRequest));
+            server.Request(Serializer.Serialize(subscribeRequestObj), _callbackMock.Object);
+            string response = server.Request(Serializer.Serialize(unsubscribeRequest), _callbackMock.Object);
             _regObjectMock.Raise(o => o.NotifyOnNonDataChanged += null, EventArgs.Empty);
 
             // Assert
             _serializerMock.Verify();
-            _serviceMock.Verify();
+            _callbackMock.Verify();
             _regObjectMock.Verify();
 
             var responseObj = Serializer.Deserialize<UnsubscribeResponse>(response);

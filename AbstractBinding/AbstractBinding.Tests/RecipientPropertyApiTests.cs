@@ -9,14 +9,14 @@ namespace AbstractBinding.Tests
     public class RecipientPropertyApiTests
     {
         private const string _testCategory = "Recipient Property API";
-        private Mock<IAbstractService> _serviceMock;
+        private Mock<IRecipientCallback> _serviceMock;
         private Mock<ISerializer> _serializerMock;
         private Mock<IRegisteredObject> _regObjectMock;
         
         public RecipientPropertyApiTests()
         {
             // Initialize service mock
-            _serviceMock = new Mock<IAbstractService>();
+            _serviceMock = new Mock<IRecipientCallback>();
 
             // Initialize serializer  mock
             _serializerMock = new Mock<ISerializer>();
@@ -49,7 +49,7 @@ namespace AbstractBinding.Tests
             string objectId = "objId1";
             string expectedValue = "toBeExpected";
             _regObjectMock.Setup(o => o.StringValueProperty).Returns(expectedValue);
-            var recipient = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var recipient = new Recipient(_serializerMock.Object);
             var requestObj = new PropertyGetRequest()
             {
                 objectId = objectId,
@@ -78,7 +78,7 @@ namespace AbstractBinding.Tests
             // Arrange
             string objectId = "objId1";
             _regObjectMock.SetupGet(o => o.StringValueProperty).Throws(new NotImplementedException());
-            var recipient = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var recipient = new Recipient(_serializerMock.Object);
             var requestObj = new PropertyGetRequest()
             {
                 objectId = objectId,
@@ -107,7 +107,7 @@ namespace AbstractBinding.Tests
             string objectId = "objId1";
             string expectedValue = "toBeExpected";
             _regObjectMock.Setup(o => o.StringValueProperty).Returns(expectedValue);
-            var recipient = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var recipient = new Recipient(_serializerMock.Object);
             var requestObj = new PropertySetRequest()
             {
                 objectId = objectId,
@@ -138,7 +138,7 @@ namespace AbstractBinding.Tests
             // Arrange
             string objectId = "objId1";
             _regObjectMock.SetupSet(o => o.StringValueProperty = It.IsAny<string>()).Throws(new NotImplementedException());
-            var recipient = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var recipient = new Recipient(_serializerMock.Object);
             var requestObj = new PropertySetRequest()
             {
                 objectId = objectId,

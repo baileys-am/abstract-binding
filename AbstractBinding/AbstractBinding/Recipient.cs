@@ -11,17 +11,15 @@ namespace AbstractBinding
 {
     public class Recipient
     {
-        private readonly IAbstractService _service;
         private readonly ISerializer _serializer;
         private readonly RegisteredObjectFactory _objectFactory;
         private readonly Dictionary<string, RegisteredObject> _registeredObjects = new Dictionary<string, RegisteredObject>();
         
-        public Recipient(IAbstractService service, ISerializer serializer)
+        public Recipient(ISerializer serializer)
         {
-            _service = service ?? throw new ArgumentNullException(nameof(service));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
 
-            var eventFactory = new RegisteredEventFactory(_service, _serializer);
+            var eventFactory = new RegisteredEventFactory(_serializer);
             var propertyFactory = new RegisteredPropertyFactory();
             var methodFactory = new RegisteredMethodFactory();
             _objectFactory = new RegisteredObjectFactory(eventFactory, propertyFactory, methodFactory);
@@ -38,6 +36,11 @@ namespace AbstractBinding
 
         public string Request(string request)
         {
+            return Request(request, null);
+        }
+
+        public string Request(string request, IRecipientCallback callback)
+        {
             var requestObj = _serializer.DeserializeObject<Request>(request ?? throw new ArgumentNullException(nameof(request)));
 
             try
@@ -47,7 +50,7 @@ namespace AbstractBinding
                     case RequestType.subscribe:
                         var subscribeRequest = _serializer.DeserializeObject<SubscribeRequest>(request);
                         var subscribeObj = _registeredObjects[subscribeRequest.objectId];
-                        subscribeObj.Subscribe(subscribeRequest.eventId);
+                        subscribeObj.Subscribe(subscribeRequest.eventId, callback);
                         var subscribeResponse = new SubscribeResponse()
                         {
                             objectId = subscribeRequest.objectId,
@@ -57,7 +60,7 @@ namespace AbstractBinding
                     case RequestType.unsubscribe:
                         var unsubscribeRequest = _serializer.DeserializeObject<UnsubscribeRequest>(request);
                         var unsubscribeObj = _registeredObjects[unsubscribeRequest.objectId];
-                        unsubscribeObj.Unsubscribe(unsubscribeRequest.eventId);
+                        unsubscribeObj.Unsubscribe(unsubscribeRequest.eventId, callback);
                         var unsubscribeResponse = new UnsubscribeResponse()
                         {
                             objectId = unsubscribeRequest.objectId,
