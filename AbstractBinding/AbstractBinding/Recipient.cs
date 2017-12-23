@@ -100,7 +100,7 @@ namespace AbstractBinding
                         };
                         return _serializer.SerializeObject(propertySetResponse);
                     default:
-                        throw new InvalidOperationException($"Unsupported request type: {requestObj.requestType}");
+                        throw new RecipientBindingException($"Unsupported request type: {requestObj.requestType}");
                 }
             }
             catch (RecipientBindingException ex)
