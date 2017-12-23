@@ -15,14 +15,17 @@ namespace AbstractBinding.RecipientInternals
         private readonly IReadOnlyDictionary<string, RegisteredMethod> _methods;
 
         public string ObjectId { get; private set; }
+        public ObjectDescription Description { get; private set; }
 
         public RegisteredObject(string objectId,
+                                ObjectDescription objDesc,
                                 object obj,
                                 IReadOnlyDictionary<string, RegisteredEvent> events,
                                 IReadOnlyDictionary<string, RegisteredProperty> properties,
                                 IReadOnlyDictionary<string, RegisteredMethod> methods)
         {
             ObjectId = String.IsNullOrEmpty(objectId) ? throw new ArgumentNullException(nameof(objectId)) : objectId;
+            Description = objDesc ?? throw new ArgumentNullException(nameof(objDesc));
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
             _events = events ?? throw new ArgumentNullException(nameof(events));
             _properties = properties ?? throw new ArgumentNullException(nameof(properties));
