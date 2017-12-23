@@ -90,7 +90,7 @@ namespace AbstractBinding
                         else
                         {
                             //TODO: Make custom exception containing the binding object' description.
-                            throw new Exception($"Registered type could be found with object description for {obj.Key}");
+                            exceptions.Add(new Exception($"Registered type could not be found with object description for {obj.Key}"));
                         }
                     }
 
