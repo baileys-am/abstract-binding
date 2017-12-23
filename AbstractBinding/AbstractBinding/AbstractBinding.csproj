@@ -44,6 +44,7 @@
     <Compile Include="EventDescription.cs" />
     <Compile Include="InvalidNotificationException.cs" />
     <Compile Include="InvalidResponseException.cs" />
+    <Compile Include="IRecipientCallback.cs" />
     <Compile Include="MethodDescription.cs" />
     <Compile Include="ExpressionExtensions.cs" />
     <Compile Include="ObjectDescription.cs" />
@@ -64,7 +65,6 @@
     <Compile Include="Messages\UnsubscribeResponse.cs" />
     <Compile Include="Recipient.cs" />
     <Compile Include="ISerializer.cs" />
-    <Compile Include="IAbstractService.cs" />
     <Compile Include="Messages\InvokeRequest.cs" />
     <Compile Include="Messages\Notification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
