@@ -47,6 +47,13 @@ namespace AbstractBinding
             {
                 switch (requestObj.requestType)
                 {
+                    case RequestType.getBindings:
+                        var getBindingsResp = new GetBindingDescriptionsResponse();
+                        foreach (var obj in _registeredObjects)
+                        {
+                            getBindingsResp.bindings.Add(obj.Key, obj.Value.Description);
+                        }
+                        return _serializer.SerializeObject(getBindingsResp);
                     case RequestType.subscribe:
                         var subscribeRequest = _serializer.DeserializeObject<SubscribeRequest>(request);
                         var subscribeObj = _registeredObjects[subscribeRequest.objectId];
