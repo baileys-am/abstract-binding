@@ -93,7 +93,7 @@ namespace AbstractBinding
                         var propertySetRequest = _serializer.DeserializeObject<PropertySetRequest>(request);
                         var propertySetObj = _registeredObjects[propertySetRequest.objectId];
                         propertySetObj.SetValue(propertySetRequest.propertyId, propertySetRequest.value);
-                        var propertySetResponse = new PropertyGetResponse()
+                        var propertySetResponse = new PropertySetResponse()
                         {
                             objectId = propertySetRequest.objectId,
                             propertyId = propertySetRequest.propertyId

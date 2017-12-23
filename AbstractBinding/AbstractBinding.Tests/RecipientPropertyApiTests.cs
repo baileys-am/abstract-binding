@@ -66,6 +66,7 @@ namespace AbstractBinding.Tests
             _regObjectMock.Verify();
 
             var responseObj = Serializer.Deserialize<PropertyGetResponse>(response);
+            Assert.AreEqual(ResponseType.propertyGet, responseObj.responseType);
             Assert.AreEqual(requestObj.objectId, responseObj.objectId);
             Assert.AreEqual(requestObj.propertyId, responseObj.propertyId);
             Assert.AreEqual(expectedValue, responseObj.value);
@@ -95,6 +96,7 @@ namespace AbstractBinding.Tests
             _regObjectMock.Verify();
 
             var responseObj = Serializer.Deserialize<ExceptionResponse>(response);
+            Assert.AreEqual(ResponseType.exception, responseObj.responseType);
             Assert.IsTrue(responseObj.exception.Message.Contains(objectId) &&
                           responseObj.exception.Message.Contains(nameof(IRegisteredObject.StringValueProperty)));
         }
@@ -127,6 +129,7 @@ namespace AbstractBinding.Tests
             Assert.AreEqual(expectedValue, _regObjectMock.Object.StringValueProperty);
 
             var responseObj = Serializer.Deserialize<PropertySetResponse>(response);
+            Assert.AreEqual(ResponseType.propertySet, responseObj.responseType);
             Assert.AreEqual(requestObj.objectId, responseObj.objectId);
             Assert.AreEqual(requestObj.propertyId, responseObj.propertyId);
         }
@@ -156,6 +159,7 @@ namespace AbstractBinding.Tests
             _regObjectMock.Verify();
 
             var responseObj = Serializer.Deserialize<ExceptionResponse>(response);
+            Assert.AreEqual(ResponseType.exception, responseObj.responseType);
             Assert.IsTrue(responseObj.exception.Message.Contains(objectId) &&
                           responseObj.exception.Message.Contains(nameof(IRegisteredObject.StringValueProperty)));
         }
