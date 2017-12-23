@@ -1,0 +1,25 @@
+﻿syntax = "proto3";
+package AbstractBinding.Examples.Protos;
+
+import "common.proto";
+
+// The Recipient service definition.
+service RecipientService {
+  // Performs request
+  rpc Request (RequestMessage) returns (ResponseMessage) {}
+
+  // Subscribes for notifications
+  rpc Listen (AbstractBinding.Examples.Protobufs.Empty) returns (stream NotificationMessage) {}
+}
+
+message RequestMessage {
+  string Message = 1;
+}
+
+message ResponseMessage {
+  string Message = 1;
+}
+
+message NotificationMessage {
+  string Message = 1;
+}

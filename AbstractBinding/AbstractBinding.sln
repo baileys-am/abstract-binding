@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstractBinding", "AbstractBinding\AbstractBinding.csproj", "{184C3401-B808-4E74-878E-8D1D51C47C56}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstractBinding.Tests", "AbstractBinding.Tests\AbstractBinding.Tests.csproj", "{545215F8-A398-43BF-8C98-4D21DA8BBE6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstractBinding.Examples.App", "AbstractBinding.Examples.App\AbstractBinding.Examples.App.csproj", "{3AB658DF-C1C5-4C73-8FCB-42BA9D1B0F64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstractBinding.Examples.Common", "AbstractBinding.Examples.Common\AbstractBinding.Examples.Common.csproj", "{DB1BA3DE-91EC-4719-AB42-2A4861AE41D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstractBinding.Examples.Host", "AbstractBinding.Examples.Host\AbstractBinding.Examples.Host.csproj", "{A2579195-6296-4A1B-8BE7-CCFEBFDB74D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{545215F8-A398-43BF-8C98-4D21DA8BBE6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{545215F8-A398-43BF-8C98-4D21DA8BBE6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{545215F8-A398-43BF-8C98-4D21DA8BBE6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AB658DF-C1C5-4C73-8FCB-42BA9D1B0F64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AB658DF-C1C5-4C73-8FCB-42BA9D1B0F64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AB658DF-C1C5-4C73-8FCB-42BA9D1B0F64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AB658DF-C1C5-4C73-8FCB-42BA9D1B0F64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB1BA3DE-91EC-4719-AB42-2A4861AE41D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB1BA3DE-91EC-4719-AB42-2A4861AE41D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB1BA3DE-91EC-4719-AB42-2A4861AE41D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB1BA3DE-91EC-4719-AB42-2A4861AE41D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2579195-6296-4A1B-8BE7-CCFEBFDB74D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2579195-6296-4A1B-8BE7-CCFEBFDB74D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2579195-6296-4A1B-8BE7-CCFEBFDB74D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2579195-6296-4A1B-8BE7-CCFEBFDB74D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
