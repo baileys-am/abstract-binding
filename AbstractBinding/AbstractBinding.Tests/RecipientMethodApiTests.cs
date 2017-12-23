@@ -106,5 +106,38 @@ namespace AbstractBinding.Tests
             Assert.IsTrue(responseObj.exception.Message.Contains(objectId) &&
                           responseObj.exception.Message.Contains(requestObj.methodId));
         }
+
+        [TestMethod]
+        [TestCategory(_testCategory)]
+        public void InvokeVoidReturnStrTest()
+        {
+            // Arrange
+            var objectId = "objId1";
+            string args0 = "test";
+
+            _regObjectMock.Setup(o => o.VoidReturnMethodStr(args0));
+            var server = new Recipient(_serializerMock.Object);
+            var requestObj = new InvokeRequest()
+            {
+                objectId = objectId,
+                methodId = nameof(IRegisteredObject.VoidReturnMethodStr),
+                methodArgs = new object[] { args0 }
+            };
+
+            // Act
+            server.Register(objectId, _regObjectMock.Object);
+            string response = server.Request(Serializer.Serialize(requestObj));
+
+            // Assert
+            _serializerMock.Verify();
+            _serviceMock.Verify();
+            _regObjectMock.Verify();
+
+            var responseObj = Serializer.Deserialize<InvokeResponse>(response);
+            Assert.AreEqual(ResponseType.invoke, responseObj.responseType);
+            Assert.AreEqual(requestObj.objectId, responseObj.objectId);
+            Assert.AreEqual(requestObj.methodId, responseObj.methodId);
+            Assert.IsNull(responseObj.result);
+        }
     }
 }

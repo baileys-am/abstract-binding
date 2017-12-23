@@ -80,7 +80,7 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public object Invoke(string methodId, params object[] args)
+        public object Invoke(string methodId, object[] args)
         {
             if (_methods.ContainsKey(methodId))
             {

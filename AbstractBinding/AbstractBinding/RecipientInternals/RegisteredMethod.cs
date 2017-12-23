@@ -25,11 +25,11 @@ namespace AbstractBinding.RecipientInternals
             MethodId = _methodInfo.Name;
         }
         
-        public object Invoke(params object[] objs)
+        public object Invoke(object[] objs)
         {
             try
             {
-                return _methodInfo.Invoke(_obj, new object[] { objs });
+                return _methodInfo.Invoke(_obj, objs);
             }
             catch (Exception ex)
             {
