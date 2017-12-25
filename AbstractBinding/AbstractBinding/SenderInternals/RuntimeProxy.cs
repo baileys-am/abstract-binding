@@ -187,12 +187,14 @@ namespace AbstractBinding.SenderInternals
             return true;
         }
 
-        public void OnNotify(string name, object args)
+        public void RouteEvent(EventNotification context, string notification)
         {
-            if (_eventHandlers.ContainsKey(name))
+            if (_eventHandlers.ContainsKey(context.eventId))
             {
-                var handler = _eventHandlers[name];
-                handler.Method.Invoke(handler.Target, new object[] { this, args ?? EventArgs.Empty} );
+                var handler = _eventHandlers[context.eventId];
+                var argsType = handler.Method.GetParameters()[1].ParameterType;
+                var notifObj = _serializer.DeserializeObject(notification, EventNotification.CreateGenericType(argsType));
+                handler.Method.Invoke(handler.Target, new object[] { this, (notifObj as EventNotification).eventArgs });
             }
         }
 

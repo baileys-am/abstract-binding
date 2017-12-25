@@ -118,7 +118,7 @@ namespace AbstractBinding
             {
                 case NotificationType.eventInvoked:
                     var eventNotifObj = _serializer.DeserializeObject<EventNotification>(e.Notification);
-                    _runtimeProxies[eventNotifObj.objectId].OnNotify(eventNotifObj.eventId, eventNotifObj.eventArgs);
+                    _runtimeProxies[eventNotifObj.objectId].RouteEvent(eventNotifObj, e.Notification);
                     break;
                 default:
                     throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
