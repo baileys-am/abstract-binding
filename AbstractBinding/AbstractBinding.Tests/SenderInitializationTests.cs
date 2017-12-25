@@ -12,27 +12,12 @@ namespace AbstractBinding.Tests
         private const string _testCategory = "Sender Initialization";
 
         private readonly Mock<IAbstractClient> _clientMock;
-        private readonly Mock<ISerializer> _serializerMock;
+        private readonly ISerializer _serializer = new Serializer();
 
         public SenderInitializationTests()
         {
             // Initialize client mock
             _clientMock = new Mock<IAbstractClient>();
-
-            // Initialize serializer mock
-            _serializerMock = new Mock<ISerializer>();
-            _serializerMock.Setup(o => o.SerializeObject(It.IsAny<object>())).Returns<object>(obj =>
-            {
-                return Serializer.Serialize(obj);
-            });
-            _serializerMock.Setup(o => o.DeserializeObject<Response>(It.IsAny<string>())).Returns<string>((serObj) =>
-            {
-                return Serializer.Deserialize<Response>(serObj);
-            });
-            _serializerMock.Setup(o => o.DeserializeObject<GetBindingDescriptionsResponse>(It.IsAny<string>())).Returns<string>((serObj) =>
-            {
-                return Serializer.Deserialize<GetBindingDescriptionsResponse>(serObj);
-            });
         }
 
         [TestMethod]
@@ -40,14 +25,13 @@ namespace AbstractBinding.Tests
         public void RegisterTypeTest()
         {
             // Arrange
-            var sender = new Sender(_clientMock.Object, _serializerMock.Object);
+            var sender = new Sender(_clientMock.Object, _serializer);
 
             // Act
             sender.Register<IRegisteredObject>();
 
             // Assert
             _clientMock.Verify();
-            _serializerMock.Verify();
 
             Assert.AreEqual(1, sender.RegisteredTypes.Count());
             Assert.AreEqual(typeof(IRegisteredObject), sender.RegisteredTypes.ElementAt(0));
@@ -68,9 +52,9 @@ namespace AbstractBinding.Tests
                 resp.bindings.Add(objectId1, objectDescriptionFactory.Create<IRegisteredObject>());
                 resp.bindings.Add(objectId2, objectDescriptionFactory.Create<IRegisteredObject>());
                 resp.bindings.Add(objectId3, objectDescriptionFactory.Create<IRegisteredObject2>());
-                return Serializer.Serialize(resp);
+                return _serializer.SerializeObject(resp);
             });
-            var sender = new Sender(_clientMock.Object, _serializerMock.Object);
+            var sender = new Sender(_clientMock.Object, _serializer);
 
             // Act
             sender.Register<IRegisteredObject>();
@@ -81,7 +65,6 @@ namespace AbstractBinding.Tests
 
             // Assert
             _clientMock.Verify();
-            _serializerMock.Verify();
 
             Assert.AreEqual(2, bindings1.Keys.Count());
             Assert.AreEqual(objectId1, bindings1.Keys.ElementAt(0));

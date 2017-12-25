@@ -9,29 +9,14 @@ namespace AbstractBinding.Tests
     public class RecipientMethodApiTests
     {
         private const string _testCategory = "Recipient Method API";
-        private Mock<IRecipientCallback> _serviceMock;
-        private Mock<ISerializer> _serializerMock;
-        private Mock<IRegisteredObject> _regObjectMock;
-        
+        private readonly Mock<IRecipientCallback> _serviceMock;
+        private readonly Mock<IRegisteredObject> _regObjectMock;
+        private readonly ISerializer _serializer = new Serializer();
+
         public RecipientMethodApiTests()
         {
             // Initialize service mock
             _serviceMock = new Mock<IRecipientCallback>();
-
-            // Initialize serializer  mock
-            _serializerMock = new Mock<ISerializer>();
-            _serializerMock.Setup(o => o.SerializeObject(It.IsAny<object>())).Returns<object>(obj =>
-            {
-                return Serializer.Serialize(obj);
-            });
-            _serializerMock.Setup(o => o.DeserializeObject<Request>(It.IsAny<string>())).Returns<string>((serObj) =>
-            {
-                return Serializer.Deserialize<Request>(serObj);
-            });
-            _serializerMock.Setup(o => o.DeserializeObject<InvokeRequest>(It.IsAny<string>())).Returns<string>((serObj) =>
-            {
-                return Serializer.Deserialize<InvokeRequest>(serObj);
-            });
 
             // Initialize registered object mock
             _regObjectMock = new Mock<IRegisteredObject>();
@@ -47,7 +32,7 @@ namespace AbstractBinding.Tests
             string args1 = "test";
 
             _regObjectMock.Setup(o => o.VoidReturnMethod(new object[] { args0, args1 }));
-            var server = new Recipient(_serializerMock.Object);
+            var server = new Recipient(_serializer);
             var requestObj = new InvokeRequest()
             {
                 objectId = objectId,
@@ -57,14 +42,13 @@ namespace AbstractBinding.Tests
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            string response = server.Request(Serializer.Serialize(requestObj));
+            string response = server.Request(_serializer.SerializeObject(requestObj));
 
             // Assert
-            _serializerMock.Verify();
             _serviceMock.Verify();
             _regObjectMock.Verify();
 
-            var responseObj = Serializer.Deserialize<InvokeResponse>(response);
+            var responseObj = _serializer.DeserializeObject<InvokeResponse>(response);
             Assert.AreEqual(ResponseType.invoke, responseObj.responseType);
             Assert.AreEqual(requestObj.objectId, responseObj.objectId);
             Assert.AreEqual(requestObj.methodId, responseObj.methodId);
@@ -85,7 +69,7 @@ namespace AbstractBinding.Tests
                 exception = new NotImplementedException("THIS IS AN EMERGENCY BROADCAST!");
                 throw exception;
             });
-            var server = new Recipient(_serializerMock.Object);
+            var server = new Recipient(_serializer);
             var requestObj = new InvokeRequest()
             {
                 objectId = objectId,
@@ -95,14 +79,13 @@ namespace AbstractBinding.Tests
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            string response = server.Request(Serializer.Serialize(requestObj));
+            string response = server.Request(_serializer.SerializeObject(requestObj));
 
             // Assert
-            _serializerMock.Verify();
             _serviceMock.Verify();
             _regObjectMock.Verify();
 
-            var responseObj = Serializer.Deserialize<ExceptionResponse>(response);
+            var responseObj = _serializer.DeserializeObject<ExceptionResponse>(response);
             Assert.IsTrue(responseObj.exception.Message.Contains(objectId) &&
                           responseObj.exception.Message.Contains(requestObj.methodId));
         }
@@ -116,7 +99,7 @@ namespace AbstractBinding.Tests
             string args0 = "test";
 
             _regObjectMock.Setup(o => o.VoidReturnMethodStr(args0));
-            var server = new Recipient(_serializerMock.Object);
+            var server = new Recipient(_serializer);
             var requestObj = new InvokeRequest()
             {
                 objectId = objectId,
@@ -126,14 +109,13 @@ namespace AbstractBinding.Tests
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            string response = server.Request(Serializer.Serialize(requestObj));
+            string response = server.Request(_serializer.SerializeObject(requestObj));
 
             // Assert
-            _serializerMock.Verify();
             _serviceMock.Verify();
             _regObjectMock.Verify();
 
-            var responseObj = Serializer.Deserialize<InvokeResponse>(response);
+            var responseObj = _serializer.DeserializeObject<InvokeResponse>(response);
             Assert.AreEqual(ResponseType.invoke, responseObj.responseType);
             Assert.AreEqual(requestObj.objectId, responseObj.objectId);
             Assert.AreEqual(requestObj.methodId, responseObj.methodId);

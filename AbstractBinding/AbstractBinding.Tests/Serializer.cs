@@ -9,21 +9,27 @@ using Newtonsoft.Json.Converters;
 
 namespace AbstractBinding.Tests
 {
-    class Serializer
+    class Serializer : ISerializer
     {
-        public static string Serialize(object obj)
+        public static bool JsonCompare(object obj1, object obj2)
+        {
+            var serializer = new Serializer();
+            return serializer.SerializeObject(obj1).Equals(serializer.SerializeObject(obj2));
+        }
+
+        public string SerializeObject(object obj)
         {
             return JsonConvert.SerializeObject(obj, Formatting.Indented, new StringEnumConverter());
         }
 
-        public static T Deserialize<T>(string serializedObj)
+        public T DeserializeObject<T>(string serializedObj)
         {
             return JsonConvert.DeserializeObject<T>(serializedObj, new StringEnumConverter());
         }
 
-        public static bool JsonCompare(object obj1, object obj2)
+        public object DeserializeObject(string serializedObj, Type type)
         {
-            return Serialize(obj1).Equals(Serialize(obj2));
+            return JsonConvert.DeserializeObject(serializedObj, type, new StringEnumConverter());
         }
     }
 }
