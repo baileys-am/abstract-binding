@@ -18,20 +18,61 @@ namespace AbstractBinding.Examples.App
             var sender = new Sender(client, serializer);
             sender.Register<IExampleObject>();
 
-            StepExample("Press any key to sync bindings.", sender.SynchronizeBindings);
-            var bindings = sender.GetBindingsByType<IExampleObject>();
-            Console.WriteLine($"Found {bindings.Count} {nameof(IExampleObject)}");
-            Console.WriteLine($"Subscribing to {nameof(IExampleObject.NotifyRequested)}...");
-            bindings.Values.First().NotifyRequested += _obj1_NotifyRequested;
+            // Sync bindings
+            IReadOnlyDictionary<string, IExampleObject> bindings = new Dictionary<string, IExampleObject>();
+            StepExample("Press any key to sync bindings.", () =>
+            {
+                sender.SynchronizeBindings();
+                bindings = sender.GetBindingsByType<IExampleObject>();
+                Console.WriteLine($"Found {bindings.Count} {nameof(IExampleObject)}");
+            });
+            
+            // Event subscribe
+            StepExample("Press any key to subscribe to event.", () =>
+            {
+                
+                Console.WriteLine($"Subscribing to {nameof(IExampleObject.NotifyRequested)}...");
+                bindings.Values.First().NotifyRequested += _obj1_NotifyRequested;
+            });
 
-            StepExample("Press any key to set property value.", () => { bindings.Values.First().StrProperty = "You set a string!"; });
-            StepExample("Press any key to invoke method.", () => { bindings.Values.First().MethodVoidStr("Method invoked!"); });
-
-            StepExample("Press any key to exit.", () =>
+            // Event unsubscribe
+            StepExample("Press any key to unsubscribe from event.", () =>
             {
                 Console.WriteLine($"Unsubscribing from {nameof(IExampleObject.NotifyRequested)}...");
                 bindings.Values.First().NotifyRequested -= _obj1_NotifyRequested;
             });
+
+            // Property get
+            StepExample("Press any key to get property value.", () =>
+            {
+                var value = bindings.Values.First().StrProperty;
+                Console.WriteLine(value == null ? $"Looks like the value is 'null'. Let's set it!" : $"Value: {value}");
+            });
+
+            // Property set
+            StepExample("Press any key to set property value.", () =>
+            {
+                string value = "You set a string!";
+                bindings.Values.First().StrProperty = value;
+                Console.WriteLine($"Value set to: {value}");
+            });
+
+            // Property get (again)
+            StepExample("Press any key to get property value.", () =>
+            {
+                var value = bindings.Values.First().StrProperty;
+                Console.WriteLine($"Look it's the same value you just set: {value}");
+            });
+
+            // Method invoke
+            StepExample("Press any key to invoke a void return method.", () =>
+            {
+                bindings.Values.First().MethodVoidStr("Method invoked!");
+                Console.WriteLine("You invoked the method!");
+            });
+
+            Console.WriteLine("Press any key to exit example.");
+            Console.ReadKey();
         }
 
         static void StepExample(string instr, Action action)
