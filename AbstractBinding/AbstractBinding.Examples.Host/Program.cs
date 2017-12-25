@@ -33,9 +33,14 @@ namespace AbstractBinding.Examples.Host
             {
                 while (!cts.Token.IsCancellationRequested)
                 {
-                    Console.WriteLine("Sending notification...");
                     exObj.OnNotifyRequested();
-                    Task.Delay(3000, cts.Token).Wait();
+                    try
+                    {
+                        Task.Delay(3000, cts.Token).Wait(cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
                 }
             });
             Console.ReadLine();
