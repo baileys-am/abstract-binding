@@ -13,5 +13,9 @@ namespace AbstractBinding.Examples
         string StrProperty { get; set; }
 
         void MethodVoidStr(string str);
+
+        string MethodStr();
+
+        void MethodVoidParamsString(params string[] strs);
     }
 }

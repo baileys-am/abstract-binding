@@ -64,11 +64,25 @@ namespace AbstractBinding.Examples.App
                 Console.WriteLine($"Look it's the same value you just set: {value}");
             });
 
-            // Method invoke
+            // Method invoke (void return)
             StepExample("Press any key to invoke a void return method.", () =>
             {
                 bindings.Values.First().MethodVoidStr("Method invoked!");
                 Console.WriteLine("You invoked the method!");
+            });
+
+            // Method invoke (string return)
+            StepExample("Press any key to invoke a string return method.", () =>
+            {
+                string result = bindings.Values.First().MethodStr();
+                Console.WriteLine($"Method result: {result}");
+            });
+
+            // Method invoke (params string/void return)
+            StepExample("Press any key to invoke a void return/params method.", () =>
+            {
+                bindings.Values.First().MethodVoidParamsString("str0", "str1");
+                Console.WriteLine($"You invoked the method!");
             });
 
             Console.WriteLine("Press any key to exit example.");
