@@ -114,15 +114,24 @@ namespace AbstractBinding
             // Parse notification
             var notifObj = _serializer.DeserializeObject<Notification>(e.Notification);
 
-            switch (notifObj.notificationType)
+            switch (notifObj)
             {
-                case NotificationType.eventInvoked:
-                    var eventNotifObj = _serializer.DeserializeObject<EventNotification>(e.Notification);
-                    _runtimeProxies[eventNotifObj.objectId].RouteEvent(eventNotifObj, e.Notification);
+                case EventNotification eventNotif:
+                    _runtimeProxies[eventNotif.objectId].OnEventNotification(eventNotif);
                     break;
                 default:
                     throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
             }
+
+            //switch (notifObj.notificationType)
+            //{
+            //    case NotificationType.eventInvoked:
+            //        var eventNotifObj = _serializer.DeserializeObject<EventNotification>(e.Notification);
+            //        _runtimeProxies[eventNotifObj.objectId].RouteEvent(eventNotifObj, e.Notification);
+            //        break;
+            //    default:
+            //        throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
+            //}
         }
     }
 }

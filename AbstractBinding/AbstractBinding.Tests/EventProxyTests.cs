@@ -374,10 +374,8 @@ namespace AbstractBinding.Tests
             });
             var objProxy = sender.GetBindingsByType<IRegisteredObject>()[objectId];
             bool argsReceived = false;
-            objProxy.NotifyOnNonDataChanged += (s, e) => {
-                argsReceived = e as EventArgs != null;
-            };
-            var notification = new EventNotification<EventArgs>()
+            objProxy.NotifyOnNonDataChanged += (s, e) => { argsReceived = e as EventArgs != null; };
+            var notification = new EventNotification()
             {
                 objectId = objectId,
                 eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged),

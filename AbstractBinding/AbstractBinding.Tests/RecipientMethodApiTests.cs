@@ -37,7 +37,7 @@ namespace AbstractBinding.Tests
             {
                 objectId = objectId,
                 methodId = nameof(IRegisteredObject.VoidReturnMethod),
-                methodArgs = new object[] { args0, args1 }
+                methodArgs = new object[] { new object[] { args0, args1 } }
             };
 
             // Act
