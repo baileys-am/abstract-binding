@@ -15,6 +15,11 @@ namespace AbstractBinding.Examples
             return JsonConvert.DeserializeObject<T>(serializedObj, new StringEnumConverter());
         }
 
+        public object DeserializeObject(string serializedObj, Type type)
+        {
+            return JsonConvert.DeserializeObject(serializedObj, type);
+        }
+
         public string SerializeObject(object obj)
         {
             return JsonConvert.SerializeObject(obj, Formatting.Indented, new StringEnumConverter());

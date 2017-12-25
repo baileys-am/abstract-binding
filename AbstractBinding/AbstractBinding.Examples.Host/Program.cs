@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core;
 
@@ -14,7 +15,8 @@ namespace AbstractBinding.Examples.Host
             // Initialize recipient
             var serializer = new Serializer();
             var recipient = new Recipient(serializer);
-            recipient.Register<IExampleObject>("obj1", new ExampleObject());
+            var exObj = new ExampleObject();
+            recipient.Register<IExampleObject>("obj1", exObj);
 
             // Start server
             var recipientService = new RecipientService(recipient);
@@ -26,7 +28,18 @@ namespace AbstractBinding.Examples.Host
             server.Start();
 
             Console.WriteLine("Server started...");
+            var cts = new CancellationTokenSource();
+            Task.Run(() =>
+            {
+                while (!cts.Token.IsCancellationRequested)
+                {
+                    Console.WriteLine("Sending notification...");
+                    exObj.OnNotifyRequested();
+                    Task.Delay(3000, cts.Token).Wait();
+                }
+            });
             Console.ReadLine();
+            cts.Cancel();
         }
     }
 }

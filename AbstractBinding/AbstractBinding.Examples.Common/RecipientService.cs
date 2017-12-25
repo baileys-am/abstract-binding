@@ -22,7 +22,7 @@ namespace AbstractBinding.Examples
 
         public async override Task<ResponseMessage> Request(RequestMessage request, ServerCallContext context)
         {
-            return await Task.FromResult(new ResponseMessage() { Message = _recipient.Request(request.Message) });
+            return await Task.FromResult(new ResponseMessage() { Message = _recipient.Request(request.Message, this) });
         }
 
         public async override Task Listen(Empty request, IServerStreamWriter<NotificationMessage> responseStream, ServerCallContext context)
