@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Examples
 {
+    public class ExampleClass
+    {
+        public string StringProperty { get; set; }
+        public double DoubleProperty { get; set; }
+    }
+
     public interface IExampleObject
     {
         event EventHandler NotifyRequested;
@@ -17,5 +23,7 @@ namespace AbstractBinding.Examples
         string MethodStr();
 
         void MethodVoidParamsString(params string[] strs);
+
+        void MethodVoidExampleClass(ExampleClass exClass);
     }
 }

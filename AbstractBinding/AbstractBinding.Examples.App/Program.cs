@@ -85,6 +85,13 @@ namespace AbstractBinding.Examples.App
                 Console.WriteLine($"You invoked the method!");
             });
 
+            // Method invoke (custom class/void return)
+            StepExample("Press any key to invoke a void return/custom class.", () =>
+            {
+                bindings.Values.First().MethodVoidExampleClass(new ExampleClass() { StringProperty = "str0", DoubleProperty = 2.0 });
+                Console.WriteLine($"You invoked the method!");
+            });
+
             Console.WriteLine("Press any key to exit example.");
             Console.ReadKey();
         }

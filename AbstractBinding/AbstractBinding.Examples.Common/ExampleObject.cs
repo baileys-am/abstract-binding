@@ -54,6 +54,11 @@ namespace AbstractBinding.Examples
             Console.WriteLine($"Method invoke: {nameof(MethodVoidParamsString)}");
         }
 
+        public void MethodVoidExampleClass(ExampleClass exClass)
+        {
+            Console.WriteLine($"Method invoke: {nameof(MethodVoidExampleClass)}");
+        }
+
         public void OnNotifyRequested()
         {
             _notifyRequested?.Invoke(this, EventArgs.Empty);
