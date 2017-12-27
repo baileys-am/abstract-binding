@@ -41,7 +41,7 @@ namespace AbstractBinding
 
         public string Request(string request, IRecipientCallback callback)
         {
-            var requestObj = _serializer.DeserializeObject<Request>(request ?? throw new ArgumentNullException(nameof(request)));
+            var requestObj = _serializer.DeserializeObject<IRequest>(request ?? throw new ArgumentNullException(nameof(request)));
 
             try
             {

@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 namespace AbstractBinding.Messages
 {
     [Serializable]
-    internal class InvokeRequest : Request
+    internal class InvokeRequest : IRequest
     {
+        public RequestType requestType => RequestType.invoke;
+
 #pragma warning disable IDE1006 // Naming Styles
         public string objectId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
@@ -20,10 +22,5 @@ namespace AbstractBinding.Messages
 #pragma warning disable IDE1006 // Naming Styles
         public object[] methodArgs { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
-
-        public InvokeRequest()
-        {
-            requestType = RequestType.invoke;
-        }
     }
 }

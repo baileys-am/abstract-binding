@@ -16,11 +16,10 @@ namespace AbstractBinding.Messages
         getBindings
     }
 
-    [Serializable]
-    internal class Request
+    internal interface IRequest
     {
 #pragma warning disable IDE1006 // Naming Styles
-        public RequestType requestType { get; set; }
+        RequestType requestType { get; }
 #pragma warning restore IDE1006 // Naming Styles
     }
 }
