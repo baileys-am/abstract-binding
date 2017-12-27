@@ -26,6 +26,7 @@ namespace AbstractBinding.Tests
         string StringValueProperty { get; set; }
 
         void VoidReturnMethod(params object[] args);
+        void VoidReturnMethodStr(string str);
         void VoidReturnMethodStrVal(string str, double val);
     }
 }

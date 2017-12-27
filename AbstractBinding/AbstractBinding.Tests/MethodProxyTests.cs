@@ -12,31 +12,12 @@ namespace AbstractBinding.Tests
         private const string _testCategory = "Method Proxy Tests";
 
         private readonly Mock<IAbstractClient> _clientMock;
-        private readonly Mock<ISerializer> _serializerMock;
+        private readonly ISerializer _serializer = new Serializer();
 
         public MethodProxyTests()
         {
             // Initialize client mock
             _clientMock = new Mock<IAbstractClient>();
-
-            // Initialize serializer mock
-            _serializerMock = new Mock<ISerializer>();
-            _serializerMock.Setup(o => o.SerializeObject(It.IsAny<object>())).Returns<object>(obj =>
-            {
-                return Serializer.Serialize(obj);
-            });
-            _serializerMock.Setup(o => o.DeserializeObject<Response>(It.IsAny<string>())).Returns<string>((serObj) =>
-            {
-                return Serializer.Deserialize<Response>(serObj);
-            });
-            _serializerMock.Setup(o => o.DeserializeObject<ExceptionResponse>(It.IsAny<string>())).Returns<string>((serObj) =>
-            {
-                return Serializer.Deserialize<ExceptionResponse>(serObj);
-            });
-            _serializerMock.Setup(o => o.DeserializeObject<InvokeResponse>(It.IsAny<string>())).Returns<string>((serObj) =>
-            {
-                return Serializer.Deserialize<InvokeResponse>(serObj);
-            });
         }
 
         [TestMethod]
@@ -45,18 +26,18 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "obj1Id";
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializerMock.Object);
+            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
             var proxyObj = proxyFactory.Create<IRegisteredObject>(objectId);
             object[] args = null;
             _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
             {
-                var reqObj = Serializer.Deserialize<InvokeRequest>(req);
+                var reqObj = _serializer.DeserializeObject<InvokeRequest>(req);
                 args = new object[]
                 {
                     reqObj.methodArgs[0],
                     reqObj.methodArgs[1]
                 };
-                return Serializer.Serialize(new InvokeResponse()
+                return _serializer.SerializeObject(new InvokeResponse()
                 {
                     objectId = objectId,
                     methodId = nameof(IRegisteredObject.VoidReturnMethodStrVal),
@@ -79,18 +60,18 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "obj1Id";
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializerMock.Object);
+            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
             var proxyObj = proxyFactory.Create<IRegisteredObject>(objectId);
             object[] args = null;
             _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
             {
-                var reqObj = Serializer.Deserialize<InvokeRequest>(req);
+                var reqObj = _serializer.DeserializeObject<InvokeRequest>(req);
                 args = new object[]
                 {
-                    Serializer.Deserialize<object[]>(Serializer.Serialize(reqObj.methodArgs[0]))[0],
-                    Serializer.Deserialize<object[]>(Serializer.Serialize(reqObj.methodArgs[0]))[1]
+                    _serializer.DeserializeObject<object[]>(_serializer.SerializeObject(reqObj.methodArgs[0]))[0],
+                    _serializer.DeserializeObject<object[]>(_serializer.SerializeObject(reqObj.methodArgs[0]))[1]
                 };
-                return Serializer.Serialize(new InvokeResponse()
+                return _serializer.SerializeObject(new InvokeResponse()
                 {
                     objectId = objectId,
                     methodId = nameof(IRegisteredObject.VoidReturnMethod),

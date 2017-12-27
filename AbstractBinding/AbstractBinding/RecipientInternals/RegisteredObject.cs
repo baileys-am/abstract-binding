@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Threading.Tasks;
+using AbstractBinding.Messages;
 
 namespace AbstractBinding.RecipientInternals
 {
@@ -15,25 +16,28 @@ namespace AbstractBinding.RecipientInternals
         private readonly IReadOnlyDictionary<string, RegisteredMethod> _methods;
 
         public string ObjectId { get; private set; }
+        public ObjectDescription Description { get; private set; }
 
         public RegisteredObject(string objectId,
+                                ObjectDescription objDesc,
                                 object obj,
                                 IReadOnlyDictionary<string, RegisteredEvent> events,
                                 IReadOnlyDictionary<string, RegisteredProperty> properties,
                                 IReadOnlyDictionary<string, RegisteredMethod> methods)
         {
             ObjectId = String.IsNullOrEmpty(objectId) ? throw new ArgumentNullException(nameof(objectId)) : objectId;
+            Description = objDesc ?? throw new ArgumentNullException(nameof(objDesc));
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
             _events = events ?? throw new ArgumentNullException(nameof(events));
             _properties = properties ?? throw new ArgumentNullException(nameof(properties));
             _methods = methods ?? throw new ArgumentNullException(nameof(methods));
         }
 
-        public void Subscribe(string eventId)
+        public void Subscribe(string eventId, IRecipientCallback callback)
         {
             if (_events.ContainsKey(eventId))
             {
-                _events[eventId].Subscribe();
+                _events[eventId].Subscribe(callback);
             }
             else
             {
@@ -41,11 +45,11 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public void Unsubscribe(string eventId)
+        public void Unsubscribe(string eventId, IRecipientCallback callback)
         {
             if (_events.ContainsKey(eventId))
             {
-                _events[eventId].Unsubscribe();
+                _events[eventId].Unsubscribe(callback);
             }
             else
             {
@@ -77,7 +81,7 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public object Invoke(string methodId, params object[] args)
+        public object Invoke(string methodId, object[] args)
         {
             if (_methods.ContainsKey(methodId))
             {

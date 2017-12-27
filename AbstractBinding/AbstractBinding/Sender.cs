@@ -90,7 +90,7 @@ namespace AbstractBinding
                         else
                         {
                             //TODO: Make custom exception containing the binding object' description.
-                            throw new Exception($"Registered type could be found with object description for {obj.Key}");
+                            exceptions.Add(new Exception($"Registered type could not be found with object description for {obj.Key}"));
                         }
                     }
 
@@ -114,15 +114,24 @@ namespace AbstractBinding
             // Parse notification
             var notifObj = _serializer.DeserializeObject<Notification>(e.Notification);
 
-            switch (notifObj.notificationType)
+            switch (notifObj)
             {
-                case NotificationType.eventInvoked:
-                    var eventNotifObj = _serializer.DeserializeObject<EventNotification>(e.Notification);
-                    _runtimeProxies[eventNotifObj.objectId].OnNotify(eventNotifObj.eventId, eventNotifObj.eventArgs);
+                case EventNotification eventNotif:
+                    _runtimeProxies[eventNotif.objectId].OnEventNotification(eventNotif);
                     break;
                 default:
                     throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
             }
+
+            //switch (notifObj.notificationType)
+            //{
+            //    case NotificationType.eventInvoked:
+            //        var eventNotifObj = _serializer.DeserializeObject<EventNotification>(e.Notification);
+            //        _runtimeProxies[eventNotifObj.objectId].RouteEvent(eventNotifObj, e.Notification);
+            //        break;
+            //    default:
+            //        throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
+            //}
         }
     }
 }

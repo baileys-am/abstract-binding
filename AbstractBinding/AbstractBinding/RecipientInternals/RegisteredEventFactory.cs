@@ -9,18 +9,16 @@ namespace AbstractBinding.RecipientInternals
 {
     internal class RegisteredEventFactory
     {
-        private readonly IAbstractService _service;
         private readonly ISerializer _serializer;
 
-        public RegisteredEventFactory(IAbstractService service, ISerializer serializer)
+        public RegisteredEventFactory(ISerializer serializer)
         {
-            _service = service ?? throw new ArgumentNullException(nameof(service));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
         public RegisteredEvent Create(string id, object objectId, EventInfo eventInfo)
         {
-            return new RegisteredEvent(_service, _serializer, id, objectId, eventInfo);
+            return new RegisteredEvent(_serializer, id, objectId, eventInfo);
         }
     }
 }

@@ -4,24 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Converters;
 
-namespace AbstractBinding.Tests
+namespace AbstractBinding.Examples
 {
-    class Serializer : ISerializer
+    public class Serializer : ISerializer
     {
         private readonly JsonSerializerSettings _settings = new JsonSerializerSettings()
         {
             TypeNameHandling = TypeNameHandling.All,
             Converters = new List<JsonConverter>() { new StringEnumConverter() }
         };
-
-        public static bool JsonCompare(object obj1, object obj2)
-        {
-            var serializer = new Serializer();
-            return serializer.SerializeObject(obj1).Equals(serializer.SerializeObject(obj2));
-        }
 
         public string SerializeObject(object obj)
         {

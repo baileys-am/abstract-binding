@@ -187,12 +187,12 @@ namespace AbstractBinding.SenderInternals
             return true;
         }
 
-        public void OnNotify(string name, object args)
+        public void OnEventNotification(EventNotification notification)
         {
-            if (_eventHandlers.ContainsKey(name))
+            if (_eventHandlers.ContainsKey(notification.eventId))
             {
-                var handler = _eventHandlers[name];
-                handler.Method.Invoke(handler.Target, new object[] { this, args ?? EventArgs.Empty} );
+                var handler = _eventHandlers[notification.eventId];
+                handler.Method.Invoke(handler.Target, new object[] { this, notification.eventArgs });
             }
         }
 

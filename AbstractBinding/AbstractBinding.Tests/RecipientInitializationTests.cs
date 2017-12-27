@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using AbstractBinding.Messages;
 
 namespace AbstractBinding.Tests
 {
@@ -8,17 +10,14 @@ namespace AbstractBinding.Tests
     public class RecipientInitializationTests
     {
         private const string _testCategory = "Recipient Initialization";
-        private Mock<IAbstractService> _serviceMock;
-        private Mock<ISerializer> _serializerMock;
-        private Mock<IRegisteredObject> _regObjectMock;
-        
+        private readonly Mock<IRecipientCallback> _serviceMock;
+        private readonly Mock<IRegisteredObject> _regObjectMock;
+        private readonly ISerializer _serializer = new Serializer();
+
         public RecipientInitializationTests()
         {
             // Initialize service mock
-            _serviceMock = new Mock<IAbstractService>();
-
-            // Initialize serializer  mock
-            _serializerMock = new Mock<ISerializer>();
+            _serviceMock = new Mock<IRecipientCallback>();
 
             // Initialize registered object mock
             _regObjectMock = new Mock<IRegisteredObject>();
@@ -30,7 +29,7 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             var objectId = "objId1";
-            var server = new Recipient(_serviceMock.Object, _serializerMock.Object);
+            var server = new Recipient(_serializer);
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
@@ -38,8 +37,27 @@ namespace AbstractBinding.Tests
             // Assert
             //No exceptions thrown
             _serviceMock.Verify();
-            _serializerMock.Verify();
             _regObjectMock.Verify();
+        }
+
+        [TestMethod]
+        [TestCategory(_testCategory)]
+        public void GetBindingsDescriptionRequestTest()
+        {
+            // Arrange
+            var objectId = "objId1";
+            var server = new Recipient(_serializer);
+            server.Register(objectId, _regObjectMock.Object);
+            var req = _serializer.SerializeObject(new GetBindingDescriptionsRequest());
+
+            // Act
+            var resp = server.Request(req);
+
+            // Assert
+            var respObj = _serializer.DeserializeObject<GetBindingDescriptionsResponse>(resp);
+            Assert.AreEqual(ResponseType.getBindings, respObj.responseType);
+            Assert.AreEqual(1, respObj.bindings.Count);
+            Assert.AreEqual(objectId, respObj.bindings.Keys.First());
         }
     }
 }

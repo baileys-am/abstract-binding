@@ -12,6 +12,7 @@ namespace AbstractBinding.RecipientInternals
         private readonly RegisteredEventFactory _eventFactory;
         private readonly RegisteredMethodFactory _methodFactory;
         private readonly RegisteredPropertyFactory _propertyFactory;
+        private readonly ObjectDescriptionFactory _objDescFactory = new ObjectDescriptionFactory();
 
         public RegisteredObjectFactory(RegisteredEventFactory eventFactory, RegisteredPropertyFactory propertyFactory, RegisteredMethodFactory methodFactory)
         {
@@ -22,6 +23,10 @@ namespace AbstractBinding.RecipientInternals
 
         public RegisteredObject Create<T>(string objectId, T obj)
         {
+
+            // Create description
+            var objDesc = _objDescFactory.Create<T>();
+
             // Create events
             var events = new Dictionary<string, RegisteredEvent>();
             foreach (var eventInfo in typeof(T).GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
@@ -59,7 +64,7 @@ namespace AbstractBinding.RecipientInternals
                 methods.Add(registeredMethod.MethodId, registeredMethod);
             }
 
-            return new RegisteredObject(objectId, obj, events, properties, methods);
+            return new RegisteredObject(objectId, objDesc, obj, events, properties, methods);
         }
     }
 }

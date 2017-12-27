@@ -10,18 +10,21 @@ namespace AbstractBinding.RecipientInternals
 {
     internal class RegisteredEvent
     {
-        private readonly IAbstractService _service;
         private readonly ISerializer _serializer;
         private readonly object _obj;
         private readonly EventInfo _eventInfo;
         private readonly Delegate _handler;
+        private readonly object _subscribeLock = new object();
+        private readonly List<IRecipientCallback> _callbacks = new List<IRecipientCallback>();
+
+        private bool _subscribed;
 
         public string ObjectId { get; private set; }
         public string EventId { get; private set; }
 
-        public RegisteredEvent(IAbstractService service, ISerializer serializer, string objectId, object obj, EventInfo eventInfo)
+
+        public RegisteredEvent(ISerializer serializer, string objectId, object obj, EventInfo eventInfo)
         {
-            _service = service ?? throw new ArgumentNullException(nameof(service));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
             _eventInfo = eventInfo ?? throw new ArgumentNullException(nameof(eventInfo));
@@ -41,15 +44,42 @@ namespace AbstractBinding.RecipientInternals
 
         ~RegisteredEvent()
         {
-            Unsubscribe();
+            lock (_subscribeLock)
+            {
+                if (_subscribed)
+                {
+                    // Remove the event handler
+                    _eventInfo.RemoveEventHandler(_obj, _handler);
+                }
+
+                _callbacks.Clear();
+            }
         }
 
-        public void Subscribe()
+        public void Subscribe(IRecipientCallback callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             try
             {
-                // Add the event handler
-                _eventInfo.AddEventHandler(_obj, _handler);
+                lock (_subscribeLock)
+                {
+                    if (!_subscribed)
+                    {
+                        // Add the event handler
+                        _eventInfo.AddEventHandler(_obj, _handler);
+                    }
+
+                    if (!_callbacks.Contains(callback))
+                    {
+                        _callbacks.Add(callback);
+                    }
+
+                    _subscribed = true;
+                }
             }
             catch (Exception ex)
             {
@@ -57,12 +87,25 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public void Unsubscribe()
+        public void Unsubscribe(IRecipientCallback callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             try
             {
-                // Remove the event handler
-                _eventInfo.RemoveEventHandler(_obj, _handler);
+                lock (_subscribeLock)
+                {
+                    if (_subscribed)
+                    {
+                        // Remove the event handler
+                        _eventInfo.RemoveEventHandler(_obj, _handler);
+                    }
+                    
+                    _subscribed = false;
+                }
             }
             catch (Exception ex)
             {
@@ -79,7 +122,14 @@ namespace AbstractBinding.RecipientInternals
                 eventArgs = e
             };
             var serializedNotification = _serializer.SerializeObject(notification);
-            _service.Callback(serializedNotification);
+
+            lock (_subscribeLock)
+            {
+                foreach (var callback in _callbacks)
+                {
+                    callback.Callback(serializedNotification);
+                }
+            }
         }
     }
 }
