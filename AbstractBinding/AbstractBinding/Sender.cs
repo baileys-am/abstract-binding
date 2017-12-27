@@ -59,7 +59,7 @@ namespace AbstractBinding
             var resp = _client.Request(request);
 
             // Parse response
-            var respObj = _serializer.DeserializeObject<IResponse>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response."); ;
 
             switch (respObj)
             {
@@ -97,14 +97,7 @@ namespace AbstractBinding
                     }
                     break;
                 default:
-                    if (respObj != null)
-                    {
-                        throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.getBindings}', but received '{respObj.responseType}'.");
-                    }
-                    else
-                    {
-                        throw new InvalidResponseException("Failed to deserialize response.");
-                    }
+                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.getBindings}', but received '{respObj.responseType}'.");
             }
         }
 
@@ -116,7 +109,7 @@ namespace AbstractBinding
         private void _client_NotificationReceived(object sender, NotificationEventArgs e)
         {
             // Parse notification
-            var notifObj = _serializer.DeserializeObject<Notification>(e.Notification);
+            var notifObj = _serializer.DeserializeObject<Notification>(e.Notification) ?? throw new InvalidNotificationException("Failed to deserialize notification."); ;
 
             switch (notifObj)
             {
@@ -124,7 +117,7 @@ namespace AbstractBinding
                     _runtimeProxies[eventNotif.objectId].OnEventNotification(eventNotif);
                     break;
                 default:
-                    throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
+                    throw new InvalidNotificationException($"Invalid notification received: {notifObj.notificationType}. Supported notification type(s): {NotificationType.eventInvoked}.");
             }
         }
     }
