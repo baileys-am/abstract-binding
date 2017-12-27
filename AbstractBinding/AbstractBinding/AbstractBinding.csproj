@@ -46,6 +46,7 @@
     <Compile Include="InvalidResponseException.cs" />
     <Compile Include="IRecipientCallback.cs" />
     <Compile Include="Messages\IRequest.cs" />
+    <Compile Include="Messages\IResponse.cs" />
     <Compile Include="MethodDescription.cs" />
     <Compile Include="ExpressionExtensions.cs" />
     <Compile Include="MethodInfoExtensions.cs" />
@@ -77,7 +78,6 @@
     <Compile Include="RecipientInternals\RegisteredMethodFactory.cs" />
     <Compile Include="RecipientInternals\RegisteredObject.cs" />
     <Compile Include="RecipientInternals\RegisteredObjectFactory.cs" />
-    <Compile Include="Messages\Response.cs" />
     <Compile Include="RecipientInternals\RegisteredProperty.cs" />
     <Compile Include="RecipientInternals\RegisteredPropertyFactory.cs" />
     <Compile Include="RecipientBindingException.cs" />

@@ -30,7 +30,7 @@ namespace AbstractBinding.SenderInternals
                 eventId = name
             };
             var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<Response>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp);
 
             switch (respObj.responseType)
             {
@@ -63,7 +63,7 @@ namespace AbstractBinding.SenderInternals
                 eventId = name
             };
             var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<Response>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp);
 
             switch (respObj.responseType)
             {
@@ -96,7 +96,7 @@ namespace AbstractBinding.SenderInternals
                 value = value
             };
             var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<Response>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp);
 
             switch (respObj.responseType)
             {
@@ -128,7 +128,7 @@ namespace AbstractBinding.SenderInternals
                 propertyId = name
             };
             var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<Response>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp);
 
             switch (respObj.responseType)
             {
@@ -162,7 +162,7 @@ namespace AbstractBinding.SenderInternals
                 methodArgs = args
             };
             var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<Response>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp);
 
             switch (respObj.responseType)
             {

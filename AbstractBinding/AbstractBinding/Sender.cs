@@ -59,7 +59,7 @@ namespace AbstractBinding
             var resp = _client.Request(request);
 
             // Parse response
-            var respObj = _serializer.DeserializeObject<Response>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp);
 
             switch (respObj.responseType)
             {

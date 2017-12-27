@@ -16,12 +16,11 @@ namespace AbstractBinding.Messages
         propertySet,
         getBindings
     }
-
-    [Serializable]
-    internal class Response
+    
+    internal interface IResponse
     {
 #pragma warning disable IDE1006 // Naming Styles
-        public ResponseType responseType { get; set; }
+        ResponseType responseType { get; }
 #pragma warning restore IDE1006 // Naming Styles
     }
 }
