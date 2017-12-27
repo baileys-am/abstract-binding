@@ -61,14 +61,11 @@ namespace AbstractBinding
             // Parse response
             var respObj = _serializer.DeserializeObject<IResponse>(resp);
 
-            switch (respObj.responseType)
+            switch (respObj)
             {
-                case ResponseType.exception:
-                    var exceptionRespObj = _serializer.DeserializeObject<ExceptionResponse>(resp);
-                    throw exceptionRespObj.exception;
-                case ResponseType.getBindings:
-                    var getBindingsRespObj = _serializer.DeserializeObject<GetBindingDescriptionsResponse>(resp);
-
+                case ExceptionResponse exResp:
+                    throw exResp.exception;
+                case GetBindingDescriptionsResponse getBindingsResp:
                     // Dispose and clear current runtime objects
                     foreach (var obj in _runtimeProxies.Values)
                     {
@@ -78,7 +75,7 @@ namespace AbstractBinding
 
                     // For reach binding create runtime object
                     var exceptions = new List<Exception>();
-                    foreach (var obj in getBindingsRespObj.bindings)
+                    foreach (var obj in getBindingsResp.bindings)
                     {
                         var regType = _registeredTypes.FirstOrDefault(d => d.Value.Equals(obj.Value));
 
@@ -100,7 +97,14 @@ namespace AbstractBinding
                     }
                     break;
                 default:
-                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.getBindings}', but received '{respObj.responseType}'.");
+                    if (respObj != null)
+                    {
+                        throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.getBindings}', but received '{respObj.responseType}'.");
+                    }
+                    else
+                    {
+                        throw new InvalidResponseException("Failed to deserialize response.");
+                    }
             }
         }
 
@@ -122,16 +126,6 @@ namespace AbstractBinding
                 default:
                     throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
             }
-
-            //switch (notifObj.notificationType)
-            //{
-            //    case NotificationType.eventInvoked:
-            //        var eventNotifObj = _serializer.DeserializeObject<EventNotification>(e.Notification);
-            //        _runtimeProxies[eventNotifObj.objectId].RouteEvent(eventNotifObj, e.Notification);
-            //        break;
-            //    default:
-            //        throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
-            //}
         }
     }
 }
