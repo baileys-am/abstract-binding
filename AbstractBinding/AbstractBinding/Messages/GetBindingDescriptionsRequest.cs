@@ -8,6 +8,8 @@ namespace AbstractBinding.Messages
 {
     internal class GetBindingDescriptionsRequest : IRequest
     {
+#pragma warning disable IDE1006 // Naming Styles
         public RequestType requestType => RequestType.getBindings;
+#pragma warning restore IDE1006 // Naming Styles
     }
 }

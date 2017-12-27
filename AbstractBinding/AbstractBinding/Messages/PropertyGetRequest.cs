@@ -8,13 +8,11 @@ namespace AbstractBinding.Messages
 {
     internal class PropertyGetRequest : IRequest
     {
+#pragma warning disable IDE1006 // Naming Styles
         public RequestType requestType => RequestType.propertyGet;
-
-#pragma warning disable IDE1006 // Naming Styles
+        
         public string objectId { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
 
-#pragma warning disable IDE1006 // Naming Styles
         public string propertyId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
     }

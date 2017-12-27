@@ -9,17 +9,13 @@ namespace AbstractBinding.Messages
     [Serializable]
     internal class InvokeRequest : IRequest
     {
+#pragma warning disable IDE1006 // Naming Styles
         public RequestType requestType => RequestType.invoke;
-
-#pragma warning disable IDE1006 // Naming Styles
+        
         public string objectId { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
 
-#pragma warning disable IDE1006 // Naming Styles
         public string methodId { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
 
-#pragma warning disable IDE1006 // Naming Styles
         public object[] methodArgs { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
     }
