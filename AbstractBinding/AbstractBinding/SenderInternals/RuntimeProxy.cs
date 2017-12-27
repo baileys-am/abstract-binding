@@ -30,26 +30,25 @@ namespace AbstractBinding.SenderInternals
                 eventId = name
             };
             var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<IResponse>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response.");
 
-            switch (respObj.responseType)
+            switch (respObj)
             {
-                case ResponseType.exception:
-                    var respEx = _serializer.DeserializeObject<ExceptionResponse>(resp);
-                    throw respEx.exception;
-                case ResponseType.subscribe:
-                    var subEx = _serializer.DeserializeObject<SubscribeResponse>(resp);
-                    if (subEx.objectId != _objectId)
+                case ExceptionResponse exResp:
+                    throw exResp.exception;
+                case SubscribeResponse subscribeResp:
+                    if (subscribeResp.objectId != _objectId)
                     {
-                        throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{subEx.objectId}'.");
+                        throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{subscribeResp.objectId}'.");
                     }
-                    else if (subEx.eventId != name)
+                    else if (subscribeResp.eventId != name)
                     {
-                        throw new InvalidResponseException($"Incorrect event ID. Expected '{name}', but received '{subEx.eventId}'.");
+                        throw new InvalidResponseException($"Incorrect event ID. Expected '{name}', but received '{subscribeResp.eventId}'.");
                     }
                     break;
                 default:
                     throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.subscribe}', but received '{respObj.responseType}'.");
+                    
             }
             return true;
         }
@@ -63,26 +62,55 @@ namespace AbstractBinding.SenderInternals
                 eventId = name
             };
             var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<IResponse>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response.");
 
-            switch (respObj.responseType)
+            switch (respObj)
             {
-                case ResponseType.exception:
-                    var respEx = _serializer.DeserializeObject<ExceptionResponse>(resp);
-                    throw respEx.exception;
-                case ResponseType.unsubscribe:
-                    var subEx = _serializer.DeserializeObject<UnsubscribeResponse>(resp);
-                    if (subEx.objectId != _objectId)
+                case ExceptionResponse exResp:
+                    throw exResp.exception;
+                case UnsubscribeResponse unsubscribeResp:
+                    if (unsubscribeResp.objectId != _objectId)
                     {
-                        throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{subEx.objectId}'.");
+                        throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{unsubscribeResp.objectId}'.");
                     }
-                    else if (subEx.eventId != name)
+                    else if (unsubscribeResp.eventId != name)
                     {
-                        throw new InvalidResponseException($"Incorrect event ID. Expected '{name}', but received '{subEx.eventId}'.");
+                        throw new InvalidResponseException($"Incorrect event ID. Expected '{name}', but received '{unsubscribeResp.eventId}'.");
                     }
                     break;
                 default:
                     throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.unsubscribe}', but received '{respObj.responseType}'.");
+            }
+            return true;
+        }
+
+        public bool GetValue(Type interfaceType, string name, out object value)
+        {
+            var request = new PropertyGetRequest()
+            {
+                objectId = _objectId,
+                propertyId = name
+            };
+            var resp = _client.Request(_serializer.SerializeObject(request));
+            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response.");
+
+            switch (respObj)
+            {
+                case ExceptionResponse exResp:
+                    throw exResp.exception;
+                case PropertyGetResponse propertyGetResp:
+                    value = propertyGetResp.value;
+                    if (propertyGetResp.objectId != _objectId)
+                    {
+                        throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{propertyGetResp.objectId}'.");
+                    }
+                    else if (propertyGetResp.propertyId != name)
+                    {
+                        throw new InvalidResponseException($"Incorrect property ID. Expected '{name}', but received '{propertyGetResp.propertyId}'.");
+                    }
+                    break;
+                default:
+                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.propertyGet}', but received '{respObj.responseType}'.");
             }
             return true;
         }
@@ -96,59 +124,24 @@ namespace AbstractBinding.SenderInternals
                 value = value
             };
             var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<IResponse>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response.");
 
-            switch (respObj.responseType)
+            switch (respObj)
             {
-                case ResponseType.exception:
-                    var exResp = _serializer.DeserializeObject<ExceptionResponse>(resp);
+                case ExceptionResponse exResp:
                     throw exResp.exception;
-                case ResponseType.propertySet:
-                    var getResp = _serializer.DeserializeObject<PropertySetResponse>(resp);
-                    if (getResp.objectId != _objectId)
+                case PropertySetResponse propertySetResp:
+                    if (propertySetResp.objectId != _objectId)
                     {
-                        throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{getResp.objectId}'.");
+                        throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{propertySetResp.objectId}'.");
                     }
-                    else if (getResp.propertyId != name)
+                    else if (propertySetResp.propertyId != name)
                     {
-                        throw new InvalidResponseException($"Incorrect property ID. Expected '{name}', but received '{getResp.propertyId}'.");
+                        throw new InvalidResponseException($"Incorrect property ID. Expected '{name}', but received '{propertySetResp.propertyId}'.");
                     }
                     break;
                 default:
                     throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.propertySet}', but received '{respObj.responseType}'.");
-            }
-            return true;
-        }
-
-        public bool GetValue(Type interfaceType, string name, out object value)
-        {
-            var request = new PropertyGetRequest()
-            {
-                objectId = _objectId,
-                propertyId = name
-            };
-            var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<IResponse>(resp);
-
-            switch (respObj.responseType)
-            {
-                case ResponseType.exception:
-                    var exResp = _serializer.DeserializeObject<ExceptionResponse>(resp);
-                    throw exResp.exception;
-                case ResponseType.propertyGet:
-                    var getResp = _serializer.DeserializeObject<PropertyGetResponse>(resp);
-                    value = getResp.value;
-                    if (getResp.objectId != _objectId)
-                    {
-                        throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{getResp.objectId}'.");
-                    }
-                    else if (getResp.propertyId != name)
-                    {
-                        throw new InvalidResponseException($"Incorrect property ID. Expected '{name}', but received '{getResp.propertyId}'.");
-                    }
-                    break;
-                default:
-                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.propertyGet}', but received '{respObj.responseType}'.");
             }
             return true;
         }
@@ -162,15 +155,13 @@ namespace AbstractBinding.SenderInternals
                 methodArgs = args
             };
             var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<IResponse>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response.");
 
-            switch (respObj.responseType)
+            switch (respObj)
             {
-                case ResponseType.exception:
-                    var exResp = _serializer.DeserializeObject<ExceptionResponse>(resp);
+                case ExceptionResponse exResp:
                     throw exResp.exception;
-                case ResponseType.invoke:
-                    var invokeResp = _serializer.DeserializeObject<InvokeResponse>(resp);
+                case InvokeResponse invokeResp:
                     result = invokeResp.result;
                     if (invokeResp.objectId != _objectId)
                     {
