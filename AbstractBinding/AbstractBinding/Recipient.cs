@@ -45,69 +45,71 @@ namespace AbstractBinding
 
             try
             {
-                switch (requestObj.requestType)
+                switch (requestObj)
                 {
-                    case RequestType.getBindings:
+                    case GetBindingDescriptionsRequest getBindingsReq:
                         var getBindingsResp = new GetBindingDescriptionsResponse();
                         foreach (var obj in _registeredObjects)
                         {
                             getBindingsResp.bindings.Add(obj.Key, obj.Value.Description);
                         }
                         return _serializer.SerializeObject(getBindingsResp);
-                    case RequestType.subscribe:
-                        var subscribeRequest = _serializer.DeserializeObject<SubscribeRequest>(request);
-                        var subscribeObj = _registeredObjects[subscribeRequest.objectId];
-                        subscribeObj.Subscribe(subscribeRequest.eventId, callback);
+                    case SubscribeRequest subscribeReq:
+                        var subscribeObj = _registeredObjects[subscribeReq.objectId];
+                        subscribeObj.Subscribe(subscribeReq.eventId, callback);
                         var subscribeResponse = new SubscribeResponse()
                         {
-                            objectId = subscribeRequest.objectId,
-                            eventId = subscribeRequest.eventId
+                            objectId = subscribeReq.objectId,
+                            eventId = subscribeReq.eventId
                         };
                         return _serializer.SerializeObject(subscribeResponse);
-                    case RequestType.unsubscribe:
-                        var unsubscribeRequest = _serializer.DeserializeObject<UnsubscribeRequest>(request);
-                        var unsubscribeObj = _registeredObjects[unsubscribeRequest.objectId];
-                        unsubscribeObj.Unsubscribe(unsubscribeRequest.eventId, callback);
+                    case UnsubscribeRequest unsubscribeReq:
+                        var unsubscribeObj = _registeredObjects[unsubscribeReq.objectId];
+                        unsubscribeObj.Unsubscribe(unsubscribeReq.eventId, callback);
                         var unsubscribeResponse = new UnsubscribeResponse()
                         {
-                            objectId = unsubscribeRequest.objectId,
-                            eventId = unsubscribeRequest.eventId
+                            objectId = unsubscribeReq.objectId,
+                            eventId = unsubscribeReq.eventId
                         };
                         return _serializer.SerializeObject(unsubscribeResponse);
-                    case RequestType.invoke:
-                        var invokeRequest = _serializer.DeserializeObject<InvokeRequest>(request);
-                        var invokeObj = _registeredObjects[invokeRequest.objectId];
-                        object invokeResult = invokeObj.Invoke(invokeRequest.methodId, invokeRequest.methodArgs);
-                        var invokeResponse = new InvokeResponse()
-                        {
-                            objectId = invokeRequest.objectId,
-                            methodId = invokeRequest.methodId,
-                            result = invokeResult
-                        };
-                        return _serializer.SerializeObject(invokeResponse);
-                    case RequestType.propertyGet:
-                        var propertyGetRequest = _serializer.DeserializeObject<PropertyGetRequest>(request);
-                        var propertyGetObj = _registeredObjects[propertyGetRequest.objectId];
-                        object propertyGetValue = propertyGetObj.GetValue(propertyGetRequest.propertyId);
+                    case PropertyGetRequest propertyGetReq:
+                        var propertyGetObj = _registeredObjects[propertyGetReq.objectId];
+                        object propertyGetValue = propertyGetObj.GetValue(propertyGetReq.propertyId);
                         var propertyGetResponse = new PropertyGetResponse()
                         {
-                            objectId = propertyGetRequest.objectId,
-                            propertyId = propertyGetRequest.propertyId,
+                            objectId = propertyGetReq.objectId,
+                            propertyId = propertyGetReq.propertyId,
                             value = propertyGetValue
                         };
                         return _serializer.SerializeObject(propertyGetResponse);
-                    case RequestType.propertySet:
-                        var propertySetRequest = _serializer.DeserializeObject<PropertySetRequest>(request);
-                        var propertySetObj = _registeredObjects[propertySetRequest.objectId];
-                        propertySetObj.SetValue(propertySetRequest.propertyId, propertySetRequest.value);
+                    case PropertySetRequest propertySetReq:
+                        var propertySetObj = _registeredObjects[propertySetReq.objectId];
+                        propertySetObj.SetValue(propertySetReq.propertyId, propertySetReq.value);
                         var propertySetResponse = new PropertySetResponse()
                         {
-                            objectId = propertySetRequest.objectId,
-                            propertyId = propertySetRequest.propertyId
+                            objectId = propertySetReq.objectId,
+                            propertyId = propertySetReq.propertyId
                         };
                         return _serializer.SerializeObject(propertySetResponse);
+                    case InvokeRequest invokeReq:
+                        var invokeObj = _registeredObjects[invokeReq.objectId];
+                        object invokeResult = invokeObj.Invoke(invokeReq.methodId, invokeReq.methodArgs);
+                        var invokeResponse = new InvokeResponse()
+                        {
+                            objectId = invokeReq.objectId,
+                            methodId = invokeReq.methodId,
+                            result = invokeResult
+                        };
+                        return _serializer.SerializeObject(invokeResponse);
                     default:
-                        throw new RecipientBindingException($"Unsupported request type: {requestObj.requestType}");
+                        if (requestObj != null)
+                        {
+                            throw new RecipientBindingException($"Unsupported request type: {requestObj.requestType}");
+                        }
+                        else
+                        {
+                            throw new RecipientBindingException($"Request failed to deserialize.");
+                        }
                 }
             }
             catch (RecipientBindingException ex)
