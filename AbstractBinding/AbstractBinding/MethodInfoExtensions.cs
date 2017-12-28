@@ -9,7 +9,7 @@ namespace AbstractBinding
 {
     internal static class MethodInfoExtensions
     {
-        public static bool HasParamsProperty(this MethodInfo info)
+        public static bool HasParamsArg(this MethodInfo info)
         {
             return info.GetParameters().Any(p => p.IsParams());
         }
