@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Examples
 {
-    public class ExampleClass
+    public class ArgsExampleClass
     {
         public string StringProperty { get; set; }
         public double DoubleProperty { get; set; }
@@ -24,6 +24,6 @@ namespace AbstractBinding.Examples
 
         void MethodVoidParamsString(params string[] strs);
 
-        void MethodVoidExampleClass(ExampleClass exClass);
+        void MethodVoidExampleClass(ArgsExampleClass exClass);
     }
 }
