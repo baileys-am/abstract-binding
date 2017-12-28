@@ -31,7 +31,7 @@ namespace AbstractBinding
             var methods = new Dictionary<string, MethodDescription>();
             foreach (var methodInfo in typeof(T).GetContractMethods())
             {
-                methods.Add(methodInfo.Name, new MethodDescription());
+                methods.Add(methodInfo.GetFullName(), new MethodDescription());
             }
 
             return new ObjectDescription() { Events = events, Properties = properties, Methods = methods };

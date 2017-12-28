@@ -22,7 +22,7 @@ namespace AbstractBinding.RecipientInternals
             _methodInfo = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
 
             ObjectId = String.IsNullOrEmpty(objectId) ? throw new ArgumentNullException(nameof(objectId)) : objectId;
-            MethodId = _methodInfo.Name;
+            MethodId = _methodInfo.GetFullName();
         }
         
         public object Invoke(object[] objs)

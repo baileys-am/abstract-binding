@@ -289,8 +289,6 @@ namespace AbstractBinding.SenderInternals
             }
 
             ILGenerator ilGenerator = mb.GetILGenerator();
-
-            string methodName = mb.Name;
             LocalBuilder typeLb = ilGenerator.DeclareLocal(typeof(Type), true);
             LocalBuilder paramsLb = ilGenerator.DeclareLocal(typeof(List<object>), true);
             LocalBuilder resultLb = ilGenerator.DeclareLocal(typeof(object), true);
@@ -321,7 +319,7 @@ namespace AbstractBinding.SenderInternals
             //C#: ret = DynamicProxy.TryInvokeMember(interfaceType, propertyName, params, out result)
             ilGenerator.Emit(OpCodes.Ldarg_0);
             ilGenerator.Emit(OpCodes.Ldloc_0);
-            ilGenerator.Emit(OpCodes.Ldstr, methodName);
+            ilGenerator.Emit(OpCodes.Ldstr, mi.GetFullName());
             ilGenerator.Emit(OpCodes.Ldloc_1);
             ilGenerator.EmitCall(OpCodes.Callvirt, listToArray.GetMethodInfo(), null);
             ilGenerator.Emit(OpCodes.Ldloca_S, 2);
