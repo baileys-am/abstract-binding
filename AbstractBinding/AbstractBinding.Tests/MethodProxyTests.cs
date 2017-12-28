@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using AbstractBinding.Messages;
@@ -26,6 +27,8 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "obj1Id";
+            var objDescFactory = new ObjectDescriptionFactory();
+            var objDesc = objDescFactory.Create<IRegisteredObject>();
             var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
             var proxyObj = proxyFactory.Create<IRegisteredObject>(objectId);
             object[] args = null;
@@ -40,7 +43,7 @@ namespace AbstractBinding.Tests
                 return _serializer.SerializeObject(new InvokeResponse()
                 {
                     objectId = objectId,
-                    methodId = nameof(IRegisteredObject.VoidReturnMethodStrVal),
+                    methodId = objDesc.Methods.First(kvp => kvp.Key.Contains(nameof(IRegisteredObject.VoidReturnMethodStrVal))).Key,
                     result = null
                 });
             });
@@ -60,6 +63,8 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "obj1Id";
+            var objDescFactory = new ObjectDescriptionFactory();
+            var objDesc = objDescFactory.Create<IRegisteredObject>();
             var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
             var proxyObj = proxyFactory.Create<IRegisteredObject>(objectId);
             object[] args = null;
@@ -74,7 +79,7 @@ namespace AbstractBinding.Tests
                 return _serializer.SerializeObject(new InvokeResponse()
                 {
                     objectId = objectId,
-                    methodId = nameof(IRegisteredObject.VoidReturnMethod),
+                    methodId = objDesc.Methods.First(kvp => kvp.Key.Contains(nameof(IRegisteredObject.VoidReturnMethod))).Key,
                     result = null
                 });
             });
