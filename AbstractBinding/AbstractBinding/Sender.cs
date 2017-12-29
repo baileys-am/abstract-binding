@@ -73,7 +73,7 @@ namespace AbstractBinding
                     }
                     _runtimeProxies.Clear();
 
-                    // For reach binding create runtime object
+                    // For each binding create runtime object
                     var exceptions = new List<Exception>();
                     foreach (var obj in getBindingsResp.bindings)
                     {
@@ -86,7 +86,7 @@ namespace AbstractBinding
                         }
                         else
                         {
-                            //TODO: Make custom exception containing the binding object' description.
+                            //TODO: Make custom exception containing the binding object description.
                             exceptions.Add(new Exception($"Registered type could not be found with object description for {obj.Key}"));
                         }
                     }
