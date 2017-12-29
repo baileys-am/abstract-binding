@@ -25,13 +25,41 @@ namespace AbstractBinding
             _objectFactory = new RegisteredObjectFactory(eventFactory, propertyFactory, methodFactory);
         }
 
-        public void Register<T>(string objectId, T obj)
+        public void Register<T>(string objectId, T obj, params Type[] nestedTypes)
         {
             // Create registered object
             var registeredObect = _objectFactory.Create(objectId, obj);
 
+            // Register property objects
+            foreach (var property in typeof(T).GetContractProperties().Where(p => nestedTypes.Contains(p.PropertyType))
+)            {
+                object value = property.GetValue(obj);
+                if (value != null)
+                {
+                    var genericRegisterMethod = GetType().GetMethods().First(m => m.Name == nameof(Register) && m.GetParameters().Count() == 1);
+                    genericRegisterMethod.MakeGenericMethod(property.PropertyType).Invoke(this, new object[] { value });
+                }
+            }
+
             // Store registered object
             _registeredObjects.Add(objectId, registeredObect);
+        }
+
+        public void Register<T>(T obj)
+        {
+            while (true)
+            {
+                string id = Guid.NewGuid().ToString();
+                if (_registeredObjects.ContainsKey(id))
+                {
+                    continue;
+                }
+                else
+                {
+                    Register(id, obj);
+                    break;
+                }
+            }
         }
 
         public string Request(string request)
