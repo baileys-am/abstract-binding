@@ -9,7 +9,7 @@ using AbstractBinding.Examples.Protos;
 
 namespace AbstractBinding.Examples
 {
-    public class SenderClient : Protos.RecipientService.RecipientServiceClient, IAbstractClient
+    public class SenderClient : Protos.RecipientService.RecipientServiceClient, ISenderClient
     {
         private Task _listenTask;
         private CancellationTokenSource _listenCancel;

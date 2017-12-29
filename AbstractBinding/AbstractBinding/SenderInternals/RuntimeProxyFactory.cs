@@ -11,14 +11,14 @@ namespace AbstractBinding.SenderInternals
 {
     internal class RuntimeProxyFactory
     {
-        private readonly IAbstractClient _client;
+        private readonly ISenderClient _client;
         private readonly ISerializer _serializer;
         private readonly AssemblyName _assName;
         private readonly AssemblyBuilder _assBuilder;
         private readonly ModuleBuilder _moduleBuilder;
         private readonly Dictionary<Type, Type> _proxies = new Dictionary<Type, Type>();
 
-        public RuntimeProxyFactory(IAbstractClient client, ISerializer serializer)
+        public RuntimeProxyFactory(ISenderClient client, ISerializer serializer)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));

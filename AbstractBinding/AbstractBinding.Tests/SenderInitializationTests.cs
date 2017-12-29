@@ -11,13 +11,13 @@ namespace AbstractBinding.Tests
     {
         private const string _testCategory = "Sender Initialization";
 
-        private readonly Mock<IAbstractClient> _clientMock;
+        private readonly Mock<ISenderClient> _clientMock;
         private readonly ISerializer _serializer = new Serializer();
 
         public SenderInitializationTests()
         {
             // Initialize client mock
-            _clientMock = new Mock<IAbstractClient>();
+            _clientMock = new Mock<ISenderClient>();
         }
 
         [TestMethod]

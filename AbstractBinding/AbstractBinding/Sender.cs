@@ -10,7 +10,7 @@ namespace AbstractBinding
 {
     public class Sender
     {
-        private readonly IAbstractClient _client;
+        private readonly ISenderClient _client;
         private readonly ISerializer _serializer;
         private readonly ObjectDescriptionFactory _objDescFactory;
         private readonly RuntimeProxyFactory _runtimeProxyFactory;
@@ -19,7 +19,7 @@ namespace AbstractBinding
 
         public IEnumerable<Type> RegisteredTypes => _registeredTypes.Keys;
 
-        public Sender(IAbstractClient client, ISerializer serializer)
+        public Sender(ISenderClient client, ISerializer serializer)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));

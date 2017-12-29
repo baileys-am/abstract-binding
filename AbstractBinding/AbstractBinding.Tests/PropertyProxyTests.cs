@@ -10,13 +10,13 @@ namespace AbstractBinding.Tests
     public class PropertyProxyTests
     {
         private const string _testCategory = "Property Proxy Tests";
-        private readonly Mock<IAbstractClient> _clientMock;
+        private readonly Mock<ISenderClient> _clientMock;
         private readonly ISerializer _serializer = new Serializer();
 
         public PropertyProxyTests()
         {
             // Initialize client mock
-            _clientMock = new Mock<IAbstractClient>();
+            _clientMock = new Mock<ISenderClient>();
         }
 
         [TestMethod]

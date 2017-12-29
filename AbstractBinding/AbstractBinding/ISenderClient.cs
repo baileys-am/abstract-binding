@@ -17,7 +17,7 @@ namespace AbstractBinding
         }
     }
 
-    public interface IAbstractClient
+    public interface ISenderClient
     {
         event EventHandler<NotificationEventArgs> NotificationReceived;
 

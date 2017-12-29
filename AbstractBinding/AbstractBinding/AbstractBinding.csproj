@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IAbstractClient.cs" />
+    <Compile Include="ISenderClient.cs" />
     <Compile Include="EventDescription.cs" />
     <Compile Include="InvalidNotificationException.cs" />
     <Compile Include="InvalidResponseException.cs" />
