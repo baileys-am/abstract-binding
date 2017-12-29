@@ -10,6 +10,5 @@ namespace AbstractBinding
     {
         string SerializeObject(object obj);
         T DeserializeObject<T>(string serializedObj);
-        object DeserializeObject(string serializedObj, Type type);
     }
 }

@@ -35,9 +35,29 @@ namespace AbstractBinding.Tests
             server.Register(objectId, _regObjectMock.Object);
 
             // Assert
-            //No exceptions thrown
             _serviceMock.Verify();
             _regObjectMock.Verify();
+        }
+
+        [TestMethod]
+        [TestCategory(_testCategory)]
+        public void RegisterObjectWithNestedBindingTest()
+        {
+            // Arrange
+            var objectId = "objId1";
+            var server = new Recipient(_serializer);
+            var nestedObjectMock = new Mock<INestedObject>();
+            _regObjectMock.SetupGet(o => o.NestedObject).Returns(nestedObjectMock.Object);
+
+            // Act
+            server.Register(objectId, _regObjectMock.Object, typeof(INestedObject));
+            string resp = server.Request(_serializer.SerializeObject(new GetBindingDescriptionsRequest()));
+            GetBindingDescriptionsResponse respObj = _serializer.DeserializeObject<GetBindingDescriptionsResponse>(resp);
+
+            // Assert
+            _serviceMock.Verify();
+            _regObjectMock.Verify();
+            Assert.AreEqual(2, respObj.bindings.Count);
         }
 
         [TestMethod]

@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Messages
 {
-    internal enum RequestType
+    internal enum ResponseType
     {
         subscribe,
         unsubscribe,
         invoke,
+        exception,
         propertyGet,
         propertySet,
         getBindings
     }
-
-    [Serializable]
-    internal class Request
+    
+    internal interface IResponse
     {
 #pragma warning disable IDE1006 // Naming Styles
-        public RequestType requestType { get; set; }
+        ResponseType responseType { get; }
 #pragma warning restore IDE1006 // Naming Styles
     }
 }

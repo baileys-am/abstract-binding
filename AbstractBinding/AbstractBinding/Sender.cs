@@ -59,16 +59,13 @@ namespace AbstractBinding
             var resp = _client.Request(request);
 
             // Parse response
-            var respObj = _serializer.DeserializeObject<Response>(resp);
+            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response."); ;
 
-            switch (respObj.responseType)
+            switch (respObj)
             {
-                case ResponseType.exception:
-                    var exceptionRespObj = _serializer.DeserializeObject<ExceptionResponse>(resp);
-                    throw exceptionRespObj.exception;
-                case ResponseType.getBindings:
-                    var getBindingsRespObj = _serializer.DeserializeObject<GetBindingDescriptionsResponse>(resp);
-
+                case ExceptionResponse exResp:
+                    throw exResp.exception;
+                case GetBindingDescriptionsResponse getBindingsResp:
                     // Dispose and clear current runtime objects
                     foreach (var obj in _runtimeProxies.Values)
                     {
@@ -76,9 +73,9 @@ namespace AbstractBinding
                     }
                     _runtimeProxies.Clear();
 
-                    // For reach binding create runtime object
+                    // For each binding create runtime object
                     var exceptions = new List<Exception>();
-                    foreach (var obj in getBindingsRespObj.bindings)
+                    foreach (var obj in getBindingsResp.bindings)
                     {
                         var regType = _registeredTypes.FirstOrDefault(d => d.Value.Equals(obj.Value));
 
@@ -89,7 +86,7 @@ namespace AbstractBinding
                         }
                         else
                         {
-                            //TODO: Make custom exception containing the binding object' description.
+                            //TODO: Make custom exception containing the binding object description.
                             exceptions.Add(new Exception($"Registered type could not be found with object description for {obj.Key}"));
                         }
                     }
@@ -112,7 +109,7 @@ namespace AbstractBinding
         private void _client_NotificationReceived(object sender, NotificationEventArgs e)
         {
             // Parse notification
-            var notifObj = _serializer.DeserializeObject<Notification>(e.Notification);
+            var notifObj = _serializer.DeserializeObject<Notification>(e.Notification) ?? throw new InvalidNotificationException("Failed to deserialize notification."); ;
 
             switch (notifObj)
             {
@@ -120,18 +117,8 @@ namespace AbstractBinding
                     _runtimeProxies[eventNotif.objectId].OnEventNotification(eventNotif);
                     break;
                 default:
-                    throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
+                    throw new InvalidNotificationException($"Invalid notification received: {notifObj.notificationType}. Supported notification type(s): {NotificationType.eventInvoked}.");
             }
-
-            //switch (notifObj.notificationType)
-            //{
-            //    case NotificationType.eventInvoked:
-            //        var eventNotifObj = _serializer.DeserializeObject<EventNotification>(e.Notification);
-            //        _runtimeProxies[eventNotifObj.objectId].RouteEvent(eventNotifObj, e.Notification);
-            //        break;
-            //    default:
-            //        throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
-            //}
         }
     }
 }

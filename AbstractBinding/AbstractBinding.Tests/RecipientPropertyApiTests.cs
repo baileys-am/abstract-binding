@@ -58,16 +58,16 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
-            _regObjectMock.SetupGet(o => o.StringValueProperty).Throws(new NotImplementedException());
             var recipient = new Recipient(_serializer);
             var requestObj = new PropertyGetRequest()
             {
                 objectId = objectId,
                 propertyId = nameof(IRegisteredObject.StringValueProperty)
             };
+            recipient.Register(objectId, _regObjectMock.Object);
+            _regObjectMock.SetupGet(o => o.StringValueProperty).Throws(new NotImplementedException());
 
             // Act
-            recipient.Register(objectId, _regObjectMock.Object);
             string response = recipient.Request(_serializer.SerializeObject(requestObj));
 
             // Assert

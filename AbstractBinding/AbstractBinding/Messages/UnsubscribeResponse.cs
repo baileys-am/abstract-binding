@@ -7,19 +7,14 @@ using System.Threading.Tasks;
 namespace AbstractBinding.Messages
 {
     [Serializable]
-    internal class UnsubscribeResponse : Response
+    internal class UnsubscribeResponse : IResponse
     {
 #pragma warning disable IDE1006 // Naming Styles
+        public ResponseType responseType => ResponseType.unsubscribe;
+        
         public string objectId { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
 
-#pragma warning disable IDE1006 // Naming Styles
         public string eventId { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
-
-        public UnsubscribeResponse()
-        {
-            responseType = ResponseType.unsubscribe;
-        }
     }
 }
