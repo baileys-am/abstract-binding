@@ -1,6 +1,6 @@
 ﻿namespace AbstractBinding
 {
-    internal class MethodDescription
+    public class MethodDescription
     {
         public bool Equals(MethodDescription desc)
         {

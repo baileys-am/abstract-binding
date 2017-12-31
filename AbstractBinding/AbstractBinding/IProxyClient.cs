@@ -7,7 +7,7 @@ using AbstractBinding.Messages;
 
 namespace AbstractBinding
 {
-    internal interface IProxyClient
+    public interface IProxyClient
     {
         event EventHandler<Messages.NotificationEventArgs> NotificationReceived;
 

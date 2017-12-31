@@ -7,20 +7,20 @@ using AbstractBinding.Messages;
 
 namespace AbstractBinding
 {
-    public class NotificationEventArgs : EventArgs
-    {
-        public string Notification { get; private set; }
+    //public class NotificationEventArgs : EventArgs
+    //{
+    //    public string Notification { get; private set; }
 
-        public NotificationEventArgs(string notification)
-        {
-            Notification = notification;
-        }
-    }
+    //    public NotificationEventArgs(string notification)
+    //    {
+    //        Notification = notification;
+    //    }
+    //}
 
-    public interface ISenderClient
-    {
-        event EventHandler<NotificationEventArgs> NotificationReceived;
+    //public interface ISenderClient
+    //{
+    //    event EventHandler<NotificationEventArgs> NotificationReceived;
 
-        string Request(string request);
-    }
+    //    string Request(string request);
+    //}
 }
