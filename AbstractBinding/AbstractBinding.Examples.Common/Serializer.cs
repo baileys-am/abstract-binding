@@ -8,7 +8,7 @@ using Newtonsoft.Json.Converters;
 
 namespace AbstractBinding.Examples
 {
-    public class Serializer : ISerializer
+    public class Serializer
     {
         private readonly JsonSerializerSettings _settings = new JsonSerializerSettings()
         {

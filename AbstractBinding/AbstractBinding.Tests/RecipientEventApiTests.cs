@@ -11,7 +11,6 @@ namespace AbstractBinding.Tests
         private const string _testCategory = "Recipient Event API";
         private readonly Mock<IRecipientCallback> _callbackMock;
         private readonly Mock<IRegisteredObject> _regObjectMock;
-        private readonly ISerializer _serializer = new Serializer();
 
         public RecipientEventApiTests()
         {
@@ -28,13 +27,13 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             var objectId = "objId1";
-            string notification = null;
-            _callbackMock.Setup(o => o.Callback(It.IsAny<string>())).Callback<string>((resp) =>
+            EventNotification actualNotif = null;
+            _callbackMock.Setup(o => o.Callback(It.IsAny<INotification>())).Callback<INotification>((notif) =>
             {
-                notification = resp;
+                actualNotif = notif as EventNotification;
             });
-            var server = new Recipient(_serializer);
-            var requestObj = new SubscribeRequest()
+            var server = new Recipient();
+            var request = new SubscribeRequest()
             {
                 objectId = objectId,
                 eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
@@ -42,23 +41,21 @@ namespace AbstractBinding.Tests
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            string response = server.Request(_serializer.SerializeObject(requestObj), _callbackMock.Object);
+            var response = server.Request(request, _callbackMock.Object) as SubscribeResponse;
             _regObjectMock.Raise(o => o.NotifyOnNonDataChanged += null, EventArgs.Empty);
 
             // Assert
             _callbackMock.Verify();
             _regObjectMock.Verify();
-
-            var notificationObj = _serializer.DeserializeObject<EventNotification>(notification);
-            Assert.AreEqual(NotificationType.eventInvoked, notificationObj.notificationType);
-            Assert.AreEqual(requestObj.objectId, notificationObj.objectId);
-            Assert.AreEqual(requestObj.eventId, notificationObj.eventId);
-            Assert.IsTrue(Serializer.JsonCompare(EventArgs.Empty, notificationObj.eventArgs));
-
-            var responseObj = _serializer.DeserializeObject<SubscribeResponse>(response);
-            Assert.AreEqual(ResponseType.subscribe, responseObj.responseType);
-            Assert.AreEqual(requestObj.objectId, responseObj.objectId);
-            Assert.AreEqual(requestObj.eventId, responseObj.eventId);
+            
+            Assert.AreEqual(NotificationType.eventInvoked, actualNotif.notificationType);
+            Assert.AreEqual(request.objectId, actualNotif.objectId);
+            Assert.AreEqual(request.eventId, actualNotif.eventId);
+            Assert.IsNotNull(actualNotif.eventArgs as EventArgs);
+            
+            Assert.AreEqual(ResponseType.subscribe, response.responseType);
+            Assert.AreEqual(request.objectId, response.objectId);
+            Assert.AreEqual(request.eventId, response.eventId);
         }
 
         [TestMethod]
@@ -67,13 +64,13 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             var objectId = "objId1";
-            string notification = null;
-            _callbackMock.Setup(o => o.Callback(It.IsAny<string>())).Callback<string>((resp) =>
+            EventNotification notification = null;
+            _callbackMock.Setup(o => o.Callback(It.IsAny<INotification>())).Callback<INotification>((resp) =>
             {
-                notification = resp;
+                notification = resp as EventNotification;
             });
-            var server = new Recipient(_serializer);
-            var requestObj = new SubscribeRequest()
+            var server = new Recipient();
+            var request = new SubscribeRequest()
             {
                 objectId = objectId,
                 eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
@@ -82,23 +79,23 @@ namespace AbstractBinding.Tests
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            string response = server.Request(_serializer.SerializeObject(requestObj), _callbackMock.Object);
+            var response = server.Request(request, _callbackMock.Object) as SubscribeResponse;
             _regObjectMock.Raise(o => o.NotifyOnDataChanged += null, expectedEventArgs);
 
             // Assert
             _callbackMock.Verify();
             _regObjectMock.Verify();
+            
+            Assert.AreEqual(NotificationType.eventInvoked, notification.notificationType);
+            Assert.AreEqual(request.objectId, notification.objectId);
+            Assert.AreEqual(request.eventId, notification.eventId);
+            Assert.IsNotNull(notification.eventArgs as DataChangedEventArgs);
+            Assert.AreEqual("eventName", (notification.eventArgs as DataChangedEventArgs).Name);
+            Assert.AreEqual(2.0, (notification.eventArgs as DataChangedEventArgs).Data);
 
-            var notificationObj = _serializer.DeserializeObject<EventNotification>(notification);
-            Assert.AreEqual(NotificationType.eventInvoked, notificationObj.notificationType);
-            Assert.AreEqual(requestObj.objectId, notificationObj.objectId);
-            Assert.AreEqual(requestObj.eventId, notificationObj.eventId);
-            Assert.IsTrue(Serializer.JsonCompare(expectedEventArgs, notificationObj.eventArgs));
-
-            var responseObj = _serializer.DeserializeObject<SubscribeResponse>(response);
-            Assert.AreEqual(ResponseType.subscribe, responseObj.responseType);
-            Assert.AreEqual(requestObj.objectId, responseObj.objectId);
-            Assert.AreEqual(requestObj.eventId, responseObj.eventId);
+            Assert.AreEqual(ResponseType.subscribe, response.responseType);
+            Assert.AreEqual(request.objectId, response.objectId);
+            Assert.AreEqual(request.eventId, response.eventId);
         }
 
         [TestMethod]
@@ -108,11 +105,11 @@ namespace AbstractBinding.Tests
             // Arrange
             var objectId = "objId1";
             string nullIfPassed = String.Empty;
-            _callbackMock.Setup(o => o.Callback(It.IsAny<string>())).Callback<string>((resp) =>
+            _callbackMock.Setup(o => o.Callback(It.IsAny<INotification>())).Callback<INotification>((resp) =>
             {
                 nullIfPassed = null;
             });
-            var server = new Recipient(_serializer);
+            var server = new Recipient();
             var subscribeRequestObj = new SubscribeRequest()
             {
                 objectId = objectId,
@@ -126,18 +123,17 @@ namespace AbstractBinding.Tests
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            server.Request(_serializer.SerializeObject(subscribeRequestObj), _callbackMock.Object);
-            string response = server.Request(_serializer.SerializeObject(unsubscribeRequest), _callbackMock.Object);
+            server.Request(subscribeRequestObj, _callbackMock.Object);
+            var response = server.Request(unsubscribeRequest, _callbackMock.Object) as UnsubscribeResponse;
             _regObjectMock.Raise(o => o.NotifyOnNonDataChanged += null, EventArgs.Empty);
 
             // Assert
             _callbackMock.Verify();
             _regObjectMock.Verify();
-
-            var responseObj = _serializer.DeserializeObject<UnsubscribeResponse>(response);
-            Assert.AreEqual(ResponseType.unsubscribe, responseObj.responseType);
-            Assert.AreEqual(unsubscribeRequest.objectId, responseObj.objectId);
-            Assert.AreEqual(unsubscribeRequest.eventId, responseObj.eventId);
+            
+            Assert.AreEqual(ResponseType.unsubscribe, response.responseType);
+            Assert.AreEqual(unsubscribeRequest.objectId, response.objectId);
+            Assert.AreEqual(unsubscribeRequest.eventId, response.eventId);
         }
     }
 }

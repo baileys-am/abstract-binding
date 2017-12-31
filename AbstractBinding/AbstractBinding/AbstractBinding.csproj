@@ -69,7 +69,6 @@
     <Compile Include="Messages\UnsubscribeRequest.cs" />
     <Compile Include="Messages\UnsubscribeResponse.cs" />
     <Compile Include="Recipient.cs" />
-    <Compile Include="ISerializer.cs" />
     <Compile Include="Messages\InvokeRequest.cs" />
     <Compile Include="Messages\INotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

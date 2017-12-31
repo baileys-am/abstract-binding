@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Threading.Tasks;
-using AbstractBinding.Messages;
 
 namespace AbstractBinding.RecipientInternals
 {

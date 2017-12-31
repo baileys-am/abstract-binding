@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
-using AbstractBinding.Messages;
 
 namespace AbstractBinding.RecipientInternals
 {
-    public class RegisteredMethod
+    internal class RegisteredMethod
     {
         private readonly object _obj;
         private readonly MethodInfo _methodInfo;

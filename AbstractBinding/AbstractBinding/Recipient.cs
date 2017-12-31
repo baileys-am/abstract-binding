@@ -11,15 +11,12 @@ namespace AbstractBinding
 {
     public class Recipient
     {
-        private readonly ISerializer _serializer;
         private readonly RegisteredObjectFactory _objectFactory;
         private readonly Dictionary<string, RegisteredObject> _registeredObjects = new Dictionary<string, RegisteredObject>();
         
-        public Recipient(ISerializer serializer)
+        public Recipient()
         {
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-
-            var eventFactory = new RegisteredEventFactory(_serializer);
+            var eventFactory = new RegisteredEventFactory();
             var propertyFactory = new RegisteredPropertyFactory();
             var methodFactory = new RegisteredMethodFactory();
             _objectFactory = new RegisteredObjectFactory(eventFactory, propertyFactory, methodFactory);
@@ -62,18 +59,16 @@ namespace AbstractBinding
             }
         }
 
-        public string Request(string request)
+        public IResponse Request(IRequest request)
         {
             return Request(request, null);
         }
 
-        public string Request(string request, IRecipientCallback callback)
+        public IResponse Request(IRequest request, IRecipientCallback callback)
         {
-            var requestObj = _serializer.DeserializeObject<IRequest>(request) ?? throw new RecipientBindingException("Failed to deserialize request.");
-
             try
             {
-                switch (requestObj)
+                switch (request)
                 {
                     case GetBindingDescriptionsRequest getBindingsReq:
                         var getBindingsResp = new GetBindingDescriptionsResponse();
@@ -81,7 +76,7 @@ namespace AbstractBinding
                         {
                             getBindingsResp.bindings.Add(obj.Key, obj.Value.Description);
                         }
-                        return _serializer.SerializeObject(getBindingsResp);
+                        return getBindingsResp;
                     case SubscribeRequest subscribeReq:
                         var subscribeObj = _registeredObjects[subscribeReq.objectId];
                         subscribeObj.Subscribe(subscribeReq.eventId, callback);
@@ -90,7 +85,7 @@ namespace AbstractBinding
                             objectId = subscribeReq.objectId,
                             eventId = subscribeReq.eventId
                         };
-                        return _serializer.SerializeObject(subscribeResponse);
+                        return subscribeResponse;
                     case UnsubscribeRequest unsubscribeReq:
                         var unsubscribeObj = _registeredObjects[unsubscribeReq.objectId];
                         unsubscribeObj.Unsubscribe(unsubscribeReq.eventId, callback);
@@ -99,7 +94,7 @@ namespace AbstractBinding
                             objectId = unsubscribeReq.objectId,
                             eventId = unsubscribeReq.eventId
                         };
-                        return _serializer.SerializeObject(unsubscribeResponse);
+                        return unsubscribeResponse;
                     case PropertyGetRequest propertyGetReq:
                         var propertyGetObj = _registeredObjects[propertyGetReq.objectId];
                         object propertyGetValue = propertyGetObj.GetValue(propertyGetReq.propertyId);
@@ -109,7 +104,7 @@ namespace AbstractBinding
                             propertyId = propertyGetReq.propertyId,
                             value = propertyGetValue
                         };
-                        return _serializer.SerializeObject(propertyGetResponse);
+                        return propertyGetResponse;
                     case PropertySetRequest propertySetReq:
                         var propertySetObj = _registeredObjects[propertySetReq.objectId];
                         propertySetObj.SetValue(propertySetReq.propertyId, propertySetReq.value);
@@ -118,7 +113,7 @@ namespace AbstractBinding
                             objectId = propertySetReq.objectId,
                             propertyId = propertySetReq.propertyId
                         };
-                        return _serializer.SerializeObject(propertySetResponse);
+                        return propertySetResponse;
                     case InvokeRequest invokeReq:
                         var invokeObj = _registeredObjects[invokeReq.objectId];
                         object invokeResult = invokeObj.Invoke(invokeReq.methodId, invokeReq.methodArgs);
@@ -128,11 +123,11 @@ namespace AbstractBinding
                             methodId = invokeReq.methodId,
                             result = invokeResult
                         };
-                        return _serializer.SerializeObject(invokeResponse);
+                        return invokeResponse;
                     default:
-                        if (requestObj != null)
+                        if (request != null)
                         {
-                            throw new RecipientBindingException($"Unsupported request type: {requestObj.requestType}");
+                            throw new RecipientBindingException($"Unsupported request type: {request.requestType}");
                         }
                         else
                         {
@@ -142,13 +137,13 @@ namespace AbstractBinding
             }
             catch (RecipientBindingException ex)
             {
-                var exceptionResponseObj = new ExceptionResponse()
+                var exceptionResponse = new ExceptionResponse()
                 {
                     exception = ex
                 };
 
 #pragma warning disable EA003 // Catch block swallows an exception
-                return _serializer.SerializeObject(exceptionResponseObj);
+                return exceptionResponse;
             }
 #pragma warning restore EA003 // Catch block swallows an exception
         }

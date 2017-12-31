@@ -63,7 +63,6 @@
     <Compile Include="MethodProxyTests.cs" />
     <Compile Include="RecipientEventApiTests.cs" />
     <Compile Include="RecipientMethodApiTests.cs" />
-    <Compile Include="Serializer.cs" />
     <Compile Include="IRegisteredObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecipientInitializationTests.cs" />

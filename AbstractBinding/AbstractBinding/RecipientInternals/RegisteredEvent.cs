@@ -10,7 +10,6 @@ namespace AbstractBinding.RecipientInternals
 {
     internal class RegisteredEvent
     {
-        private readonly ISerializer _serializer;
         private readonly object _obj;
         private readonly EventInfo _eventInfo;
         private readonly Delegate _handler;
@@ -23,9 +22,8 @@ namespace AbstractBinding.RecipientInternals
         public string EventId { get; private set; }
 
 
-        public RegisteredEvent(ISerializer serializer, string objectId, object obj, EventInfo eventInfo)
+        public RegisteredEvent(string objectId, object obj, EventInfo eventInfo)
         {
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
             _eventInfo = eventInfo ?? throw new ArgumentNullException(nameof(eventInfo));
 
@@ -121,13 +119,11 @@ namespace AbstractBinding.RecipientInternals
                 objectId = ObjectId,
                 eventArgs = e
             };
-            var serializedNotification = _serializer.SerializeObject(notification);
-
             lock (_subscribeLock)
             {
                 foreach (var callback in _callbacks)
                 {
-                    callback.Callback(serializedNotification);
+                    callback.Callback(notification);
                 }
             }
         }
