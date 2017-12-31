@@ -32,6 +32,52 @@ namespace AbstractBinding.RecipientInternals
             _methods = methods ?? throw new ArgumentNullException(nameof(methods));
         }
 
+        public static RegisteredObject Create<T>(string objectId, T obj)
+        {
+            // Create description
+            ObjectDescriptionFactory objDescFactory = new ObjectDescriptionFactory();
+            var objDesc = objDescFactory.Create<T>();
+
+            // Create events
+            var events = new Dictionary<string, RegisteredEvent>();
+            foreach (var eventInfo in typeof(T).GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                                               .Where(e => !e.IsSpecialName))
+            {
+                // Create registered event
+                var registeredEvent = RegisteredEvent.Create(objectId, obj, eventInfo);
+
+                // Store registered event
+                events.Add(registeredEvent.EventId, registeredEvent);
+            }
+
+            // Create properties
+            var properties = new Dictionary<string, RegisteredProperty>();
+            foreach (var propertyInfo in typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                                                  .Where(p => !p.IsSpecialName))
+            {
+                // Create registered property
+                var registeredProperty = RegisteredProperty.Create(objectId, obj, propertyInfo);
+
+                // Store registered property
+                properties.Add(registeredProperty.PropertyId, registeredProperty);
+            }
+
+            // Create methods
+            var methods = new Dictionary<string, RegisteredMethod>();
+            foreach (var methodInfo in typeof(T).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                                                .Where(m => !m.IsSpecialName &&
+                                                             m.GetBaseDefinition().DeclaringType != typeof(object)))
+            {
+                // Create registered method
+                var registeredMethod = RegisteredMethod.Create(objectId, obj, methodInfo);
+
+                // Store registered method
+                methods.Add(registeredMethod.MethodId, registeredMethod);
+            }
+
+            return new RegisteredObject(objectId, objDesc, obj, events, properties, methods);
+        }
+
         public void Subscribe(string eventId, IRecipientCallback callback)
         {
             if (_events.ContainsKey(eventId))

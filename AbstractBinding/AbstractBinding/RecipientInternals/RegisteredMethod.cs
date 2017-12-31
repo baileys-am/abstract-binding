@@ -23,7 +23,12 @@ namespace AbstractBinding.RecipientInternals
             ObjectId = String.IsNullOrEmpty(objectId) ? throw new ArgumentNullException(nameof(objectId)) : objectId;
             MethodId = _methodInfo.GetFullName();
         }
-        
+
+        public static RegisteredMethod Create(string objectId, object obj, MethodInfo methodInfo)
+        {
+            return new RegisteredMethod(objectId, obj, methodInfo);
+        }
+
         public object Invoke(object[] objs)
         {
             try

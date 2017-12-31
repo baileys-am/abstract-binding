@@ -73,13 +73,9 @@
     <Compile Include="Messages\INotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecipientInternals\RegisteredEvent.cs" />
-    <Compile Include="RecipientInternals\RegisteredEventFactory.cs" />
     <Compile Include="RecipientInternals\RegisteredMethod.cs" />
-    <Compile Include="RecipientInternals\RegisteredMethodFactory.cs" />
     <Compile Include="RecipientInternals\RegisteredObject.cs" />
-    <Compile Include="RecipientInternals\RegisteredObjectFactory.cs" />
     <Compile Include="RecipientInternals\RegisteredProperty.cs" />
-    <Compile Include="RecipientInternals\RegisteredPropertyFactory.cs" />
     <Compile Include="RecipientBindingException.cs" />
     <Compile Include="Sender.cs" />
     <Compile Include="SenderInternals\RuntimeProxy.cs" />

@@ -54,6 +54,11 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
+        public static RegisteredEvent Create(string id, object objectId, EventInfo eventInfo)
+        {
+            return new RegisteredEvent(id, objectId, eventInfo);
+        }
+
         public void Subscribe(IRecipientCallback callback)
         {
             if (callback == null)

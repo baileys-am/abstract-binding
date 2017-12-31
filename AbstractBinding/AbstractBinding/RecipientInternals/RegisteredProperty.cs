@@ -24,6 +24,11 @@ namespace AbstractBinding.RecipientInternals
             PropertyId = _propertyInfo.Name;
         }
 
+        public static RegisteredProperty Create(string objectId, object obj, PropertyInfo propertyInfo)
+        {
+            return new RegisteredProperty(objectId, obj, propertyInfo);
+        }
+
         public object GetValue()
         {
             try

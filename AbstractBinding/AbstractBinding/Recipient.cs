@@ -11,21 +11,12 @@ namespace AbstractBinding
 {
     public class Recipient
     {
-        private readonly RegisteredObjectFactory _objectFactory;
         private readonly Dictionary<string, RegisteredObject> _registeredObjects = new Dictionary<string, RegisteredObject>();
-        
-        public Recipient()
-        {
-            var eventFactory = new RegisteredEventFactory();
-            var propertyFactory = new RegisteredPropertyFactory();
-            var methodFactory = new RegisteredMethodFactory();
-            _objectFactory = new RegisteredObjectFactory(eventFactory, propertyFactory, methodFactory);
-        }
 
         public void Register<T>(string objectId, T obj, params Type[] nestedTypes)
         {
             // Create registered object
-            var registeredObect = _objectFactory.Create(objectId, obj);
+            var registeredObect = RegisteredObject.Create(objectId, obj);
 
             // Register property objects
             foreach (var property in typeof(T).GetContractProperties().Where(p => nestedTypes.Contains(p.PropertyType))
