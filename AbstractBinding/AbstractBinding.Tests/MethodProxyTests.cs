@@ -28,8 +28,7 @@ namespace AbstractBinding.Tests
             string objectId = "obj1Id";
             var objDescFactory = new ObjectDescriptionFactory();
             var objDesc = objDescFactory.Create<IRegisteredObject>();
-            var proxyFactory = new RuntimeProxyFactory();
-            var proxyObj = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var proxyObj = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
             object[] args = null;
             _clientMock.Setup(o => o.Request(It.IsAny<InvokeRequest>())).Returns<InvokeRequest>(req =>
             {
@@ -63,8 +62,7 @@ namespace AbstractBinding.Tests
             string objectId = "obj1Id";
             var objDescFactory = new ObjectDescriptionFactory();
             var objDesc = objDescFactory.Create<IRegisteredObject>();
-            var proxyFactory = new RuntimeProxyFactory();
-            var proxyObj = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var proxyObj = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
             object[] args = null;
             _clientMock.Setup(o => o.Request(It.IsAny<InvokeRequest>())).Returns<InvokeRequest>(req =>
             {

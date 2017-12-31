@@ -24,8 +24,7 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "obj1Id";
-            var proxyFactory = new RuntimeProxyFactory();
-            var proxyObj = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var proxyObj = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
             string expectedValue = "actual value";
             _clientMock.Setup(o => o.Request(It.IsAny<PropertyGetRequest>())).Returns<PropertyGetRequest>(req =>
             {
@@ -51,8 +50,7 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "obj1Id";
-            var proxyFactory = new RuntimeProxyFactory();
-            var proxyObj = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var proxyObj = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
             string expectedValue = "actual value";
             string actualValue = null;
             _clientMock.Setup(o => o.Request(It.IsAny<PropertySetRequest>())).Returns<PropertySetRequest>(req =>

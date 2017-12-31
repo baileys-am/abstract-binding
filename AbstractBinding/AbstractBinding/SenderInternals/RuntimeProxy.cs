@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Reflection.Emit;
 using AbstractBinding.Messages;
 
 namespace AbstractBinding.SenderInternals
@@ -19,13 +22,292 @@ namespace AbstractBinding.SenderInternals
             _client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
-        public bool Subscribe(Type interfaceType, string name, EventHandler result)
+        public static RuntimeProxy Create(Type type, string objectId, IProxyClient client)
         {
-            _eventHandlers.Add(name, result);
+            return (RuntimeProxy)typeof(RuntimeProxy).GetMethod(nameof(Create), new Type[] { typeof(string), typeof(IProxyClient) }).GetGenericMethodDefinition().MakeGenericMethod(type).Invoke(null, new object[] { objectId, client });
+        }
+
+        public static T Create<T>(string objectId, IProxyClient client)
+        {
+            // Verify type is interface
+            if (!typeof(T).IsInterface)
+            {
+                throw new InvalidOperationException("Generic argument must be an interface.");
+            }
+
+            // Initialize type builder
+            var assyName = new AssemblyName($"{typeof(RuntimeProxy).Assembly.GetName().Name}.Runtime");
+            var assyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assyName, AssemblyBuilderAccess.Run);
+            ModuleBuilder moduleBuilder = assyBuilder.DefineDynamicModule(assyName.FullName); ;
+            TypeBuilder typeBuilder = moduleBuilder.DefineType($"{typeof(T).Name}Proxy", TypeAttributes.Public);
+
+            // Define parent and interface
+            typeBuilder.SetParent(typeof(RuntimeProxy));
+            typeBuilder.CreatePassThroughConstructors(typeof(RuntimeProxy));
+            typeBuilder.AddInterfaceImplementation(typeof(T));
+
+            // Implement events
+            foreach (var eventInfo in typeof(T).GetContractEvents())
+            {
+                Expression<Func<RuntimeTypeHandle, object>> getTypeFromHandle = t => Type.GetTypeFromHandle(t);
+                EventBuilder eventBuilder = typeBuilder.DefineEvent(eventInfo.Name, eventInfo.Attributes, eventInfo.EventHandlerType);
+                FieldBuilder eventFieldBuilder = typeBuilder.DefineField($"_{eventInfo.Name}", eventInfo.EventHandlerType, FieldAttributes.Private);
+
+                // Implement event handler add method
+                // add { ... }
+                {
+                    MethodInfo addMethodInfo = eventInfo.GetAddMethod();
+                    MethodBuilder getMb = typeBuilder.DefineMethod(addMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, typeof(void), new Type[] { eventInfo.EventHandlerType });
+                    ILGenerator ilGenerator = getMb.GetILGenerator();
+
+                    string eventName = eventInfo.Name;
+                    Type ehType = eventInfo.EventHandlerType;
+                    LocalBuilder typeLb = ilGenerator.DeclareLocal(typeof(Type), true);
+                    LocalBuilder objectLb = ilGenerator.DeclareLocal(typeof(object), true);
+                    LocalBuilder retLb = ilGenerator.DeclareLocal(typeof(bool), true);
+
+                    // _event += value;
+                    Expression<Func<Delegate, object>> combine = d => Delegate.Combine(d, d);
+                    ilGenerator.Emit(OpCodes.Ldarg_0);
+                    ilGenerator.Emit(OpCodes.Ldarg_0);
+                    ilGenerator.Emit(OpCodes.Ldfld, eventFieldBuilder);
+                    ilGenerator.Emit(OpCodes.Ldarg_1);
+                    ilGenerator.EmitCall(OpCodes.Call, combine.GetMethodInfo(), null);
+                    ilGenerator.Emit(OpCodes.Castclass, ehType);
+                    ilGenerator.Emit(OpCodes.Stfld, eventFieldBuilder);
+
+                    // this.Subscribe(eventId, value);
+                    Expression<Func<RuntimeProxy, object>> addEventHandler = o => o.Subscribe(null, null);
+                    ilGenerator.Emit(OpCodes.Ldarg_0);
+                    ilGenerator.Emit(OpCodes.Ldstr, eventName);
+                    ilGenerator.Emit(OpCodes.Ldarg_0);
+                    ilGenerator.Emit(OpCodes.Ldfld, eventFieldBuilder);
+                    ilGenerator.EmitCall(OpCodes.Callvirt, addEventHandler.GetMethodInfo(), null);
+                    ilGenerator.Emit(OpCodes.Stloc_2);
+                    
+                    ilGenerator.Emit(OpCodes.Ret);
+
+                    typeBuilder.DefineMethodOverride(getMb, addMethodInfo);
+                }
+                // Implement event handler remove method
+                // remove { ... }
+                {
+                    MethodInfo removeMethodInfo = eventInfo.GetRemoveMethod();
+                    MethodBuilder getMb = typeBuilder.DefineMethod(removeMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, typeof(void), new Type[] { eventInfo.EventHandlerType });
+                    ILGenerator ilGenerator = getMb.GetILGenerator();
+
+                    string eventName = eventInfo.Name;
+                    Type ehType = eventInfo.EventHandlerType;
+                    LocalBuilder typeLb = ilGenerator.DeclareLocal(typeof(Type), true);
+                    LocalBuilder objectLb = ilGenerator.DeclareLocal(typeof(object), true);
+                    LocalBuilder retLb = ilGenerator.DeclareLocal(typeof(bool), true);
+
+                    // _event -= value;
+                    Expression<Func<Delegate, object>> remove = d => Delegate.Remove(d, d);
+                    ilGenerator.Emit(OpCodes.Ldarg_0);
+                    ilGenerator.Emit(OpCodes.Ldarg_0);
+                    ilGenerator.Emit(OpCodes.Ldfld, eventFieldBuilder);
+                    ilGenerator.Emit(OpCodes.Ldarg_1);
+                    ilGenerator.EmitCall(OpCodes.Call, remove.GetMethodInfo(), null);
+                    ilGenerator.Emit(OpCodes.Castclass, ehType);
+                    ilGenerator.Emit(OpCodes.Stfld, eventFieldBuilder);
+
+                    // this.Unsubscribe(eventId, value);
+                    Expression<Func<RuntimeProxy, object>> removeEventHandler = o => o.Unsubscribe(null, null);
+                    ilGenerator.Emit(OpCodes.Ldarg_0);
+                    ilGenerator.Emit(OpCodes.Ldstr, eventName);
+                    ilGenerator.Emit(OpCodes.Ldarg_0);
+                    ilGenerator.Emit(OpCodes.Ldfld, eventFieldBuilder);
+                    ilGenerator.EmitCall(OpCodes.Callvirt, removeEventHandler.GetMethodInfo(), null);
+                    ilGenerator.Emit(OpCodes.Stloc_2);
+                    
+                    ilGenerator.Emit(OpCodes.Ret);
+
+                    typeBuilder.DefineMethodOverride(getMb, removeMethodInfo);
+                }
+            }
+
+            // Implement properties
+            foreach (var propertyInfo in typeof(T).GetContractProperties())
+            {
+                Expression<Func<RuntimeTypeHandle, object>> getTypeFromHandle = t => Type.GetTypeFromHandle(t);
+                PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyInfo.Name, propertyInfo.Attributes, propertyInfo.PropertyType, null);
+
+                if (propertyInfo.CanRead)
+                {
+                    MethodInfo getMethodInfo = propertyInfo.GetGetMethod();
+
+                    MethodBuilder getMb = typeBuilder.DefineMethod(getMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, propertyInfo.PropertyType, Type.EmptyTypes);
+                    ILGenerator ilGenerator = getMb.GetILGenerator();
+
+                    string propertyName = propertyInfo.Name;
+                    LocalBuilder typeLb = ilGenerator.DeclareLocal(typeof(Type), true);
+                    LocalBuilder outObjectLb = ilGenerator.DeclareLocal(typeof(object), true);
+                    LocalBuilder retLb = ilGenerator.DeclareLocal(typeof(bool), true);
+
+                    // obj = this.GetValue(propertyId, out result);
+                    object obj = null;
+                    Expression<Func<RuntimeProxy, object>> setValue = o => o.GetValue(null, out obj);
+                    ilGenerator.Emit(OpCodes.Ldarg_0);
+                    ilGenerator.Emit(OpCodes.Ldstr, propertyName);
+                    ilGenerator.Emit(OpCodes.Ldloca_S, 1);
+                    ilGenerator.EmitCall(OpCodes.Callvirt, setValue.GetMethodInfo(), null);
+                    ilGenerator.Emit(OpCodes.Stloc_2);
+
+                    // Handle value return types
+                    Expression<Func<object, object>> createInstance = a => Activator.CreateInstance(a.GetType());
+                    ilGenerator.Emit(OpCodes.Ldloc_1);
+                    if (propertyInfo.PropertyType.IsValueType)
+                    {
+                        Label retisnull = ilGenerator.DefineLabel();
+                        Label endofif = ilGenerator.DefineLabel();
+
+                        // Create instance if value is null
+                        ilGenerator.Emit(OpCodes.Ldnull);
+                        ilGenerator.Emit(OpCodes.Ceq);
+                        ilGenerator.Emit(OpCodes.Brtrue_S, retisnull);
+                        ilGenerator.Emit(OpCodes.Ldloc_1);
+                        ilGenerator.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
+                        ilGenerator.Emit(OpCodes.Br_S, endofif);
+                        ilGenerator.MarkLabel(retisnull);
+                        ilGenerator.Emit(OpCodes.Ldtoken, propertyInfo.PropertyType);
+                        ilGenerator.EmitCall(OpCodes.Call, getTypeFromHandle.GetMethodInfo(), null);
+                        ilGenerator.EmitCall(OpCodes.Call, createInstance.GetMethodInfo(), null);
+                        ilGenerator.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
+                        ilGenerator.MarkLabel(endofif);
+                    }
+
+                    ilGenerator.Emit(OpCodes.Ret);
+
+                    propertyBuilder.SetGetMethod(getMb);
+                    typeBuilder.DefineMethodOverride(getMb, getMethodInfo);
+                }
+
+                if (propertyInfo.CanWrite)
+                {
+                    MethodInfo setMethodInfo = propertyInfo.GetSetMethod();
+                    MethodBuilder setMb = typeBuilder.DefineMethod(setMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, typeof(void), new Type[] { propertyInfo.PropertyType });
+                    ILGenerator ilGenerator = setMb.GetILGenerator();
+
+                    string propertyName = propertyInfo.Name;
+                    LocalBuilder typeLb = ilGenerator.DeclareLocal(typeof(Type), true);
+                    LocalBuilder objectLb = ilGenerator.DeclareLocal(propertyInfo.PropertyType, true);
+                    LocalBuilder retLb = ilGenerator.DeclareLocal(typeof(bool), true);
+
+                    // this.SetValue(propertyId, value);
+                    ilGenerator.Emit(OpCodes.Ldarg_1);
+                    ilGenerator.Emit(OpCodes.Stloc_1);
+                    Expression<Func<RuntimeProxy, object>> setValue = o => o.SetValue(null, null);
+                    ilGenerator.Emit(OpCodes.Ldarg_0);
+                    ilGenerator.Emit(OpCodes.Ldstr, propertyName);
+                    ilGenerator.Emit(OpCodes.Ldloc_1);
+                    if (propertyInfo.PropertyType.IsValueType)
+                    {
+                        ilGenerator.Emit(OpCodes.Box, propertyInfo.PropertyType);
+                    }
+                    ilGenerator.EmitCall(OpCodes.Callvirt, setValue.GetMethodInfo(), null);
+                    ilGenerator.Emit(OpCodes.Stloc_2);
+                    
+                    ilGenerator.Emit(OpCodes.Ret);
+
+                    propertyBuilder.SetSetMethod(setMb);
+                    typeBuilder.DefineMethodOverride(setMb, setMethodInfo);
+                }
+            }
+
+            // Implement methods
+            foreach (var methodInfo in typeof(T).GetContractMethods())
+            {
+                object obj = null;
+                Expression<Func<RuntimeProxy, object>> invoke = o => o.Invoke(null, null, out obj);
+                Expression<Func<object, object>> createInstance = a => Activator.CreateInstance(a.GetType());
+                Expression<Func<RuntimeTypeHandle, object>> getTypeFromHandle = t => Type.GetTypeFromHandle(t);
+                Expression<Func<List<object>, object>> listToArray = l => l.ToArray();
+                Expression<Action<List<object>>> listAdd = l => l.Add(new object());
+                var parameterInfoArray = methodInfo.GetParameters();
+                var genericArgumentArray = methodInfo.GetGenericArguments();
+
+                MethodBuilder mb = typeBuilder.DefineMethod(methodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, methodInfo.ReturnType, parameterInfoArray.Select(pi => pi.ParameterType).ToArray());
+                if (genericArgumentArray.Any())
+                {
+                    mb.DefineGenericParameters(genericArgumentArray.Select(s => s.Name).ToArray());
+                }
+
+                ILGenerator ilGenerator = mb.GetILGenerator();
+                LocalBuilder typeLb = ilGenerator.DeclareLocal(typeof(Type), true);
+                LocalBuilder paramsLb = ilGenerator.DeclareLocal(typeof(List<object>), true);
+                LocalBuilder resultLb = ilGenerator.DeclareLocal(typeof(object), true);
+                LocalBuilder retLb = ilGenerator.DeclareLocal(typeof(bool), true);
+                
+                // Create method argument array
+                ilGenerator.Emit(OpCodes.Newobj, typeof(List<object>).GetConstructor(Type.EmptyTypes));
+                ilGenerator.Emit(OpCodes.Stloc_1);
+                int i = 0;
+                foreach (ParameterInfo pi in methodInfo.GetParameters())
+                {
+                    i++;
+                    ilGenerator.Emit(OpCodes.Ldloc_1);
+                    ilGenerator.Emit(OpCodes.Ldarg, i);
+                    if (pi.ParameterType.IsValueType)
+                    {
+                        ilGenerator.Emit(OpCodes.Box, pi.ParameterType);
+                    }
+                    ilGenerator.EmitCall(OpCodes.Callvirt, listAdd.GetMethodInfo(), null);
+                }
+
+                // this.Invoke(methodId, args, out result);
+                ilGenerator.Emit(OpCodes.Ldarg_0);
+                ilGenerator.Emit(OpCodes.Ldstr, methodInfo.GetFullName());
+                ilGenerator.Emit(OpCodes.Ldloc_1);
+                ilGenerator.EmitCall(OpCodes.Callvirt, listToArray.GetMethodInfo(), null);
+                ilGenerator.Emit(OpCodes.Ldloca_S, 2);
+                ilGenerator.EmitCall(OpCodes.Callvirt, invoke.GetMethodInfo(), null);
+                ilGenerator.Emit(OpCodes.Stloc_3);
+
+                if (methodInfo.ReturnType != typeof(void))
+                {
+                    ilGenerator.Emit(OpCodes.Ldloc_2);
+
+                    // Handle value return types
+                    if (methodInfo.ReturnType.IsValueType)
+                    {
+                        Label retisnull = ilGenerator.DefineLabel();
+                        Label endofif = ilGenerator.DefineLabel();
+
+                        // Create instance if value is null
+                        ilGenerator.Emit(OpCodes.Ldnull);
+                        ilGenerator.Emit(OpCodes.Ceq);
+                        ilGenerator.Emit(OpCodes.Brtrue_S, retisnull);
+                        ilGenerator.Emit(OpCodes.Ldloc_2);
+                        ilGenerator.Emit(OpCodes.Unbox_Any, methodInfo.ReturnType);
+                        ilGenerator.Emit(OpCodes.Br_S, endofif);
+                        ilGenerator.MarkLabel(retisnull);
+                        ilGenerator.Emit(OpCodes.Ldtoken, methodInfo.ReturnType);
+                        ilGenerator.EmitCall(OpCodes.Call, getTypeFromHandle.GetMethodInfo(), null);
+                        ilGenerator.EmitCall(OpCodes.Call, createInstance.GetMethodInfo(), null);
+                        ilGenerator.Emit(OpCodes.Unbox_Any, methodInfo.ReturnType);
+                        ilGenerator.MarkLabel(endofif);
+                    }
+                }
+                
+                ilGenerator.Emit(OpCodes.Ret);
+
+                typeBuilder.DefineMethodOverride(mb, methodInfo);
+            }
+
+            // Create and return new type instance
+            Type type = typeBuilder.CreateType();
+
+            return (T)Activator.CreateInstance(type, objectId, client);
+        }
+
+        public bool Subscribe(string eventId, EventHandler handler)
+        {
+            _eventHandlers.Add(eventId, handler);
             var request = new SubscribeRequest()
             {
                 objectId = _objectId,
-                eventId = name
+                eventId = eventId
             };
             var response = _client.Request(request);
 
@@ -38,9 +320,9 @@ namespace AbstractBinding.SenderInternals
                     {
                         throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{subscribeResp.objectId}'.");
                     }
-                    else if (subscribeResp.eventId != name)
+                    else if (subscribeResp.eventId != eventId)
                     {
-                        throw new InvalidResponseException($"Incorrect event ID. Expected '{name}', but received '{subscribeResp.eventId}'.");
+                        throw new InvalidResponseException($"Incorrect event ID. Expected '{eventId}', but received '{subscribeResp.eventId}'.");
                     }
                     break;
                 default:
@@ -50,13 +332,13 @@ namespace AbstractBinding.SenderInternals
             return true;
         }
 
-        public bool Unsubscribe(Type interfaceType, string name, EventHandler result)
+        public bool Unsubscribe(string eventId, EventHandler handler)
         {
-            _eventHandlers.Remove(name);
+            _eventHandlers.Remove(eventId);
             var request = new UnsubscribeRequest()
             {
                 objectId = _objectId,
-                eventId = name
+                eventId = eventId
             };
             var response = _client.Request(request);
 
@@ -69,9 +351,9 @@ namespace AbstractBinding.SenderInternals
                     {
                         throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{unsubscribeResp.objectId}'.");
                     }
-                    else if (unsubscribeResp.eventId != name)
+                    else if (unsubscribeResp.eventId != eventId)
                     {
-                        throw new InvalidResponseException($"Incorrect event ID. Expected '{name}', but received '{unsubscribeResp.eventId}'.");
+                        throw new InvalidResponseException($"Incorrect event ID. Expected '{eventId}', but received '{unsubscribeResp.eventId}'.");
                     }
                     break;
                 default:
@@ -80,12 +362,12 @@ namespace AbstractBinding.SenderInternals
             return true;
         }
 
-        public bool GetValue(Type interfaceType, string name, out object value)
+        public bool GetValue(string propertyId, out object value)
         {
             var request = new PropertyGetRequest()
             {
                 objectId = _objectId,
-                propertyId = name
+                propertyId = propertyId
             };
             var response = _client.Request(request);
 
@@ -99,9 +381,9 @@ namespace AbstractBinding.SenderInternals
                     {
                         throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{propertyGetResp.objectId}'.");
                     }
-                    else if (propertyGetResp.propertyId != name)
+                    else if (propertyGetResp.propertyId != propertyId)
                     {
-                        throw new InvalidResponseException($"Incorrect property ID. Expected '{name}', but received '{propertyGetResp.propertyId}'.");
+                        throw new InvalidResponseException($"Incorrect property ID. Expected '{propertyId}', but received '{propertyGetResp.propertyId}'.");
                     }
                     break;
                 default:
@@ -110,12 +392,12 @@ namespace AbstractBinding.SenderInternals
             return true;
         }
 
-        public bool SetValue(Type interfaceType, string name, object value)
+        public bool SetValue(string propertyId, object value)
         {
             var request = new PropertySetRequest()
             {
                 objectId = _objectId,
-                propertyId = name,
+                propertyId = propertyId,
                 value = value
             };
             var response = _client.Request(request);
@@ -129,9 +411,9 @@ namespace AbstractBinding.SenderInternals
                     {
                         throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{propertySetResp.objectId}'.");
                     }
-                    else if (propertySetResp.propertyId != name)
+                    else if (propertySetResp.propertyId != propertyId)
                     {
-                        throw new InvalidResponseException($"Incorrect property ID. Expected '{name}', but received '{propertySetResp.propertyId}'.");
+                        throw new InvalidResponseException($"Incorrect property ID. Expected '{propertyId}', but received '{propertySetResp.propertyId}'.");
                     }
                     break;
                 default:
@@ -140,12 +422,12 @@ namespace AbstractBinding.SenderInternals
             return true;
         }
 
-        public bool Invoke(Type interfaceType, string name, object[] args, out object result)
+        public bool Invoke(string methodId, object[] args, out object result)
         {
             var request = new InvokeRequest()
             {
                 objectId = _objectId,
-                methodId = name,
+                methodId = methodId,
                 methodArgs = args
             };
             var response = _client.Request(request);
@@ -160,9 +442,9 @@ namespace AbstractBinding.SenderInternals
                     {
                         throw new InvalidResponseException($"Incorrect object ID. Expected '{_objectId}', but received '{invokeResp.objectId}'.");
                     }
-                    else if (invokeResp.methodId != name)
+                    else if (invokeResp.methodId != methodId)
                     {
-                        throw new InvalidResponseException($"Incorrect method ID. Expected '{name}', but received '{invokeResp.methodId}'.");
+                        throw new InvalidResponseException($"Incorrect method ID. Expected '{methodId}', but received '{invokeResp.methodId}'.");
                     }
                     break;
                 default:

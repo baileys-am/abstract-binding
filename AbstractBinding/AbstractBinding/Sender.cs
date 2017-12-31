@@ -12,7 +12,6 @@ namespace AbstractBinding
     {
         private readonly IProxyClient _client;
         private readonly ObjectDescriptionFactory _objDescFactory = new ObjectDescriptionFactory();
-        private readonly RuntimeProxyFactory _runtimeProxyFactory = new RuntimeProxyFactory();
         private readonly Dictionary<string, RuntimeProxy> _runtimeProxies = new Dictionary<string, RuntimeProxy>();
         private readonly Dictionary<Type, ObjectDescription> _registeredTypes = new Dictionary<Type, ObjectDescription>();
 
@@ -73,7 +72,7 @@ namespace AbstractBinding
                         if (regType.Key != null && regType.Value != null)
                         {
                             // Create runtime object
-                            _runtimeProxies.Add(obj.Key, _runtimeProxyFactory.Create(regType.Key, obj.Key, _client));
+                            _runtimeProxies.Add(obj.Key, RuntimeProxy.Create(regType.Key, obj.Key, _client));
                         }
                         else
                         {

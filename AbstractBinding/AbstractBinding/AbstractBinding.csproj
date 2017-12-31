@@ -79,7 +79,6 @@
     <Compile Include="RecipientBindingException.cs" />
     <Compile Include="Sender.cs" />
     <Compile Include="SenderInternals\RuntimeProxy.cs" />
-    <Compile Include="SenderInternals\RuntimeProxyFactory.cs" />
     <Compile Include="TypeBuilderExtensions.cs" />
     <Compile Include="TypeExtensions.cs" />
   </ItemGroup>

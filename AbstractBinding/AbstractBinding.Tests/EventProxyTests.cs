@@ -41,8 +41,7 @@ namespace AbstractBinding.Tests
                     eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
                 };
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged += (s, e) => { };
@@ -75,8 +74,7 @@ namespace AbstractBinding.Tests
                     eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
                 };
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnDataChanged += (s, e) => { };
@@ -98,8 +96,7 @@ namespace AbstractBinding.Tests
             {
                 throw new NotImplementedException();
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged += (s, e) => { };
@@ -122,8 +119,7 @@ namespace AbstractBinding.Tests
                     exception = new RecipientBindingException()
                 };
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged += (s, e) => { };
@@ -147,8 +143,7 @@ namespace AbstractBinding.Tests
                     eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
                 };
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged += (s, e) => { };
@@ -172,8 +167,7 @@ namespace AbstractBinding.Tests
                     eventId = "wrongEventId"
                 };
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged += (s, e) => { };
@@ -204,8 +198,7 @@ namespace AbstractBinding.Tests
                     eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
                 };
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged -= (s, e) => { };
@@ -238,8 +231,7 @@ namespace AbstractBinding.Tests
                     eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
                 };
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnDataChanged -= (s, e) => { };
@@ -261,8 +253,7 @@ namespace AbstractBinding.Tests
             {
                 throw new NotImplementedException();
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged -= (s, e) => { };
@@ -287,8 +278,7 @@ namespace AbstractBinding.Tests
                     exception = new RecipientBindingException()
                 };
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged -= (s, e) => { };
@@ -312,8 +302,7 @@ namespace AbstractBinding.Tests
                     eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
                 };
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged -= (s, e) => { };
@@ -337,8 +326,7 @@ namespace AbstractBinding.Tests
                     eventId = "wrongEventId"
                 };
             });
-            var proxyFactory = new RuntimeProxyFactory();
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
+            var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged -= (s, e) => { };
