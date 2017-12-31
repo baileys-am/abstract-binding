@@ -8,9 +8,9 @@ namespace AbstractBinding.Messages
 {
     public class NotificationEventArgs
     {
-        public Notification Notification { get; private set; }
+        public INotification Notification { get; private set; }
 
-        public NotificationEventArgs(Notification notification)
+        public NotificationEventArgs(INotification notification)
         {
             Notification = notification;
         }

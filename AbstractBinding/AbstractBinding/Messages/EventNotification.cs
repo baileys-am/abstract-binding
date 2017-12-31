@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 namespace AbstractBinding.Messages
 {
     [Serializable]
-    public class EventNotification : Notification
+    public class EventNotification : INotification
     {
 #pragma warning disable IDE1006 // Naming Styles
-        public string eventId { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
+        public NotificationType notificationType => NotificationType.eventInvoked;
 
-#pragma warning disable IDE1006 // Naming Styles
+        public string objectId { get; set; }
+
+        public string eventId { get; set; }
+
         public object eventArgs { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
     }

@@ -71,7 +71,7 @@
     <Compile Include="Recipient.cs" />
     <Compile Include="ISerializer.cs" />
     <Compile Include="Messages\InvokeRequest.cs" />
-    <Compile Include="Messages\Notification.cs" />
+    <Compile Include="Messages\INotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecipientInternals\RegisteredEvent.cs" />
     <Compile Include="RecipientInternals\RegisteredEventFactory.cs" />

@@ -52,7 +52,7 @@ namespace AbstractBinding.Examples
 
         private void OnNotificationReceived(string notification)
         {
-            NotificationReceived?.Invoke(this, new NotificationEventArgs(_serializer.DeserializeObject<Notification>(notification)));
+            NotificationReceived?.Invoke(this, new NotificationEventArgs(_serializer.DeserializeObject<INotification>(notification)));
         }
     }
 }

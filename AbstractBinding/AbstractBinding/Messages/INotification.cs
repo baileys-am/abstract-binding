@@ -10,16 +10,11 @@ namespace AbstractBinding.Messages
     {
         eventInvoked
     }
-
-    [Serializable]
-    public class Notification
+    
+    public interface INotification
     {
 #pragma warning disable IDE1006 // Naming Styles
-        public NotificationType notificationType { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
-
-#pragma warning disable IDE1006 // Naming Styles
-        public string objectId { get; set; }
+        NotificationType notificationType { get; }
 #pragma warning restore IDE1006 // Naming Styles
     }
 }
