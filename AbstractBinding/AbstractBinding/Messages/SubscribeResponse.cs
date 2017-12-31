@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AbstractBinding.Messages
 {
     [Serializable]
-    internal class SubscribeResponse : IResponse
+    public class SubscribeResponse : IResponse
     {
 #pragma warning disable IDE1006 // Naming Styles
         public ResponseType responseType => ResponseType.subscribe;

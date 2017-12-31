@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AbstractBinding.Messages
 {
     [Serializable]
-    internal class ExceptionResponse : IResponse
+    public class ExceptionResponse : IResponse
     {
         public ResponseType responseType => ResponseType.exception;
 

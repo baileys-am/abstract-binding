@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AbstractBinding.Messages
 {
     [Serializable]
-    internal class PropertySetRequest : IRequest
+    public class PropertySetRequest : IRequest
     {
 #pragma warning disable IDE1006 // Naming Styles
         public RequestType requestType => RequestType.propertySet;

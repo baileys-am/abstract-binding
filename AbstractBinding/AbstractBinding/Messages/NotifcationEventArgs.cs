@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Messages
 {
-    internal class NotificationEventArgs
+    public class NotificationEventArgs
     {
         public Notification Notification { get; private set; }
 

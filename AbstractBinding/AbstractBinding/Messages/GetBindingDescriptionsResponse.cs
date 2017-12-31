@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Messages
 {
-    internal class GetBindingDescriptionsResponse : IResponse
+    public class GetBindingDescriptionsResponse : IResponse
     {
 #pragma warning disable IDE1006 // Naming Styles
         public ResponseType responseType => ResponseType.getBindings;

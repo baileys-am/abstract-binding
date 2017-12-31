@@ -12,7 +12,7 @@ namespace AbstractBinding.Messages
     }
 
     [Serializable]
-    internal class Notification
+    public class Notification
     {
 #pragma warning disable IDE1006 // Naming Styles
         public NotificationType notificationType { get; set; }

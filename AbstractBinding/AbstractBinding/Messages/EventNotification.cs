@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AbstractBinding.Messages
 {
     [Serializable]
-    internal class EventNotification : Notification
+    public class EventNotification : Notification
     {
 #pragma warning disable IDE1006 // Naming Styles
         public string eventId { get; set; }

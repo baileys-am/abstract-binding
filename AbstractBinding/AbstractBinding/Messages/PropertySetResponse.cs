@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AbstractBinding.Messages
 {
     [Serializable]
-    internal class PropertySetResponse : IResponse
+    public class PropertySetResponse : IResponse
     {
 #pragma warning disable IDE1006 // Naming Styles
         public ResponseType responseType => ResponseType.propertySet;

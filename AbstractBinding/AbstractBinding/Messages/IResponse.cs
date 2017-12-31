@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Messages
 {
-    internal enum ResponseType
+    public enum ResponseType
     {
         subscribe,
         unsubscribe,
@@ -16,8 +16,8 @@ namespace AbstractBinding.Messages
         propertySet,
         getBindings
     }
-    
-    internal interface IResponse
+
+    public interface IResponse
     {
 #pragma warning disable IDE1006 // Naming Styles
         ResponseType responseType { get; }

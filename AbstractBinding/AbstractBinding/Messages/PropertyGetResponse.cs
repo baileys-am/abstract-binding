@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Messages
 {
-    internal class PropertyGetResponse : IResponse
+    public class PropertyGetResponse : IResponse
     {
 #pragma warning disable IDE1006 // Naming Styles
         public ResponseType responseType => ResponseType.propertyGet;

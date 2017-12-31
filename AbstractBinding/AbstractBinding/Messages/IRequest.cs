@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Messages
 {
-    internal enum RequestType
+    public enum RequestType
     {
         subscribe,
         unsubscribe,
@@ -16,7 +16,7 @@ namespace AbstractBinding.Messages
         getBindings
     }
 
-    internal interface IRequest
+    public interface IRequest
     {
 #pragma warning disable IDE1006 // Naming Styles
         RequestType requestType { get; }

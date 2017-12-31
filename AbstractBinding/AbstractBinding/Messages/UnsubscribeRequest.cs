@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AbstractBinding.Messages
 {
     [Serializable]
-    internal class UnsubscribeRequest : IRequest
+    public class UnsubscribeRequest : IRequest
     {
 #pragma warning disable IDE1006 // Naming Styles
         public RequestType requestType => RequestType.unsubscribe;

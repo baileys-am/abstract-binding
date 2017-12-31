@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Messages
 {
-    internal class PropertyGetRequest : IRequest
+    public class PropertyGetRequest : IRequest
     {
 #pragma warning disable IDE1006 // Naming Styles
         public RequestType requestType => RequestType.propertyGet;
