@@ -10,15 +10,13 @@ namespace AbstractBinding.SenderInternals
     internal class RuntimeProxy : IDisposable
     {
         private readonly string _objectId;
-        private readonly ISenderClient _client;
-        private readonly ISerializer _serializer;
+        private readonly IProxyClient _client;
         private readonly Dictionary<string, EventHandler> _eventHandlers = new Dictionary<string, EventHandler>();
 
-        public RuntimeProxy(string objectId, ISenderClient client, ISerializer serializer)
+        public RuntimeProxy(string objectId, IProxyClient client)
         {
             _objectId = objectId ?? throw new ArgumentNullException(nameof(objectId));
             _client = client ?? throw new ArgumentNullException(nameof(client));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
         public bool Subscribe(Type interfaceType, string name, EventHandler result)
@@ -29,10 +27,9 @@ namespace AbstractBinding.SenderInternals
                 objectId = _objectId,
                 eventId = name
             };
-            var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response.");
+            var response = _client.Request(request);
 
-            switch (respObj)
+            switch (response)
             {
                 case ExceptionResponse exResp:
                     throw exResp.exception;
@@ -47,7 +44,7 @@ namespace AbstractBinding.SenderInternals
                     }
                     break;
                 default:
-                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.subscribe}', but received '{respObj.responseType}'.");
+                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.subscribe}', but received '{response.responseType}'.");
                     
             }
             return true;
@@ -61,10 +58,9 @@ namespace AbstractBinding.SenderInternals
                 objectId = _objectId,
                 eventId = name
             };
-            var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response.");
+            var response = _client.Request(request);
 
-            switch (respObj)
+            switch (response)
             {
                 case ExceptionResponse exResp:
                     throw exResp.exception;
@@ -79,7 +75,7 @@ namespace AbstractBinding.SenderInternals
                     }
                     break;
                 default:
-                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.unsubscribe}', but received '{respObj.responseType}'.");
+                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.unsubscribe}', but received '{response.responseType}'.");
             }
             return true;
         }
@@ -91,10 +87,9 @@ namespace AbstractBinding.SenderInternals
                 objectId = _objectId,
                 propertyId = name
             };
-            var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response.");
+            var response = _client.Request(request);
 
-            switch (respObj)
+            switch (response)
             {
                 case ExceptionResponse exResp:
                     throw exResp.exception;
@@ -110,7 +105,7 @@ namespace AbstractBinding.SenderInternals
                     }
                     break;
                 default:
-                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.propertyGet}', but received '{respObj.responseType}'.");
+                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.propertyGet}', but received '{response.responseType}'.");
             }
             return true;
         }
@@ -123,10 +118,9 @@ namespace AbstractBinding.SenderInternals
                 propertyId = name,
                 value = value
             };
-            var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response.");
+            var response = _client.Request(request);
 
-            switch (respObj)
+            switch (response)
             {
                 case ExceptionResponse exResp:
                     throw exResp.exception;
@@ -141,7 +135,7 @@ namespace AbstractBinding.SenderInternals
                     }
                     break;
                 default:
-                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.propertySet}', but received '{respObj.responseType}'.");
+                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.propertySet}', but received '{response.responseType}'.");
             }
             return true;
         }
@@ -154,10 +148,9 @@ namespace AbstractBinding.SenderInternals
                 methodId = name,
                 methodArgs = args
             };
-            var resp = _client.Request(_serializer.SerializeObject(request));
-            var respObj = _serializer.DeserializeObject<IResponse>(resp) ?? throw new InvalidResponseException("Failed to deserialize response.");
+            var response = _client.Request(request);
 
-            switch (respObj)
+            switch (response)
             {
                 case ExceptionResponse exResp:
                     throw exResp.exception;
@@ -173,7 +166,7 @@ namespace AbstractBinding.SenderInternals
                     }
                     break;
                 default:
-                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.invoke}', but received '{respObj.responseType}'.");
+                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.invoke}', but received '{response.responseType}'.");
             }
             return true;
         }

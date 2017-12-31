@@ -11,28 +11,24 @@ namespace AbstractBinding.SenderInternals
 {
     internal class RuntimeProxyFactory
     {
-        private readonly ISenderClient _client;
-        private readonly ISerializer _serializer;
         private readonly AssemblyName _assName;
         private readonly AssemblyBuilder _assBuilder;
         private readonly ModuleBuilder _moduleBuilder;
         private readonly Dictionary<Type, Type> _proxies = new Dictionary<Type, Type>();
 
-        public RuntimeProxyFactory(ISenderClient client, ISerializer serializer)
+        public RuntimeProxyFactory()
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _assName = new AssemblyName($"{typeof(RuntimeProxyFactory).Assembly.GetName().Name}.Runtime");
             _assBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(_assName, AssemblyBuilderAccess.Run);
             _moduleBuilder = _assBuilder.DefineDynamicModule(_assName.FullName);
         }
 
-        public RuntimeProxy Create(Type type, string objectId)
+        public RuntimeProxy Create(Type type, string objectId, IProxyClient client)
         {
-            return (RuntimeProxy)GetType().GetMethod(nameof(Create), new Type[] { typeof(string) }).GetGenericMethodDefinition().MakeGenericMethod(type).Invoke(this, new object[] { objectId });
+            return (RuntimeProxy)GetType().GetMethod(nameof(Create), new Type[] { typeof(string), typeof(IProxyClient) }).GetGenericMethodDefinition().MakeGenericMethod(type).Invoke(this, new object[] { objectId, client });
         }
 
-        public T Create<T>(string objectId)
+        public T Create<T>(string objectId, IProxyClient client)
         {
             // Verify type is interface
             if (!typeof(T).IsInterface)
@@ -74,7 +70,7 @@ namespace AbstractBinding.SenderInternals
                 _proxies.Add(typeof(T), type);
             }
 
-            return (T)Activator.CreateInstance(_proxies[typeof(T)], objectId, _client, _serializer);
+            return (T)Activator.CreateInstance(_proxies[typeof(T)], objectId, client);
         }
 
         private void ImplementEvent(TypeBuilder typeBuilder, EventInfo eventInfo)

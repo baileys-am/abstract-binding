@@ -40,3 +40,6 @@ using System.Runtime.InteropServices;
 
 // Make internals visible for runtime assembly
 [assembly: InternalsVisibleTo("AbstractBinding.Runtime")]
+
+// Make internals visible for Moq
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

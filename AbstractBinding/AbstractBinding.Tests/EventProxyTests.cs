@@ -11,13 +11,12 @@ namespace AbstractBinding.Tests
     {
         private const string _testCategory = "Event Proxy";
 
-        private readonly Mock<ISenderClient> _clientMock;
-        private readonly ISerializer _serializer = new Serializer();
+        private readonly Mock<IProxyClient> _clientMock;
 
         public EventProxyTests()
         {
             // Initialize client mock
-            _clientMock = new Mock<ISenderClient>();
+            _clientMock = new Mock<IProxyClient>();
         }
 
         [TestMethod]
@@ -32,18 +31,18 @@ namespace AbstractBinding.Tests
                 eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
             };
             SubscribeRequest actualRequest = null;
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<SubscribeRequest>())).Returns<SubscribeRequest>(req =>
             {
-                actualRequest = _serializer.DeserializeObject<SubscribeRequest>(req);
+                actualRequest = req;
 
-                return _serializer.SerializeObject(new SubscribeResponse()
+                return new SubscribeResponse()
                 {
                     objectId = objectId,
                     eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
-                });
+                };
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged += (s, e) => { };
@@ -66,18 +65,18 @@ namespace AbstractBinding.Tests
                 eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
             };
             SubscribeRequest actualRequest = null;
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<SubscribeRequest>())).Returns<SubscribeRequest>(req =>
             {
-                actualRequest = _serializer.DeserializeObject<SubscribeRequest>(req);
+                actualRequest = req;
 
-                return _serializer.SerializeObject(new SubscribeResponse()
+                return new SubscribeResponse()
                 {
                     objectId = objectId,
                     eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
-                });
+                };
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnDataChanged += (s, e) => { };
@@ -95,12 +94,12 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>(req =>
             {
                 throw new NotImplementedException();
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged += (s, e) => { };
@@ -116,15 +115,15 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>(req =>
             {
-                return _serializer.SerializeObject(new ExceptionResponse()
+                return new ExceptionResponse()
                 {
                     exception = new RecipientBindingException()
-                });
+                };
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged += (s, e) => { };
@@ -140,16 +139,16 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>(req =>
             {
-                return _serializer.SerializeObject(new UnsubscribeResponse()
+                return new UnsubscribeResponse()
                 {
                     objectId = objectId,
                     eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
-                });
+                };
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged += (s, e) => { };
@@ -165,16 +164,16 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<SubscribeRequest>())).Returns<SubscribeRequest>(req =>
             {
-                return _serializer.SerializeObject(new SubscribeResponse()
+                return new SubscribeResponse()
                 {
                     objectId = objectId,
                     eventId = "wrongEventId"
-                });
+                };
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged += (s, e) => { };
@@ -195,18 +194,18 @@ namespace AbstractBinding.Tests
                 eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
             };
             UnsubscribeRequest actualRequest = null;
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<UnsubscribeRequest>())).Returns<UnsubscribeRequest>(req =>
             {
-                actualRequest = _serializer.DeserializeObject<UnsubscribeRequest>(req);
+                actualRequest = req;
 
-                return _serializer.SerializeObject(new UnsubscribeResponse()
+                return new UnsubscribeResponse()
                 {
                     objectId = objectId,
                     eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
-                });
+                };
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged -= (s, e) => { };
@@ -229,18 +228,18 @@ namespace AbstractBinding.Tests
                 eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
             };
             UnsubscribeRequest actualRequest = null;
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<UnsubscribeRequest>())).Returns<UnsubscribeRequest>(req =>
             {
-                actualRequest = _serializer.DeserializeObject<UnsubscribeRequest>(req);
+                actualRequest = req;
 
-                return _serializer.SerializeObject(new UnsubscribeResponse()
+                return new UnsubscribeResponse()
                 {
                     objectId = objectId,
                     eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
-                });
+                };
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnDataChanged -= (s, e) => { };
@@ -258,12 +257,12 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>(req =>
             {
                 throw new NotImplementedException();
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged -= (s, e) => { };
@@ -281,15 +280,15 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>(req =>
             {
-                return _serializer.SerializeObject(new ExceptionResponse()
+                return new ExceptionResponse()
                 {
                     exception = new RecipientBindingException()
-                });
+                };
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged -= (s, e) => { };
@@ -305,16 +304,16 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>(req =>
             {
-                return _serializer.SerializeObject(new SubscribeResponse()
+                return new SubscribeResponse()
                 {
                     objectId = objectId,
                     eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
-                });
+                };
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged -= (s, e) => { };
@@ -330,16 +329,16 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>(req =>
             {
-                return _serializer.SerializeObject(new UnsubscribeResponse()
+                return new UnsubscribeResponse()
                 {
                     objectId = objectId,
                     eventId = "wrongEventId"
-                });
+                };
             });
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyFactory = new RuntimeProxyFactory();
+            var objProxy = proxyFactory.Create<IRegisteredObject>(objectId, _clientMock.Object);
 
             // Act
             objProxy.NotifyOnNonDataChanged -= (s, e) => { };
@@ -355,22 +354,22 @@ namespace AbstractBinding.Tests
             // Arrange
             string objectId = "objId1";
             var objectDescriptionFactory = new ObjectDescriptionFactory();
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>((req) =>
+            _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>((req) =>
             {
                 var resp = new GetBindingDescriptionsResponse();
                 resp.bindings.Add(objectId, objectDescriptionFactory.Create<IRegisteredObject>());
-                return _serializer.SerializeObject(resp);
+                return resp;
             });
-            var sender = new Sender(_clientMock.Object, _serializer);
+            var sender = new Sender(_clientMock.Object);
             sender.Register<IRegisteredObject>();
             sender.SynchronizeBindings();
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<SubscribeRequest>())).Returns<SubscribeRequest>(req =>
             {
-                return _serializer.SerializeObject(new SubscribeResponse()
+                return new SubscribeResponse()
                 {
                     objectId = objectId,
                     eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
-                });
+                };
             });
             var objProxy = sender.GetBindingsByType<IRegisteredObject>()[objectId];
             bool argsReceived = false;
@@ -383,7 +382,7 @@ namespace AbstractBinding.Tests
             };
 
             // Act
-            _clientMock.Raise(o => o.NotificationReceived += null, new NotificationEventArgs(_serializer.SerializeObject(notification)));
+            _clientMock.Raise(o => o.NotificationReceived += null, null, new Messages.NotificationEventArgs(notification));
 
             // Assert
             _clientMock.Verify();
@@ -397,22 +396,22 @@ namespace AbstractBinding.Tests
             // Arrange
             string objectId = "objId1";
             var objectDescriptionFactory = new ObjectDescriptionFactory();
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>((req) =>
+            _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>((req) =>
             {
                 var resp = new GetBindingDescriptionsResponse();
                 resp.bindings.Add(objectId, objectDescriptionFactory.Create<IRegisteredObject>());
-                return _serializer.SerializeObject(resp);
+                return resp;
             });
-            var sender = new Sender(_clientMock.Object, _serializer);
+            var sender = new Sender(_clientMock.Object);
             sender.Register<IRegisteredObject>();
             sender.SynchronizeBindings();
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<SubscribeRequest>())).Returns<SubscribeRequest>(req =>
             {
-                return _serializer.SerializeObject(new SubscribeResponse()
+                return new SubscribeResponse()
                 {
                     objectId = objectId,
                     eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
-                });
+                };
             });
             var objProxy = sender.GetBindingsByType<IRegisteredObject>()[objectId];
             bool argsReceived = false;
@@ -425,7 +424,7 @@ namespace AbstractBinding.Tests
             };
 
             // Act
-            _clientMock.Raise(o => o.NotificationReceived += null, new NotificationEventArgs(_serializer.SerializeObject(notification)));
+            _clientMock.Raise(o => o.NotificationReceived += null, null, new Messages.NotificationEventArgs(notification));
 
             // Assert
             _clientMock.Verify();
