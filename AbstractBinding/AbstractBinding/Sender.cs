@@ -18,15 +18,11 @@ namespace AbstractBinding
 
         public IEnumerable<Type> RegisteredTypes => _registeredTypes.Keys;
 
-        internal Sender(IProxyClient client)
+        public Sender(IProxyClient client)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
 
             _client.NotificationReceived += _client_NotificationReceived;
-        }
-
-        public Sender(ISenderClient client, ISerializer serializer) : this(new ProxyClient(client, serializer))
-        {
         }
 
         ~Sender()

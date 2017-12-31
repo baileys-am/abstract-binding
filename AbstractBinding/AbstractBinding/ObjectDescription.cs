@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace AbstractBinding
 {
-    internal class ObjectDescription
+    public class ObjectDescription
     {
         public Dictionary<string, EventDescription> Events { get; set; } = new Dictionary<string, EventDescription>();
 

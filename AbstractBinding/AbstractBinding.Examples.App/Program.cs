@@ -12,10 +12,9 @@ namespace AbstractBinding.Examples.App
         static void Main(string[] args)
         {
             var client = new SenderClient("127.0.0.1:6789");
-            var serializer = new Serializer();
             client.StartListener();
 
-            var sender = new Sender(client, serializer);
+            var sender = new Sender(client);
             sender.Register<IExampleObject>();
 
             // Sync bindings

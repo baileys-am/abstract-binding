@@ -41,7 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IProxyClient.cs" />
-    <Compile Include="ISenderClient.cs" />
     <Compile Include="EventDescription.cs" />
     <Compile Include="InvalidNotificationException.cs" />
     <Compile Include="InvalidResponseException.cs" />
@@ -69,7 +68,6 @@
     <Compile Include="Messages\SubscribeResponse.cs" />
     <Compile Include="Messages\UnsubscribeRequest.cs" />
     <Compile Include="Messages\UnsubscribeResponse.cs" />
-    <Compile Include="ProxyClient.cs" />
     <Compile Include="Recipient.cs" />
     <Compile Include="ISerializer.cs" />
     <Compile Include="Messages\InvokeRequest.cs" />

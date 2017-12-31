@@ -1,6 +1,6 @@
 ﻿namespace AbstractBinding
 {
-    internal class EventDescription
+    public class EventDescription
     {
         public bool Equals(EventDescription desc)
         {

@@ -5,12 +5,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core;
+using AbstractBinding.Messages;
 using AbstractBinding.Examples.Protos;
 
 namespace AbstractBinding.Examples
 {
-    public class SenderClient : Protos.RecipientService.RecipientServiceClient, ISenderClient
+    public class SenderClient : Protos.RecipientService.RecipientServiceClient, IProxyClient
     {
+        private Serializer _serializer = new Serializer();
         private Task _listenTask;
         private CancellationTokenSource _listenCancel;
 
@@ -42,15 +44,15 @@ namespace AbstractBinding.Examples
             _listenCancel.Cancel();
         }
 
-        public string Request(string request)
+        public IResponse Request(IRequest request)
         {
-            ResponseMessage resp = this.Request(new RequestMessage() { Message = request });
-            return resp.Message;
+            ResponseMessage resp = this.Request(new RequestMessage() { Message = _serializer.SerializeObject(request) });
+            return _serializer.DeserializeObject<IResponse>(resp.Message);
         }
 
         private void OnNotificationReceived(string notification)
         {
-            NotificationReceived?.Invoke(this, new NotificationEventArgs(notification));
+            NotificationReceived?.Invoke(this, new NotificationEventArgs(_serializer.DeserializeObject<Notification>(notification)));
         }
     }
 }
