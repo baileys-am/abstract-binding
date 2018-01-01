@@ -35,11 +35,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-// Make internals visible for unit test project
-[assembly: InternalsVisibleTo("AbstractBinding.Tests")]
-
 // Make internals visible for runtime assembly
 [assembly: InternalsVisibleTo("AbstractBinding.Runtime")]
-
-// Make internals visible for Moq
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
