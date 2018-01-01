@@ -18,11 +18,11 @@ namespace AbstractBinding.RecipientInternals
 
         private bool _subscribed;
 
-        public string ObjectId { get; private set; }
-        public string EventId { get; private set; }
+        internal string ObjectId { get; private set; }
+        internal string EventId { get; private set; }
 
 
-        public RegisteredEvent(string objectId, object obj, EventInfo eventInfo)
+        internal RegisteredEvent(string objectId, object obj, EventInfo eventInfo)
         {
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
             _eventInfo = eventInfo ?? throw new ArgumentNullException(nameof(eventInfo));
@@ -54,12 +54,12 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public static RegisteredEvent Create(string id, object objectId, EventInfo eventInfo)
+        internal static RegisteredEvent Create(string id, object objectId, EventInfo eventInfo)
         {
             return new RegisteredEvent(id, objectId, eventInfo);
         }
 
-        public void Subscribe(IRecipientCallback callback)
+        internal void Subscribe(IRecipientCallback callback)
         {
             if (callback == null)
             {
@@ -90,7 +90,7 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public void Unsubscribe(IRecipientCallback callback)
+        internal void Unsubscribe(IRecipientCallback callback)
         {
             if (callback == null)
             {

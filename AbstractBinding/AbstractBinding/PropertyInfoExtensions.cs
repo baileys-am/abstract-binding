@@ -9,7 +9,7 @@ namespace AbstractBinding
 {
     internal static class PropertyInfoExtensions
     {
-        public static string GetFullName(this PropertyInfo info)
+        internal static string GetFullName(this PropertyInfo info)
         {
             return $"{info.ReflectedType.FullName}.{info.Name}";
         }

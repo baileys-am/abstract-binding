@@ -12,10 +12,10 @@ namespace AbstractBinding.RecipientInternals
         private readonly object _obj;
         private readonly PropertyInfo _propertyInfo;
 
-        public string ObjectId { get; private set; }
-        public string PropertyId { get; private set; }
+        internal string ObjectId { get; private set; }
+        internal string PropertyId { get; private set; }
 
-        public RegisteredProperty(string objectId, object obj, PropertyInfo propertyInfo)
+        internal RegisteredProperty(string objectId, object obj, PropertyInfo propertyInfo)
         {
             ObjectId = objectId ?? throw new ArgumentNullException(nameof(objectId));
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
@@ -24,12 +24,12 @@ namespace AbstractBinding.RecipientInternals
             PropertyId = _propertyInfo.Name;
         }
 
-        public static RegisteredProperty Create(string objectId, object obj, PropertyInfo propertyInfo)
+        internal static RegisteredProperty Create(string objectId, object obj, PropertyInfo propertyInfo)
         {
             return new RegisteredProperty(objectId, obj, propertyInfo);
         }
 
-        public object GetValue()
+        internal object GetValue()
         {
             try
             {
@@ -41,7 +41,7 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public void SetValue(object value)
+        internal void SetValue(object value)
         {
             try
             {

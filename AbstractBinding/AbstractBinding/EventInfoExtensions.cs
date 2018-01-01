@@ -12,7 +12,7 @@ namespace AbstractBinding
 {
     internal static partial class EventInfoExtensions
     {
-        public static string GetFullName(this EventInfo info)
+        internal static string GetFullName(this EventInfo info)
         {
             return $"{info.ReflectedType.FullName}.{info.Name}";
         }

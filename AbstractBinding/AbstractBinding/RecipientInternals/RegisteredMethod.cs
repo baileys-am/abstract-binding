@@ -12,10 +12,10 @@ namespace AbstractBinding.RecipientInternals
         private readonly object _obj;
         private readonly MethodInfo _methodInfo;
 
-        public string ObjectId { get; private set; }
-        public string MethodId { get; private set; }
+        internal string ObjectId { get; private set; }
+        internal string MethodId { get; private set; }
 
-        public RegisteredMethod(string objectId, object obj, MethodInfo methodInfo)
+        internal RegisteredMethod(string objectId, object obj, MethodInfo methodInfo)
         {
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
             _methodInfo = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
@@ -24,12 +24,12 @@ namespace AbstractBinding.RecipientInternals
             MethodId = _methodInfo.GetFullName();
         }
 
-        public static RegisteredMethod Create(string objectId, object obj, MethodInfo methodInfo)
+        internal static RegisteredMethod Create(string objectId, object obj, MethodInfo methodInfo)
         {
             return new RegisteredMethod(objectId, obj, methodInfo);
         }
 
-        public object Invoke(object[] objs)
+        internal object Invoke(object[] objs)
         {
             try
             {

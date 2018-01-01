@@ -14,10 +14,10 @@ namespace AbstractBinding.RecipientInternals
         private readonly IReadOnlyDictionary<string, RegisteredProperty> _properties;
         private readonly IReadOnlyDictionary<string, RegisteredMethod> _methods;
 
-        public string ObjectId { get; private set; }
-        public ObjectDescription Description { get; private set; }
+        internal string ObjectId { get; private set; }
+        internal ObjectDescription Description { get; private set; }
 
-        public RegisteredObject(string objectId,
+        internal RegisteredObject(string objectId,
                                 ObjectDescription objDesc,
                                 object obj,
                                 IReadOnlyDictionary<string, RegisteredEvent> events,
@@ -32,7 +32,7 @@ namespace AbstractBinding.RecipientInternals
             _methods = methods ?? throw new ArgumentNullException(nameof(methods));
         }
 
-        public static RegisteredObject Create<T>(string objectId, T obj)
+        internal static RegisteredObject Create<T>(string objectId, T obj)
         {
             // Create description
             ObjectDescriptionFactory objDescFactory = new ObjectDescriptionFactory();
@@ -78,7 +78,7 @@ namespace AbstractBinding.RecipientInternals
             return new RegisteredObject(objectId, objDesc, obj, events, properties, methods);
         }
 
-        public void Subscribe(string eventId, IRecipientCallback callback)
+        internal void Subscribe(string eventId, IRecipientCallback callback)
         {
             if (_events.ContainsKey(eventId))
             {
@@ -90,7 +90,7 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public void Unsubscribe(string eventId, IRecipientCallback callback)
+        internal void Unsubscribe(string eventId, IRecipientCallback callback)
         {
             if (_events.ContainsKey(eventId))
             {
@@ -102,7 +102,7 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public object GetValue(string propertyId)
+        internal object GetValue(string propertyId)
         {
             if (_properties.ContainsKey(propertyId))
             {
@@ -114,7 +114,7 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public void SetValue(string propertyId, object value)
+        internal void SetValue(string propertyId, object value)
         {
             if (_properties.ContainsKey(propertyId))
             {
@@ -126,7 +126,7 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public object Invoke(string methodId, object[] args)
+        internal object Invoke(string methodId, object[] args)
         {
             if (_methods.ContainsKey(methodId))
             {

@@ -9,7 +9,7 @@ namespace AbstractBinding
 {
     internal static class ParameterInfoExtensions
     {
-        public static bool IsParams(this ParameterInfo param)
+        internal static bool IsParams(this ParameterInfo param)
         {
             return param.IsDefined(typeof(ParamArrayAttribute), false);
         }
