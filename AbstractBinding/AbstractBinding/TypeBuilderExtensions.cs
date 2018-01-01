@@ -21,7 +21,7 @@ namespace AbstractBinding
         /// <param name="baseType"></param>
         public static void CreatePassThroughConstructors(this TypeBuilder builder, Type baseType)
         {
-            foreach (var constructor in baseType.GetConstructors())
+            foreach (var constructor in baseType.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
             {
                 var parameters = constructor.GetParameters();
                 if (parameters.Length > 0 && parameters.Last().IsDefined(typeof(ParamArrayAttribute), false))
