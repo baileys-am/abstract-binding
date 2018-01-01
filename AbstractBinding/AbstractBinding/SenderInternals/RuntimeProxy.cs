@@ -6,17 +6,30 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using AbstractBinding.Messages;
 
 namespace AbstractBinding.SenderInternals
 {
-    internal class RuntimeProxy : IDisposable
+    public class RuntimeProxy : IDisposable
     {
+        private static AssemblyName _assyName = new AssemblyName($"{typeof(RuntimeProxy).Assembly.GetName().Name}.Runtime");
+        private static AssemblyBuilder _assyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
+            _assyName,
+            AssemblyBuilderAccess.Run,
+            new List<CustomAttributeBuilder>()
+            {
+                new CustomAttributeBuilder(typeof(InternalsVisibleToAttribute).GetConstructor(new[] {typeof(string)}),
+                new object[] { typeof(RuntimeProxy).Assembly.GetName().Name })
+            });
+        private static ModuleBuilder _moduleBuilder = _assyBuilder.DefineDynamicModule(_assyName.FullName);
+        private static Dictionary<Type, Type> _runtimeProxyTypes = new Dictionary<Type, Type>();
+
         private readonly string _objectId;
         private readonly IProxyClient _client;
         private readonly Dictionary<string, EventHandler> _eventHandlers = new Dictionary<string, EventHandler>();
 
-        public RuntimeProxy(string objectId, IProxyClient client)
+        internal RuntimeProxy(string objectId, IProxyClient client)
         {
             _objectId = objectId ?? throw new ArgumentNullException(nameof(objectId));
             _client = client ?? throw new ArgumentNullException(nameof(client));
@@ -28,18 +41,19 @@ namespace AbstractBinding.SenderInternals
         }
 
         public static T Create<T>(string objectId, IProxyClient client)
-        {
+        {;
+            if (_runtimeProxyTypes.ContainsKey(typeof(T)))
+            {
+                return (T)Activator.CreateInstance(_runtimeProxyTypes[typeof(T)], objectId, client);
+            }
+
             // Verify type is interface
             if (!typeof(T).IsInterface)
             {
                 throw new InvalidOperationException("Generic argument must be an interface.");
             }
 
-            // Initialize type builder
-            var assyName = new AssemblyName($"{typeof(RuntimeProxy).Assembly.GetName().Name}.Runtime");
-            var assyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assyName, AssemblyBuilderAccess.Run);
-            ModuleBuilder moduleBuilder = assyBuilder.DefineDynamicModule(assyName.FullName); ;
-            TypeBuilder typeBuilder = moduleBuilder.DefineType($"{typeof(T).Name}Proxy", TypeAttributes.Public);
+            TypeBuilder typeBuilder = _moduleBuilder.DefineType($"{typeof(T).Name}Proxy", TypeAttributes.Public);
 
             // Define parent and interface
             typeBuilder.SetParent(typeof(RuntimeProxy));
@@ -295,13 +309,14 @@ namespace AbstractBinding.SenderInternals
                 typeBuilder.DefineMethodOverride(mb, methodInfo);
             }
 
-            // Create and return new type instance
+            // Create and store new type instance
             Type type = typeBuilder.CreateType();
+            _runtimeProxyTypes.Add(typeof(T), type);
 
             return (T)Activator.CreateInstance(type, objectId, client);
         }
 
-        public bool Subscribe(string eventId, EventHandler handler)
+        internal bool Subscribe(string eventId, EventHandler handler)
         {
             _eventHandlers.Add(eventId, handler);
             var request = new SubscribeRequest()
@@ -332,7 +347,7 @@ namespace AbstractBinding.SenderInternals
             return true;
         }
 
-        public bool Unsubscribe(string eventId, EventHandler handler)
+        internal bool Unsubscribe(string eventId, EventHandler handler)
         {
             _eventHandlers.Remove(eventId);
             var request = new UnsubscribeRequest()
@@ -362,7 +377,7 @@ namespace AbstractBinding.SenderInternals
             return true;
         }
 
-        public bool GetValue(string propertyId, out object value)
+        internal bool GetValue(string propertyId, out object value)
         {
             var request = new PropertyGetRequest()
             {
@@ -392,7 +407,7 @@ namespace AbstractBinding.SenderInternals
             return true;
         }
 
-        public bool SetValue(string propertyId, object value)
+        internal bool SetValue(string propertyId, object value)
         {
             var request = new PropertySetRequest()
             {
@@ -422,7 +437,7 @@ namespace AbstractBinding.SenderInternals
             return true;
         }
 
-        public bool Invoke(string methodId, object[] args, out object result)
+        internal bool Invoke(string methodId, object[] args, out object result)
         {
             var request = new InvokeRequest()
             {
@@ -453,7 +468,7 @@ namespace AbstractBinding.SenderInternals
             return true;
         }
 
-        public void OnEventNotification(EventNotification notification)
+        internal void OnEventNotification(EventNotification notification)
         {
             if (_eventHandlers.ContainsKey(notification.eventId))
             {
