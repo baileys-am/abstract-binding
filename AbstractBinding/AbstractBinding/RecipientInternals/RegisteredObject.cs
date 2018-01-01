@@ -35,8 +35,7 @@ namespace AbstractBinding.RecipientInternals
         internal static RegisteredObject Create<T>(string objectId, T obj)
         {
             // Create description
-            ObjectDescriptionFactory objDescFactory = new ObjectDescriptionFactory();
-            var objDesc = objDescFactory.Create<T>();
+            var objDesc = ObjectDescriptor.GetObjectDescription<T>();
 
             // Create events
             var events = new Dictionary<string, RegisteredEvent>();

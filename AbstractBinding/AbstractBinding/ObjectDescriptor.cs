@@ -26,29 +26,29 @@ namespace AbstractBinding
         public static ObjectDescription GetObjectDescription<T>()
         {
             // Create event descriptions
-            var events = new Dictionary<string, EventDescription>();
+            var events = new List<string>();
             foreach (var eventInfo in typeof(T).GetContractEvents())
             {
                 // Store registered event
-                events.Add(eventInfo.Name, new EventDescription());
+                events.Add(eventInfo.Name);
             }
 
             // Create property descriptions
-            var properties = new Dictionary<string, PropertyDescription>();
+            var properties = new List<string>();
             foreach (var propertyInfo in typeof(T).GetContractProperties())
             {
                 // Store registered property
-                properties.Add(propertyInfo.Name, new PropertyDescription());
+                properties.Add(propertyInfo.Name);
             }
 
             // Create methods descriptions
-            var methods = new Dictionary<string, MethodDescription>();
+            var methods = new List<string>();
             foreach (var methodInfo in typeof(T).GetContractMethods())
             {
-                methods.Add(methodInfo.GetFullName(), new MethodDescription());
+                methods.Add(methodInfo.GetFullName());
             }
 
-            return new ObjectDescription() { Events = events, Properties = properties, Methods = methods };
+            return new ObjectDescription(events, properties, methods);
         }
     }
 }

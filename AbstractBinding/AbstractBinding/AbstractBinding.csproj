@@ -42,21 +42,17 @@
   <ItemGroup>
     <Compile Include="EventInfoExtensions.cs" />
     <Compile Include="IProxyClient.cs" />
-    <Compile Include="EventDescription.cs" />
     <Compile Include="InvalidNotificationException.cs" />
     <Compile Include="InvalidResponseException.cs" />
     <Compile Include="IRecipientCallback.cs" />
     <Compile Include="Messages\IRequest.cs" />
     <Compile Include="Messages\IResponse.cs" />
     <Compile Include="Messages\NotifcationEventArgs.cs" />
-    <Compile Include="MethodDescription.cs" />
     <Compile Include="ExpressionExtensions.cs" />
     <Compile Include="MethodInfoExtensions.cs" />
     <Compile Include="ObjectDescription.cs" />
-    <Compile Include="ObjectDescriptionFactory.cs" />
     <Compile Include="ObjectDescriptor.cs" />
     <Compile Include="ParameterInfoExtensions.cs" />
-    <Compile Include="PropertyDescription.cs" />
     <Compile Include="Messages\EventNotification.cs" />
     <Compile Include="Messages\ExceptionResponse.cs" />
     <Compile Include="Messages\GetBindingDescriptionsRequest.cs" />

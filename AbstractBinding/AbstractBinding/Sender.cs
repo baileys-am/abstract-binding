@@ -10,7 +10,6 @@ namespace AbstractBinding
     public class Sender
     {
         private readonly IProxyClient _client;
-        private readonly ObjectDescriptionFactory _objDescFactory = new ObjectDescriptionFactory();
         private readonly Dictionary<string, RuntimeProxy> _runtimeProxies = new Dictionary<string, RuntimeProxy>();
         private readonly Dictionary<Type, ObjectDescription> _registeredTypes = new Dictionary<Type, ObjectDescription>();
 
@@ -30,7 +29,7 @@ namespace AbstractBinding
 
         public void Register<T>()
         {
-            var objDesc = _objDescFactory.Create<T>();
+            var objDesc = ObjectDescriptor.GetObjectDescription<T>();
             if (_registeredTypes.ContainsKey(typeof(T)))
             {
                 throw new InvalidOperationException("Type is already registered.");
