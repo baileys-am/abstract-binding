@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventInfoExtensions.cs" />
     <Compile Include="IProxyClient.cs" />
     <Compile Include="EventDescription.cs" />
     <Compile Include="InvalidNotificationException.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="MethodInfoExtensions.cs" />
     <Compile Include="ObjectDescription.cs" />
     <Compile Include="ObjectDescriptionFactory.cs" />
+    <Compile Include="ObjectDescriptor.cs" />
     <Compile Include="ParameterInfoExtensions.cs" />
     <Compile Include="PropertyDescription.cs" />
     <Compile Include="Messages\EventNotification.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="Messages\SubscribeResponse.cs" />
     <Compile Include="Messages\UnsubscribeRequest.cs" />
     <Compile Include="Messages\UnsubscribeResponse.cs" />
+    <Compile Include="PropertyInfoExtensions.cs" />
     <Compile Include="Recipient.cs" />
     <Compile Include="Messages\InvokeRequest.cs" />
     <Compile Include="Messages\INotification.cs" />
