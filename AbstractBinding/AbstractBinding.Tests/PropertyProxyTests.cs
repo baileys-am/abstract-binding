@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using AbstractBinding.Messages;
-using AbstractBinding.SenderInternals;
 
 namespace AbstractBinding.Tests
 {

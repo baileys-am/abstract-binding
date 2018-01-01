@@ -81,7 +81,7 @@
     <Compile Include="RecipientInternals\RegisteredProperty.cs" />
     <Compile Include="RecipientBindingException.cs" />
     <Compile Include="Sender.cs" />
-    <Compile Include="SenderInternals\RuntimeProxy.cs" />
+    <Compile Include="RuntimeProxy.cs" />
     <Compile Include="TypeBuilderExtensions.cs" />
     <Compile Include="TypeExtensions.cs" />
   </ItemGroup>

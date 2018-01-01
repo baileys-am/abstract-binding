@@ -9,7 +9,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using AbstractBinding.Messages;
 
-namespace AbstractBinding.SenderInternals
+namespace AbstractBinding
 {
     public class RuntimeProxy : IDisposable
     {
