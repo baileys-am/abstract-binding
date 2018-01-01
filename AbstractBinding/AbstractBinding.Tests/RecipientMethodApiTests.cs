@@ -30,14 +30,12 @@ namespace AbstractBinding.Tests
             var objectId = "objId1";
             double args0 = 1.1;
             string args1 = "test";
-            var objDescFactory = new ObjectDescriptionFactory();
-            var objDesc = objDescFactory.Create<IRegisteredObject>();
             _regObjectMock.Setup(o => o.VoidReturnMethod(new object[] { args0, args1 }));
             var server = new Recipient();
             var request = new InvokeRequest()
             {
                 objectId = objectId,
-                methodId = objDesc.Methods.First(kvp => kvp.Key.Contains(nameof(IRegisteredObject.VoidReturnMethod))).Key,
+                methodId = ObjectDescriptor.GetMethodId<IRegisteredObject>(nameof(IRegisteredObject.VoidReturnMethod)),
                 methodArgs = new object[] { new object[] { args0, args1 } }
             };
 
@@ -63,8 +61,6 @@ namespace AbstractBinding.Tests
             var objectId = "objId1";
             double args0 = 1.1;
             string args1 = "test";
-            var objDescFactory = new ObjectDescriptionFactory();
-            var objDesc = objDescFactory.Create<IRegisteredObject>();
             NotImplementedException exception = null;
             _regObjectMock.Setup(o => o.VoidReturnMethod(new object[] { args0, args1 })).Callback<object[]>(objs =>
             {
@@ -75,7 +71,7 @@ namespace AbstractBinding.Tests
             var request = new InvokeRequest()
             {
                 objectId = objectId,
-                methodId = objDesc.Methods.First(kvp => kvp.Key.Contains(nameof(IRegisteredObject.VoidReturnMethod))).Key,
+                methodId = ObjectDescriptor.GetMethodId<IRegisteredObject>(nameof(IRegisteredObject.VoidReturnMethod)),
                 methodArgs = new object[] { args0, args1 }
             };
 
@@ -100,13 +96,11 @@ namespace AbstractBinding.Tests
             string args0 = "test";
 
             _regObjectMock.Setup(o => o.VoidReturnMethodStr(args0));
-            var objDescFactory = new ObjectDescriptionFactory();
-            var objDesc = objDescFactory.Create<IRegisteredObject>();
             var server = new Recipient();
             var request = new InvokeRequest()
             {
                 objectId = objectId,
-                methodId = objDesc.Methods.First(kvp => kvp.Key.Contains(nameof(IRegisteredObject.VoidReturnMethodStr))).Key,
+                methodId = ObjectDescriptor.GetMethodId<IRegisteredObject>(nameof(IRegisteredObject.VoidReturnMethodStr)),
                 methodArgs = new object[] { args0 }
             };
 

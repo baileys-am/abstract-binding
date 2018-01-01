@@ -31,7 +31,7 @@ namespace AbstractBinding.Tests
                 return new PropertyGetResponse()
                 {
                     objectId = objectId,
-                    propertyId = nameof(IRegisteredObject.StringValueProperty),
+                    propertyId = ObjectDescriptor.GetPropertyId<IRegisteredObject>(nameof(IRegisteredObject.StringValueProperty)),
                     value = expectedValue
                 };
             });
@@ -59,7 +59,7 @@ namespace AbstractBinding.Tests
                 return new PropertySetResponse()
                 {
                     objectId = objectId,
-                    propertyId = nameof(IRegisteredObject.StringValueProperty)
+                    propertyId = ObjectDescriptor.GetPropertyId<IRegisteredObject>(nameof(IRegisteredObject.StringValueProperty))
                 };
             });
 

@@ -26,8 +26,6 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "obj1Id";
-            var objDescFactory = new ObjectDescriptionFactory();
-            var objDesc = objDescFactory.Create<IRegisteredObject>();
             var proxyObj = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
             object[] args = null;
             _clientMock.Setup(o => o.Request(It.IsAny<InvokeRequest>())).Returns<InvokeRequest>(req =>
@@ -40,7 +38,7 @@ namespace AbstractBinding.Tests
                 return new InvokeResponse()
                 {
                     objectId = objectId,
-                    methodId = objDesc.Methods.First(kvp => kvp.Key.Contains(nameof(IRegisteredObject.VoidReturnMethodStrVal))).Key,
+                    methodId = ObjectDescriptor.GetMethodId<IRegisteredObject>(nameof(IRegisteredObject.VoidReturnMethodStrVal)),
                     result = null
                 };
             });
@@ -60,8 +58,6 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "obj1Id";
-            var objDescFactory = new ObjectDescriptionFactory();
-            var objDesc = objDescFactory.Create<IRegisteredObject>();
             var proxyObj = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
             object[] args = null;
             _clientMock.Setup(o => o.Request(It.IsAny<InvokeRequest>())).Returns<InvokeRequest>(req =>
@@ -74,7 +70,7 @@ namespace AbstractBinding.Tests
                 return new InvokeResponse()
                 {
                     objectId = objectId,
-                    methodId = objDesc.Methods.First(kvp => kvp.Key.Contains(nameof(IRegisteredObject.VoidReturnMethod))).Key,
+                    methodId = ObjectDescriptor.GetMethodId<IRegisteredObject>(nameof(IRegisteredObject.VoidReturnMethod)),
                     result = null
                 };
             });

@@ -33,7 +33,7 @@ namespace AbstractBinding.Tests
             var request = new PropertyGetRequest()
             {
                 objectId = objectId,
-                propertyId = nameof(IRegisteredObject.StringValueProperty)
+                propertyId = ObjectDescriptor.GetPropertyId<IRegisteredObject>(nameof(IRegisteredObject.StringValueProperty))
             };
 
             // Act
@@ -60,7 +60,7 @@ namespace AbstractBinding.Tests
             var request = new PropertyGetRequest()
             {
                 objectId = objectId,
-                propertyId = nameof(IRegisteredObject.StringValueProperty)
+                propertyId = ObjectDescriptor.GetPropertyId<IRegisteredObject>(nameof(IRegisteredObject.StringValueProperty))
             };
             recipient.Register(objectId, _regObjectMock.Object);
             _regObjectMock.SetupGet(o => o.StringValueProperty).Throws(new NotImplementedException());
@@ -89,7 +89,7 @@ namespace AbstractBinding.Tests
             var request = new PropertySetRequest()
             {
                 objectId = objectId,
-                propertyId = nameof(IRegisteredObject.StringValueProperty),
+                propertyId = ObjectDescriptor.GetPropertyId<IRegisteredObject>(nameof(IRegisteredObject.StringValueProperty)),
                 value = expectedValue
             };
 
@@ -119,7 +119,7 @@ namespace AbstractBinding.Tests
             var request = new PropertySetRequest()
             {
                 objectId = objectId,
-                propertyId = nameof(IRegisteredObject.StringValueProperty),
+                propertyId = ObjectDescriptor.GetPropertyId<IRegisteredObject>(nameof(IRegisteredObject.StringValueProperty)),
                 value = "toBeExpected"
             };
 

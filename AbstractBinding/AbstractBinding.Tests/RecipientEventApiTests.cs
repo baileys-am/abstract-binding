@@ -36,7 +36,7 @@ namespace AbstractBinding.Tests
             var request = new SubscribeRequest()
             {
                 objectId = objectId,
-                eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
+                eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnNonDataChanged))
             };
 
             // Act
@@ -73,7 +73,7 @@ namespace AbstractBinding.Tests
             var request = new SubscribeRequest()
             {
                 objectId = objectId,
-                eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
+                eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnDataChanged))
             };
             var expectedEventArgs = new DataChangedEventArgs("eventName", 2.0);
 
@@ -113,12 +113,12 @@ namespace AbstractBinding.Tests
             var subscribeRequestObj = new SubscribeRequest()
             {
                 objectId = objectId,
-                eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
+                eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnNonDataChanged))
             };
             var unsubscribeRequest = new UnsubscribeRequest()
             {
                 objectId = objectId,
-                eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
+                eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnNonDataChanged))
             };
 
             // Act

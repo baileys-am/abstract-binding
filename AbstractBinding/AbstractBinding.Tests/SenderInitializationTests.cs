@@ -44,13 +44,12 @@ namespace AbstractBinding.Tests
             string objectId1 = "objId1";
             string objectId2 = "objId2";
             string objectId3 = "objId3";
-            var objectDescriptionFactory = new ObjectDescriptionFactory();
             _clientMock.Setup(o => o.Request(It.IsAny<GetBindingDescriptionsRequest>())).Returns<GetBindingDescriptionsRequest>((req) =>
             {
                 var resp = new GetBindingDescriptionsResponse();
-                resp.bindings.Add(objectId1, objectDescriptionFactory.Create<IRegisteredObject>());
-                resp.bindings.Add(objectId2, objectDescriptionFactory.Create<IRegisteredObject>());
-                resp.bindings.Add(objectId3, objectDescriptionFactory.Create<IRegisteredObject2>());
+                resp.bindings.Add(objectId1, ObjectDescriptor.GetObjectDescription<IRegisteredObject>());
+                resp.bindings.Add(objectId2, ObjectDescriptor.GetObjectDescription<IRegisteredObject>());
+                resp.bindings.Add(objectId3, ObjectDescriptor.GetObjectDescription<IRegisteredObject2>());
                 return resp;
             });
             var sender = new Sender(_clientMock.Object);

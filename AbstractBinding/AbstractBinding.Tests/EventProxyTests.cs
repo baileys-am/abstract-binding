@@ -28,7 +28,7 @@ namespace AbstractBinding.Tests
             var expectedRequest = new SubscribeRequest()
             {
                 objectId = objectId,
-                eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
+                eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnNonDataChanged))
             };
             SubscribeRequest actualRequest = null;
             _clientMock.Setup(o => o.Request(It.IsAny<SubscribeRequest>())).Returns<SubscribeRequest>(req =>
@@ -38,7 +38,7 @@ namespace AbstractBinding.Tests
                 return new SubscribeResponse()
                 {
                     objectId = objectId,
-                    eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
+                    eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnNonDataChanged))
                 };
             });
             var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
@@ -61,7 +61,7 @@ namespace AbstractBinding.Tests
             var expectedRequest = new SubscribeRequest()
             {
                 objectId = objectId,
-                eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
+                eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnDataChanged))
             };
             SubscribeRequest actualRequest = null;
             _clientMock.Setup(o => o.Request(It.IsAny<SubscribeRequest>())).Returns<SubscribeRequest>(req =>
@@ -71,7 +71,7 @@ namespace AbstractBinding.Tests
                 return new SubscribeResponse()
                 {
                     objectId = objectId,
-                    eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
+                    eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnDataChanged))
                 };
             });
             var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
@@ -140,7 +140,7 @@ namespace AbstractBinding.Tests
                 return new UnsubscribeResponse()
                 {
                     objectId = objectId,
-                    eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
+                    eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnNonDataChanged))
                 };
             });
             var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
@@ -185,7 +185,7 @@ namespace AbstractBinding.Tests
             var expectedRequest = new UnsubscribeRequest()
             {
                 objectId = objectId,
-                eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
+                eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnNonDataChanged))
             };
             UnsubscribeRequest actualRequest = null;
             _clientMock.Setup(o => o.Request(It.IsAny<UnsubscribeRequest>())).Returns<UnsubscribeRequest>(req =>
@@ -195,7 +195,7 @@ namespace AbstractBinding.Tests
                 return new UnsubscribeResponse()
                 {
                     objectId = objectId,
-                    eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
+                    eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnNonDataChanged))
                 };
             });
             var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
@@ -218,7 +218,7 @@ namespace AbstractBinding.Tests
             var expectedRequest = new UnsubscribeRequest()
             {
                 objectId = objectId,
-                eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
+                eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnDataChanged))
             };
             UnsubscribeRequest actualRequest = null;
             _clientMock.Setup(o => o.Request(It.IsAny<UnsubscribeRequest>())).Returns<UnsubscribeRequest>(req =>
@@ -228,7 +228,7 @@ namespace AbstractBinding.Tests
                 return new UnsubscribeResponse()
                 {
                     objectId = objectId,
-                    eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
+                    eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnDataChanged))
                 };
             });
             var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
@@ -299,7 +299,7 @@ namespace AbstractBinding.Tests
                 return new SubscribeResponse()
                 {
                     objectId = objectId,
-                    eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
+                    eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnNonDataChanged))
                 };
             });
             var objProxy = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
@@ -341,11 +341,10 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
-            var objectDescriptionFactory = new ObjectDescriptionFactory();
             _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>((req) =>
             {
                 var resp = new GetBindingDescriptionsResponse();
-                resp.bindings.Add(objectId, objectDescriptionFactory.Create<IRegisteredObject>());
+                resp.bindings.Add(objectId, ObjectDescriptor.GetObjectDescription<IRegisteredObject>());
                 return resp;
             });
             var sender = new Sender(_clientMock.Object);
@@ -356,7 +355,7 @@ namespace AbstractBinding.Tests
                 return new SubscribeResponse()
                 {
                     objectId = objectId,
-                    eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged)
+                    eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnNonDataChanged))
                 };
             });
             var objProxy = sender.GetBindingsByType<IRegisteredObject>()[objectId];
@@ -365,7 +364,7 @@ namespace AbstractBinding.Tests
             var notification = new EventNotification()
             {
                 objectId = objectId,
-                eventId = nameof(IRegisteredObject.NotifyOnNonDataChanged),
+                eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnNonDataChanged)),
                 eventArgs = EventArgs.Empty
             };
 
@@ -383,11 +382,10 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
-            var objectDescriptionFactory = new ObjectDescriptionFactory();
             _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>((req) =>
             {
                 var resp = new GetBindingDescriptionsResponse();
-                resp.bindings.Add(objectId, objectDescriptionFactory.Create<IRegisteredObject>());
+                resp.bindings.Add(objectId, ObjectDescriptor.GetObjectDescription<IRegisteredObject>());
                 return resp;
             });
             var sender = new Sender(_clientMock.Object);
@@ -398,7 +396,7 @@ namespace AbstractBinding.Tests
                 return new SubscribeResponse()
                 {
                     objectId = objectId,
-                    eventId = nameof(IRegisteredObject.NotifyOnDataChanged)
+                    eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnDataChanged))
                 };
             });
             var objProxy = sender.GetBindingsByType<IRegisteredObject>()[objectId];
@@ -407,7 +405,7 @@ namespace AbstractBinding.Tests
             var notification = new EventNotification()
             {
                 objectId = objectId,
-                eventId = nameof(IRegisteredObject.NotifyOnDataChanged),
+                eventId = ObjectDescriptor.GetEventId<IRegisteredObject>(nameof(IRegisteredObject.NotifyOnDataChanged)),
                 eventArgs = new DataChangedEventArgs("dataChanged", 2)
             };
 
