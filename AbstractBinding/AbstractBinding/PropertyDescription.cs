@@ -1,8 +1,8 @@
 ﻿namespace AbstractBinding
 {
-    public class PropertyDescription
+    internal class PropertyDescription
     {
-        public bool Equals(PropertyDescription desc)
+        internal bool Equals(PropertyDescription desc)
         {
             return true;
         }

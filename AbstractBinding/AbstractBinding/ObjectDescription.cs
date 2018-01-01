@@ -9,13 +9,13 @@ namespace AbstractBinding
 {
     public class ObjectDescription
     {
-        public Dictionary<string, EventDescription> Events { get; set; } = new Dictionary<string, EventDescription>();
+        internal Dictionary<string, EventDescription> Events { get; set; } = new Dictionary<string, EventDescription>();
 
-        public Dictionary<string, PropertyDescription> Properties { get; set; } = new Dictionary<string, PropertyDescription>();
+        internal Dictionary<string, PropertyDescription> Properties { get; set; } = new Dictionary<string, PropertyDescription>();
 
-        public Dictionary<string, MethodDescription> Methods { get; set; } = new Dictionary<string, MethodDescription>();
+        internal Dictionary<string, MethodDescription> Methods { get; set; } = new Dictionary<string, MethodDescription>();
 
-        public bool Equals(ObjectDescription desc)
+        internal bool Equals(ObjectDescription desc)
         {
             return Events.Keys.SequenceEqual(desc.Events.Keys) &&
                    Properties.Keys.SequenceEqual(desc.Properties.Keys) &&
