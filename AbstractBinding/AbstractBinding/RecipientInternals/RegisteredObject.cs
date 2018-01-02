@@ -81,7 +81,7 @@ namespace AbstractBinding.RecipientInternals
             }
             else
             {
-                throw new InvalidOperationException($"Object, {ObjectId}, does have event named {eventId}");
+                throw new InvalidOperationException($"Object, {ObjectId}, does not have event named {eventId}");
             }
         }
 
@@ -93,7 +93,7 @@ namespace AbstractBinding.RecipientInternals
             }
             else
             {
-                throw new InvalidOperationException($"Object, {ObjectId}, does have event named {eventId}");
+                throw new InvalidOperationException($"Object, {ObjectId}, does not have event named {eventId}");
             }
         }
 
@@ -105,7 +105,7 @@ namespace AbstractBinding.RecipientInternals
             }
             else
             {
-                throw new InvalidOperationException($"Object, {ObjectId}, does have property named {propertyId}");
+                throw new InvalidOperationException($"Object, {ObjectId}, does not have property named {propertyId}");
             }
         }
 
@@ -117,7 +117,7 @@ namespace AbstractBinding.RecipientInternals
             }
             else
             {
-                throw new InvalidOperationException($"Object, {ObjectId}, does have property named {propertyId}");
+                throw new InvalidOperationException($"Object, {ObjectId}, does not have property named {propertyId}");
             }
         }
 
@@ -129,7 +129,7 @@ namespace AbstractBinding.RecipientInternals
             }
             else
             {
-                throw new InvalidOperationException($"Object, {ObjectId}, does have method named {methodId}");
+                throw new InvalidOperationException($"Object, {ObjectId}, does not have method named {methodId}");
             }
         }
     }
