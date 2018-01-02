@@ -7,9 +7,10 @@ using AbstractBinding.Messages;
 
 namespace AbstractBinding
 {
-    public interface IRecipientCallback
+    public interface IProxyClient
     {
-        void Callback(INotification notification);
+        event EventHandler<Messages.NotificationEventArgs> NotificationReceived;
+
+        IResponse Request(IRequest request);
     }
 }
-

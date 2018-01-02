@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using Grpc.Core;
+using AbstractBinding.Messages;
 using AbstractBinding.Examples.Protos;
 
 namespace AbstractBinding.Examples
@@ -12,6 +13,7 @@ namespace AbstractBinding.Examples
     public class RecipientService : Protos.RecipientService.RecipientServiceBase, IRecipientCallback
     {
         private readonly Recipient _recipient;
+        private readonly Serializer _serializer = new Serializer();
         private readonly Queue<string> _notificationQueue = new Queue<string>();
         private readonly object _notificationLock = new object();
 
@@ -22,7 +24,10 @@ namespace AbstractBinding.Examples
 
         public async override Task<ResponseMessage> Request(RequestMessage request, ServerCallContext context)
         {
-            return await Task.FromResult(new ResponseMessage() { Message = _recipient.Request(request.Message, this) });
+            IRequest req = _serializer.DeserializeObject<IRequest>(request.Message);
+            IResponse resp = _recipient.Request(req, this);
+            string respMsg = _serializer.SerializeObject(resp);
+            return await Task.FromResult(new ResponseMessage() { Message = respMsg });
         }
 
         public async override Task Listen(Empty request, IServerStreamWriter<NotificationMessage> responseStream, ServerCallContext context)
@@ -49,11 +54,11 @@ namespace AbstractBinding.Examples
             }
         }
 
-        public void Callback(string notification)
+        public void Callback(INotification notification)
         {
             lock (_notificationLock)
             {
-                _notificationQueue.Enqueue(notification);
+                _notificationQueue.Enqueue(_serializer.SerializeObject(notification));
             }
         }
     }

@@ -12,10 +12,9 @@ namespace AbstractBinding.Examples.App
         static void Main(string[] args)
         {
             var client = new SenderClient("127.0.0.1:6789");
-            var serializer = new Serializer();
             client.StartListener();
 
-            var sender = new Sender(client, serializer);
+            var sender = new Sender(client);
             sender.Register<IExampleObject>();
 
             // Sync bindings
@@ -88,7 +87,7 @@ namespace AbstractBinding.Examples.App
             // Method invoke (custom class/void return)
             StepExample("Press any key to invoke a void return/custom class.", () =>
             {
-                bindings.Values.First().MethodVoidExampleClass(new ExampleClass() { StringProperty = "str0", DoubleProperty = 2.0 });
+                bindings.Values.First().MethodVoidExampleClass(new ArgsExampleClass() { StringProperty = "str0", DoubleProperty = 2.0 });
                 Console.WriteLine($"You invoked the method!");
             });
 

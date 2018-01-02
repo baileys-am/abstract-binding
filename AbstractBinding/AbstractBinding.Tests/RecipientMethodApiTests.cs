@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using AbstractBinding.Messages;
@@ -11,7 +12,6 @@ namespace AbstractBinding.Tests
         private const string _testCategory = "Recipient Method API";
         private readonly Mock<IRecipientCallback> _serviceMock;
         private readonly Mock<IRegisteredObject> _regObjectMock;
-        private readonly ISerializer _serializer = new Serializer();
 
         public RecipientMethodApiTests()
         {
@@ -30,29 +30,27 @@ namespace AbstractBinding.Tests
             var objectId = "objId1";
             double args0 = 1.1;
             string args1 = "test";
-
             _regObjectMock.Setup(o => o.VoidReturnMethod(new object[] { args0, args1 }));
-            var server = new Recipient(_serializer);
-            var requestObj = new InvokeRequest()
+            var server = new Recipient();
+            var request = new InvokeRequest()
             {
                 objectId = objectId,
-                methodId = nameof(IRegisteredObject.VoidReturnMethod),
+                methodId = ObjectDescriptor.GetMethodId<IRegisteredObject>(nameof(IRegisteredObject.VoidReturnMethod)),
                 methodArgs = new object[] { new object[] { args0, args1 } }
             };
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            string response = server.Request(_serializer.SerializeObject(requestObj));
+            var response = server.Request(request) as InvokeResponse;
 
             // Assert
             _serviceMock.Verify();
             _regObjectMock.Verify();
-
-            var responseObj = _serializer.DeserializeObject<InvokeResponse>(response);
-            Assert.AreEqual(ResponseType.invoke, responseObj.responseType);
-            Assert.AreEqual(requestObj.objectId, responseObj.objectId);
-            Assert.AreEqual(requestObj.methodId, responseObj.methodId);
-            Assert.IsNull(responseObj.result);
+            
+            Assert.AreEqual(ResponseType.invoke, response.responseType);
+            Assert.AreEqual(request.objectId, response.objectId);
+            Assert.AreEqual(request.methodId, response.methodId);
+            Assert.IsNull(response.result);
         }
 
         [TestMethod]
@@ -69,25 +67,24 @@ namespace AbstractBinding.Tests
                 exception = new NotImplementedException("THIS IS AN EMERGENCY BROADCAST!");
                 throw exception;
             });
-            var server = new Recipient(_serializer);
-            var requestObj = new InvokeRequest()
+            var server = new Recipient();
+            var request = new InvokeRequest()
             {
                 objectId = objectId,
-                methodId = nameof(IRegisteredObject.VoidReturnMethod),
+                methodId = ObjectDescriptor.GetMethodId<IRegisteredObject>(nameof(IRegisteredObject.VoidReturnMethod)),
                 methodArgs = new object[] { args0, args1 }
             };
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            string response = server.Request(_serializer.SerializeObject(requestObj));
+            var response = server.Request(request) as ExceptionResponse;
 
             // Assert
             _serviceMock.Verify();
             _regObjectMock.Verify();
-
-            var responseObj = _serializer.DeserializeObject<ExceptionResponse>(response);
-            Assert.IsTrue(responseObj.exception.Message.Contains(objectId) &&
-                          responseObj.exception.Message.Contains(requestObj.methodId));
+            
+            Assert.IsTrue(response.exception.Message.Contains(objectId) &&
+                          response.exception.Message.Contains(request.methodId));
         }
 
         [TestMethod]
@@ -99,27 +96,26 @@ namespace AbstractBinding.Tests
             string args0 = "test";
 
             _regObjectMock.Setup(o => o.VoidReturnMethodStr(args0));
-            var server = new Recipient(_serializer);
-            var requestObj = new InvokeRequest()
+            var server = new Recipient();
+            var request = new InvokeRequest()
             {
                 objectId = objectId,
-                methodId = nameof(IRegisteredObject.VoidReturnMethodStr),
+                methodId = ObjectDescriptor.GetMethodId<IRegisteredObject>(nameof(IRegisteredObject.VoidReturnMethodStr)),
                 methodArgs = new object[] { args0 }
             };
 
             // Act
             server.Register(objectId, _regObjectMock.Object);
-            string response = server.Request(_serializer.SerializeObject(requestObj));
+            var response = server.Request(request) as InvokeResponse;
 
             // Assert
             _serviceMock.Verify();
             _regObjectMock.Verify();
-
-            var responseObj = _serializer.DeserializeObject<InvokeResponse>(response);
-            Assert.AreEqual(ResponseType.invoke, responseObj.responseType);
-            Assert.AreEqual(requestObj.objectId, responseObj.objectId);
-            Assert.AreEqual(requestObj.methodId, responseObj.methodId);
-            Assert.IsNull(responseObj.result);
+            
+            Assert.AreEqual(ResponseType.invoke, response.responseType);
+            Assert.AreEqual(request.objectId, response.objectId);
+            Assert.AreEqual(request.methodId, response.methodId);
+            Assert.IsNull(response.result);
         }
     }
 }

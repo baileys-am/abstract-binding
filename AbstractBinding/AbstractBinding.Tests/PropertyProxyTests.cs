@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using AbstractBinding.Messages;
-using AbstractBinding.SenderInternals;
 
 namespace AbstractBinding.Tests
 {
@@ -10,13 +9,12 @@ namespace AbstractBinding.Tests
     public class PropertyProxyTests
     {
         private const string _testCategory = "Property Proxy Tests";
-        private readonly Mock<IAbstractClient> _clientMock;
-        private readonly ISerializer _serializer = new Serializer();
+        private readonly Mock<IProxyClient> _clientMock;
 
         public PropertyProxyTests()
         {
             // Initialize client mock
-            _clientMock = new Mock<IAbstractClient>();
+            _clientMock = new Mock<IProxyClient>();
         }
 
         [TestMethod]
@@ -25,17 +23,16 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "obj1Id";
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var proxyObj = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyObj = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
             string expectedValue = "actual value";
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<PropertyGetRequest>())).Returns<PropertyGetRequest>(req =>
             {
-                return _serializer.SerializeObject(new PropertyGetResponse()
+                return new PropertyGetResponse()
                 {
                     objectId = objectId,
-                    propertyId = nameof(IRegisteredObject.StringValueProperty),
+                    propertyId = ObjectDescriptor.GetPropertyId<IRegisteredObject>(nameof(IRegisteredObject.StringValueProperty)),
                     value = expectedValue
-                });
+                };
             });
 
             // Act
@@ -52,18 +49,17 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "obj1Id";
-            var proxyFactory = new RuntimeProxyFactory(_clientMock.Object, _serializer);
-            var proxyObj = proxyFactory.Create<IRegisteredObject>(objectId);
+            var proxyObj = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object);
             string expectedValue = "actual value";
             string actualValue = null;
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>(req =>
+            _clientMock.Setup(o => o.Request(It.IsAny<PropertySetRequest>())).Returns<PropertySetRequest>(req =>
             {
-                actualValue = _serializer.DeserializeObject<PropertySetRequest>(req).value as string;
-                return _serializer.SerializeObject(new PropertySetResponse()
+                actualValue = req.value as string;
+                return new PropertySetResponse()
                 {
                     objectId = objectId,
-                    propertyId = nameof(IRegisteredObject.StringValueProperty)
-                });
+                    propertyId = ObjectDescriptor.GetPropertyId<IRegisteredObject>(nameof(IRegisteredObject.StringValueProperty))
+                };
             });
 
             // Act

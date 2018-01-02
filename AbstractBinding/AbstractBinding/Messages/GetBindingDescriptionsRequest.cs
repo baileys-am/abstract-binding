@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Messages
 {
-    internal class GetBindingDescriptionsRequest : Request
+    public class GetBindingDescriptionsRequest : IRequest
     {
-        public GetBindingDescriptionsRequest()
-        {
-            requestType = RequestType.getBindings;
-        }
+#pragma warning disable IDE1006 // Naming Styles
+        public RequestType requestType => RequestType.getBindings;
+#pragma warning restore IDE1006 // Naming Styles
     }
 }

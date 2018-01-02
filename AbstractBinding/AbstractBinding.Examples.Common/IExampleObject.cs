@@ -6,10 +6,20 @@ using System.Threading.Tasks;
 
 namespace AbstractBinding.Examples
 {
-    public class ExampleClass
+    public class ArgsExampleClass
     {
         public string StringProperty { get; set; }
         public double DoubleProperty { get; set; }
+    }
+
+    public interface INestedExampleClass
+    {
+        event EventHandler NestedNotifyRequested; 
+    }
+
+    public class NestedExampleClass : INestedExampleClass
+    {
+        public event EventHandler NestedNotifyRequested;
     }
 
     public interface IExampleObject
@@ -18,12 +28,14 @@ namespace AbstractBinding.Examples
 
         string StrProperty { get; set; }
 
+        INestedExampleClass NestedObject { get; set; }
+
         void MethodVoidStr(string str);
 
         string MethodStr();
 
         void MethodVoidParamsString(params string[] strs);
 
-        void MethodVoidExampleClass(ExampleClass exClass);
+        void MethodVoidExampleClass(ArgsExampleClass exClass);
     }
 }

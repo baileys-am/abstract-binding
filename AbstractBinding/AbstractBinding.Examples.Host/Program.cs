@@ -14,7 +14,7 @@ namespace AbstractBinding.Examples.Host
         {
             // Initialize recipient
             var serializer = new Serializer();
-            var recipient = new Recipient(serializer);
+            var recipient = new Recipient();
             var exObj = new ExampleObject();
             recipient.Register<IExampleObject>("obj1", exObj);
 

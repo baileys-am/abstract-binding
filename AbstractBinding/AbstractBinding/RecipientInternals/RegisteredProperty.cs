@@ -10,25 +10,28 @@ namespace AbstractBinding.RecipientInternals
     internal class RegisteredProperty
     {
         private readonly object _obj;
-        private readonly PropertyInfo _propertyInfo;
+        private readonly KeyValuePair<string, PropertyInfo> _propertyInfo;
 
-        public string ObjectId { get; private set; }
-        public string PropertyId { get; private set; }
+        internal string ObjectId { get; private set; }
+        internal string PropertyId => _propertyInfo.Key;
 
-        public RegisteredProperty(string objectId, object obj, PropertyInfo propertyInfo)
+        internal RegisteredProperty(string objectId, object obj, KeyValuePair<string, PropertyInfo> propertyInfo)
         {
             ObjectId = objectId ?? throw new ArgumentNullException(nameof(objectId));
             _obj = obj ?? throw new ArgumentNullException(nameof(obj));
-            _propertyInfo = propertyInfo ?? throw new ArgumentNullException(nameof(propertyInfo));
-
-            PropertyId = _propertyInfo.Name;
+            _propertyInfo = propertyInfo;
         }
 
-        public object GetValue()
+        internal static RegisteredProperty Create(string objectId, object obj, KeyValuePair<string, PropertyInfo> propertyInfo)
+        {
+            return new RegisteredProperty(objectId, obj, propertyInfo);
+        }
+
+        internal object GetValue()
         {
             try
             {
-                return _propertyInfo.GetValue(_obj);
+                return _propertyInfo.Value.GetValue(_obj);
             }
             catch (Exception ex)
             {
@@ -36,11 +39,11 @@ namespace AbstractBinding.RecipientInternals
             }
         }
 
-        public void SetValue(object value)
+        internal void SetValue(object value)
         {
             try
             {
-                _propertyInfo.SetValue(_obj, value);
+                _propertyInfo.Value.SetValue(_obj, value);
             }
             catch (Exception ex)
             {

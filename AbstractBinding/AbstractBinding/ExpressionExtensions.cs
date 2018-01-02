@@ -10,7 +10,7 @@ namespace AbstractBinding
 {
     internal static class ExpressionExtensions
     {
-        public static MethodInfo GetMethodInfo(this Expression exp)
+        internal static MethodInfo GetMethodInfo(this Expression exp)
         {
             switch (exp)
             {

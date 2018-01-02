@@ -4,28 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AbstractBinding.Messages;
-using AbstractBinding.SenderInternals;
 
 namespace AbstractBinding
 {
     public class Sender
     {
-        private readonly IAbstractClient _client;
-        private readonly ISerializer _serializer;
-        private readonly ObjectDescriptionFactory _objDescFactory;
-        private readonly RuntimeProxyFactory _runtimeProxyFactory;
+        private readonly IProxyClient _client;
         private readonly Dictionary<string, RuntimeProxy> _runtimeProxies = new Dictionary<string, RuntimeProxy>();
         private readonly Dictionary<Type, ObjectDescription> _registeredTypes = new Dictionary<Type, ObjectDescription>();
 
         public IEnumerable<Type> RegisteredTypes => _registeredTypes.Keys;
 
-        public Sender(IAbstractClient client, ISerializer serializer)
+        public Sender(IProxyClient client)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-
-            _objDescFactory = new ObjectDescriptionFactory();
-            _runtimeProxyFactory = new RuntimeProxyFactory(_client, _serializer);
 
             _client.NotificationReceived += _client_NotificationReceived;
         }
@@ -37,7 +29,7 @@ namespace AbstractBinding
 
         public void Register<T>()
         {
-            var objDesc = _objDescFactory.Create<T>();
+            var objDesc = ObjectDescriptor.GetObjectDescription<T>();
             if (_registeredTypes.ContainsKey(typeof(T)))
             {
                 throw new InvalidOperationException("Type is already registered.");
@@ -54,21 +46,14 @@ namespace AbstractBinding
 
         public void SynchronizeBindings()
         {
-            // Get bindings
-            var request = _serializer.SerializeObject(new GetBindingDescriptionsRequest());
-            var resp = _client.Request(request);
+            // Request bindings
+            var response = _client.Request(new GetBindingDescriptionsRequest());
 
-            // Parse response
-            var respObj = _serializer.DeserializeObject<Response>(resp);
-
-            switch (respObj.responseType)
+            switch (response)
             {
-                case ResponseType.exception:
-                    var exceptionRespObj = _serializer.DeserializeObject<ExceptionResponse>(resp);
-                    throw exceptionRespObj.exception;
-                case ResponseType.getBindings:
-                    var getBindingsRespObj = _serializer.DeserializeObject<GetBindingDescriptionsResponse>(resp);
-
+                case ExceptionResponse exResp:
+                    throw exResp.exception;
+                case GetBindingDescriptionsResponse getBindingsResp:
                     // Dispose and clear current runtime objects
                     foreach (var obj in _runtimeProxies.Values)
                     {
@@ -76,20 +61,20 @@ namespace AbstractBinding
                     }
                     _runtimeProxies.Clear();
 
-                    // For reach binding create runtime object
+                    // For each binding create runtime object
                     var exceptions = new List<Exception>();
-                    foreach (var obj in getBindingsRespObj.bindings)
+                    foreach (var obj in getBindingsResp.bindings)
                     {
                         var regType = _registeredTypes.FirstOrDefault(d => d.Value.Equals(obj.Value));
 
                         if (regType.Key != null && regType.Value != null)
                         {
                             // Create runtime object
-                            _runtimeProxies.Add(obj.Key, _runtimeProxyFactory.Create(regType.Key, obj.Key));
+                            _runtimeProxies.Add(obj.Key, RuntimeProxy.Create(regType.Key, obj.Key, _client));
                         }
                         else
                         {
-                            //TODO: Make custom exception containing the binding object' description.
+                            //TODO: Make custom exception containing the binding object description.
                             exceptions.Add(new Exception($"Registered type could not be found with object description for {obj.Key}"));
                         }
                     }
@@ -100,7 +85,7 @@ namespace AbstractBinding
                     }
                     break;
                 default:
-                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.getBindings}', but received '{respObj.responseType}'.");
+                    throw new InvalidResponseException($"Incorrect response type. Expected '{ResponseType.getBindings}', but received '{response.responseType}'.");
             }
         }
 
@@ -109,29 +94,16 @@ namespace AbstractBinding
             return _runtimeProxies.Where(kvp => kvp.Value is T).ToDictionary(kvp => kvp.Key, kvp => (T)(kvp.Value as object));
         }
 
-        private void _client_NotificationReceived(object sender, NotificationEventArgs e)
+        private void _client_NotificationReceived(object sender, Messages.NotificationEventArgs e)
         {
-            // Parse notification
-            var notifObj = _serializer.DeserializeObject<Notification>(e.Notification);
-
-            switch (notifObj)
+            switch (e.Notification)
             {
                 case EventNotification eventNotif:
                     _runtimeProxies[eventNotif.objectId].OnEventNotification(eventNotif);
                     break;
                 default:
-                    throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
+                    throw new InvalidNotificationException($"Invalid notification received: {e.Notification.notificationType}. Supported notification type(s): {NotificationType.eventInvoked}.");
             }
-
-            //switch (notifObj.notificationType)
-            //{
-            //    case NotificationType.eventInvoked:
-            //        var eventNotifObj = _serializer.DeserializeObject<EventNotification>(e.Notification);
-            //        _runtimeProxies[eventNotifObj.objectId].RouteEvent(eventNotifObj, e.Notification);
-            //        break;
-            //    default:
-            //        throw new InvalidNotificationException("Invalid notification received. Expected notification type(s): eventInvoked.");
-            //}
         }
     }
 }

@@ -11,13 +11,12 @@ namespace AbstractBinding.Tests
     {
         private const string _testCategory = "Sender Initialization";
 
-        private readonly Mock<IAbstractClient> _clientMock;
-        private readonly ISerializer _serializer = new Serializer();
+        private readonly Mock<IProxyClient> _clientMock;
 
         public SenderInitializationTests()
         {
             // Initialize client mock
-            _clientMock = new Mock<IAbstractClient>();
+            _clientMock = new Mock<IProxyClient>();
         }
 
         [TestMethod]
@@ -25,7 +24,7 @@ namespace AbstractBinding.Tests
         public void RegisterTypeTest()
         {
             // Arrange
-            var sender = new Sender(_clientMock.Object, _serializer);
+            var sender = new Sender(_clientMock.Object);
 
             // Act
             sender.Register<IRegisteredObject>();
@@ -45,16 +44,15 @@ namespace AbstractBinding.Tests
             string objectId1 = "objId1";
             string objectId2 = "objId2";
             string objectId3 = "objId3";
-            var objectDescriptionFactory = new ObjectDescriptionFactory();
-            _clientMock.Setup(o => o.Request(It.IsAny<string>())).Returns<string>((req) =>
+            _clientMock.Setup(o => o.Request(It.IsAny<GetBindingDescriptionsRequest>())).Returns<GetBindingDescriptionsRequest>((req) =>
             {
                 var resp = new GetBindingDescriptionsResponse();
-                resp.bindings.Add(objectId1, objectDescriptionFactory.Create<IRegisteredObject>());
-                resp.bindings.Add(objectId2, objectDescriptionFactory.Create<IRegisteredObject>());
-                resp.bindings.Add(objectId3, objectDescriptionFactory.Create<IRegisteredObject2>());
-                return _serializer.SerializeObject(resp);
+                resp.bindings.Add(objectId1, ObjectDescriptor.GetObjectDescription<IRegisteredObject>());
+                resp.bindings.Add(objectId2, ObjectDescriptor.GetObjectDescription<IRegisteredObject>());
+                resp.bindings.Add(objectId3, ObjectDescriptor.GetObjectDescription<IRegisteredObject2>());
+                return resp;
             });
-            var sender = new Sender(_clientMock.Object, _serializer);
+            var sender = new Sender(_clientMock.Object);
 
             // Act
             sender.Register<IRegisteredObject>();

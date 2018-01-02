@@ -3,26 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Reflection;
 
 namespace AbstractBinding
 {
-    internal class ObjectDescription
+    public class ObjectDescription
     {
-        public Dictionary<string, EventDescription> Events { get; set; } = new Dictionary<string, EventDescription>();
+        public List<string> Events { get; set; } = new List<string>();
 
-        public Dictionary<string, PropertyDescription> Properties { get; set; } = new Dictionary<string, PropertyDescription>();
+        public List<string> Properties { get; set; } = new List<string>();
 
-        public Dictionary<string, MethodDescription> Methods { get; set; } = new Dictionary<string, MethodDescription>();
+        public List<string> Methods { get; set; } = new List<string>();
 
-        public bool Equals(ObjectDescription desc)
+        internal bool Equals(ObjectDescription desc)
         {
-            return Events.Keys.SequenceEqual(desc.Events.Keys) &&
-                   Properties.Keys.SequenceEqual(desc.Properties.Keys) &&
-                   Methods.Keys.SequenceEqual(desc.Methods.Keys) &&
-                   Events.Values.SequenceEqual(desc.Events.Values) &&
-                   Properties.Values.SequenceEqual(desc.Properties.Values) &&
-                   Methods.Values.SequenceEqual(desc.Methods.Values);
+            return Events.SequenceEqual(desc.Events) &&
+                   Properties.SequenceEqual(desc.Properties) &&
+                   Methods.SequenceEqual(desc.Methods);
         }
 
         public override bool Equals(object obj)

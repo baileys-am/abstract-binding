@@ -7,11 +7,11 @@ using System.Reflection;
 
 namespace AbstractBinding
 {
-    internal static class ParameterInfoExtensions
+    internal static class PropertyInfoExtensions
     {
-        internal static bool IsParams(this ParameterInfo param)
+        internal static string GetFullName(this PropertyInfo info)
         {
-            return param.IsDefined(typeof(ParamArrayAttribute), false);
+            return $"{info.ReflectedType.FullName}.{info.Name}";
         }
     }
 }

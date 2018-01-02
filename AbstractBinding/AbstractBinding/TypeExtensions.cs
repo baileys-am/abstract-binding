@@ -9,26 +9,26 @@ namespace AbstractBinding
 {
     internal static class TypeExtensions
     {
-        public static IEnumerable<EventInfo> GetContractEvents(this Type type)
+        internal static IEnumerable<EventInfo> GetContractEvents(this Type type)
         {
             return type.GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
                        .Where(e => !e.IsSpecialName);
         }
 
-        public static IEnumerable<PropertyInfo> GetContractProperties(this Type type)
+        internal static IEnumerable<PropertyInfo> GetContractProperties(this Type type)
         {
             return type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
                        .Where(p => !p.IsSpecialName);
         }
 
-        public static IEnumerable<MethodInfo> GetContractMethods(this Type type)
+        internal static IEnumerable<MethodInfo> GetContractMethods(this Type type)
         {
             return type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
                        .Where(m => !m.IsSpecialName)
                        .Where(m => m.GetBaseDefinition().DeclaringType != typeof(object));
         }
 
-        public static object GetDefault(this Type type)
+        internal static object GetDefault(this Type type)
         {
             if (type == typeof(void))
             {
