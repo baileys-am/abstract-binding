@@ -8,18 +8,11 @@ namespace AbstractBinding
 {
     public class ObjectDescription
     {
-        public IEnumerable<string> Events { get; private set; } = new List<string>();
+        public List<string> Events { get; set; } = new List<string>();
 
-        public IEnumerable<string> Properties { get; private set; } = new List<string>();
+        public List<string> Properties { get; set; } = new List<string>();
 
-        public IEnumerable<string> Methods { get; private set; } = new List<string>();
-
-        internal ObjectDescription(IEnumerable<string> events, IEnumerable<string> properties, IEnumerable<string> methods)
-        {
-            Events = events;
-            Properties = properties;
-            Methods = methods;
-        }
+        public List<string> Methods { get; set; } = new List<string>();
 
         internal bool Equals(ObjectDescription desc)
         {

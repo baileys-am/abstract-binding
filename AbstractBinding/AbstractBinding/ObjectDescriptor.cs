@@ -49,15 +49,15 @@ namespace AbstractBinding
         public static ObjectDescription GetObjectDescription<T>()
         {
             // Create event descriptions
-            IEnumerable<string> events = GetEvents<T>().Keys;
+            List<string> events = GetEvents<T>().Keys.ToList();
 
             // Create property descriptions
-            IEnumerable<string> properties = GetProperties<T>().Keys;
+            List<string> properties = GetProperties<T>().Keys.ToList();
 
             // Create methods descriptions
-            IEnumerable<string> methods = GetMethods<T>().Keys;
+            List<string> methods = GetMethods<T>().Keys.ToList();
 
-            return new ObjectDescription(events, properties, methods);
+            return new ObjectDescription() { Events = events, Properties = properties, Methods = methods };
         }
 
         internal static IReadOnlyDictionary<string, EventInfo> GetEvents<T>()
