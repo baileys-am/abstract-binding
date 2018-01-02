@@ -47,8 +47,10 @@
     <Compile Include="IRecipientCallback.cs" />
     <Compile Include="Messages\IRequest.cs" />
     <Compile Include="Messages\IResponse.cs" />
+    <Compile Include="Messages\NestedObjectBinding.cs" />
     <Compile Include="Messages\NotifcationEventArgs.cs" />
     <Compile Include="ExpressionExtensions.cs" />
+    <Compile Include="Messages\ObjectBinding.cs" />
     <Compile Include="MethodInfoExtensions.cs" />
     <Compile Include="ObjectDescription.cs" />
     <Compile Include="ObjectDescriptor.cs" />

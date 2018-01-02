@@ -46,8 +46,15 @@ namespace AbstractBinding
             }
         }
 
-        public static ObjectDescription GetObjectDescription<T>()
+        public static ObjectDescription GetObjectDescription<T>(params Type[] nestedTypes)
         {
+            // Create nested object descriptions
+            Dictionary<string, ObjectDescription> nestedObjects = new Dictionary<string, ObjectDescription>();
+            foreach (var type in GetProperties<T>().Where(kvp => nestedTypes.Contains(kvp.Value.PropertyType)))
+            {
+                nestedObjects.Add(type.Key, GetObjectDescription(type.Value.PropertyType, nestedTypes));
+            }
+
             // Create event descriptions
             List<string> events = GetEvents<T>().Keys.ToList();
 
@@ -57,7 +64,13 @@ namespace AbstractBinding
             // Create methods descriptions
             List<string> methods = GetMethods<T>().Keys.ToList();
 
-            return new ObjectDescription() { Events = events, Properties = properties, Methods = methods };
+            return new ObjectDescription() { NestedObjects = nestedObjects, Events = events, Properties = properties, Methods = methods };
+        }
+
+        public static ObjectDescription GetObjectDescription(Type type, params Type[] nestedTypes)
+        {
+            var genericMethod = typeof(ObjectDescriptor).GetMethods().First(m => m.Name == nameof(GetObjectDescription) && m.GetParameters().Count() == 1);
+            return (ObjectDescription)genericMethod.MakeGenericMethod(type).Invoke(null, new object[] { nestedTypes });
         }
 
         internal static IReadOnlyDictionary<string, EventInfo> GetEvents<T>()

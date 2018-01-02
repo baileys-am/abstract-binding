@@ -8,6 +8,8 @@ namespace AbstractBinding
 {
     public class ObjectDescription
     {
+        public Dictionary<string, ObjectDescription> NestedObjects { get; set; } = new Dictionary<string, ObjectDescription>();
+
         public List<string> Events { get; set; } = new List<string>();
 
         public List<string> Properties { get; set; } = new List<string>();

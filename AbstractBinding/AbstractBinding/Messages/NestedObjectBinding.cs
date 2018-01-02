@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 namespace AbstractBinding.Messages
 {
     [Serializable]
-    public class GetBindingDescriptionsResponse : IResponse
+    public class NestedObjectBinding
     {
 #pragma warning disable IDE1006 // Naming Styles
-        public ResponseType responseType => ResponseType.getBindings;
+        public bool isBinded { get; set; }
 
-        public Dictionary<string, ObjectBinding> bindings { get; set; } = new Dictionary<string, ObjectBinding>();
+        public string bindingId { get; set; }
+
+        public ObjectBinding objectBinding { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
     }
 }

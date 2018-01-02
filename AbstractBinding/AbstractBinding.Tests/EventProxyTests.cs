@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using AbstractBinding.Messages;
@@ -340,10 +342,18 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
+            var regObjBinding = new ObjectBinding()
+            {
+                events = ObjectDescriptor.GetObjectDescription<IRegisteredObject>().Events,
+                properties = ObjectDescriptor.GetObjectDescription<IRegisteredObject>().Properties.ToDictionary(p => p, p => new NestedObjectBinding()
+                {
+                }),
+                methods = ObjectDescriptor.GetObjectDescription<IRegisteredObject>().Methods
+            };
             _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>((req) =>
             {
                 var resp = new GetBindingDescriptionsResponse();
-                resp.bindings.Add(objectId, ObjectDescriptor.GetObjectDescription<IRegisteredObject>());
+                resp.bindings.Add(objectId, regObjBinding);
                 return resp;
             });
             var sender = new Sender(_clientMock.Object);
@@ -381,10 +391,18 @@ namespace AbstractBinding.Tests
         {
             // Arrange
             string objectId = "objId1";
+            var regObjBinding = new ObjectBinding()
+            {
+                events = ObjectDescriptor.GetObjectDescription<IRegisteredObject>().Events,
+                properties = ObjectDescriptor.GetObjectDescription<IRegisteredObject>().Properties.ToDictionary(p => p, p => new NestedObjectBinding()
+                {
+                }),
+                methods = ObjectDescriptor.GetObjectDescription<IRegisteredObject>().Methods
+            };
             _clientMock.Setup(o => o.Request(It.IsAny<IRequest>())).Returns<IRequest>((req) =>
             {
                 var resp = new GetBindingDescriptionsResponse();
-                resp.bindings.Add(objectId, ObjectDescriptor.GetObjectDescription<IRegisteredObject>());
+                resp.bindings.Add(objectId, regObjBinding);
                 return resp;
             });
             var sender = new Sender(_clientMock.Object);

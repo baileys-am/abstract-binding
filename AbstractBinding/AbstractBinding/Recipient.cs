@@ -16,7 +16,7 @@ namespace AbstractBinding
         public void Register<T>(string objectId, T obj, params Type[] nestedTypes)
         {
             // Create registered object
-            var registeredObect = RegisteredObject.Create(objectId, obj);
+            var registeredObject = RegisteredObject.Create(objectId, obj);
 
             // Register property objects
             foreach (var property in typeof(T).GetContractProperties().Where(p => nestedTypes.Contains(p.PropertyType))
@@ -24,16 +24,16 @@ namespace AbstractBinding
                 object value = property.GetValue(obj);
                 if (value != null)
                 {
-                    var genericRegisterMethod = GetType().GetMethods().First(m => m.Name == nameof(Register) && m.GetParameters().Count() == 1);
-                    genericRegisterMethod.MakeGenericMethod(property.PropertyType).Invoke(this, new object[] { value });
+                    var genericRegisterMethod = GetType().GetMethods().First(m => m.Name == nameof(Register) && m.GetParameters().Count() == 2);
+                    genericRegisterMethod.MakeGenericMethod(property.PropertyType).Invoke(this, new object[] { value, nestedTypes });
                 }
             }
 
             // Store registered object
-            _registeredObjects.Add(objectId, registeredObect);
+            _registeredObjects.Add(objectId, registeredObject);
         }
 
-        public void Register<T>(T obj)
+        public void Register<T>(T obj, params Type[] nestedTypes)
         {
             while (true)
             {
@@ -44,7 +44,7 @@ namespace AbstractBinding
                 }
                 else
                 {
-                    Register(id, obj);
+                    Register(id, obj, nestedTypes);
                     break;
                 }
             }
@@ -65,7 +65,17 @@ namespace AbstractBinding
                         var getBindingsResp = new GetBindingDescriptionsResponse();
                         foreach (var obj in _registeredObjects)
                         {
-                            getBindingsResp.bindings.Add(obj.Key, obj.Value.Description);
+                            getBindingsResp.bindings.Add(obj.Key, new ObjectBinding()
+                            {
+                                events = obj.Value.Description.Events,
+                                properties = obj.Value.Description.Properties.ToDictionary(p => p, p => new NestedObjectBinding()
+                                {
+                                    isBinded = obj.Value.Description.NestedObjects.ContainsKey(p),
+                                    bindingId = obj.Value.Description.NestedObjects.ContainsKey(p) ? "" : null,
+                                    objectBinding = new ObjectBinding()
+                                }),
+                                methods = obj.Value.Description.Methods
+                            });
                         }
                         return getBindingsResp;
                     case SubscribeRequest subscribeReq:

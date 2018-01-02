@@ -63,7 +63,7 @@ namespace AbstractBinding
 
                     // For each binding create runtime object
                     var exceptions = new List<Exception>();
-                    foreach (var obj in getBindingsResp.bindings)
+                    foreach (var obj in getBindingsResp.bindings.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToObjectDescription()))
                     {
                         var regType = _registeredTypes.FirstOrDefault(d => d.Value.Equals(obj.Value));
 
