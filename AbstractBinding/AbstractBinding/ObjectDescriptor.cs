@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace AbstractBinding
 {
@@ -10,45 +11,86 @@ namespace AbstractBinding
     {
         public static string GetEventId<T>(string eventName)
         {
-            return typeof(T).GetEvent(eventName).Name;
+            return typeof(T).GetEvent(eventName).GetFullName();
         }
 
-        public static string GetPropertyId<T>(string propertyName)
+        public static string GetPropertyId<T>(string propertyName, Type returnType = null, params Type[] types)
         {
-            return typeof(T).GetProperty(propertyName).Name;
+            if (returnType == null && types.Length == 0)
+            {
+                return typeof(T).GetProperty(propertyName).GetFullName();
+            }
+            else if (returnType == null && types.Length != 0)
+            {
+                return typeof(T).GetProperty(propertyName, types).GetFullName();
+            }
+            else if (returnType != null && types.Length == 0)
+            {
+                return typeof(T).GetProperty(propertyName, returnType).GetFullName();
+            }
+            else
+            {
+                return typeof(T).GetProperty(propertyName, returnType, types).GetFullName();
+            }
         }
 
-        public static string GetMethodId<T>(string methodName)
+        public static string GetMethodId<T>(string methodName, params Type[] types)
         {
-            return typeof(T).GetMethod(methodName).GetFullName();
+            if (types.Length == 0)
+            {
+                return typeof(T).GetMethod(methodName).GetFullName();
+            }
+            else
+            {
+                return typeof(T).GetMethod(methodName, types).GetFullName();
+            }
         }
 
         public static ObjectDescription GetObjectDescription<T>()
         {
             // Create event descriptions
-            var events = new List<string>();
-            foreach (var eventInfo in typeof(T).GetContractEvents())
-            {
-                // Store registered event
-                events.Add(eventInfo.Name);
-            }
+            IEnumerable<string> events = GetEvents<T>().Keys;
 
             // Create property descriptions
-            var properties = new List<string>();
-            foreach (var propertyInfo in typeof(T).GetContractProperties())
-            {
-                // Store registered property
-                properties.Add(propertyInfo.Name);
-            }
+            IEnumerable<string> properties = GetProperties<T>().Keys;
 
             // Create methods descriptions
-            var methods = new List<string>();
-            foreach (var methodInfo in typeof(T).GetContractMethods())
-            {
-                methods.Add(methodInfo.GetFullName());
-            }
+            IEnumerable<string> methods = GetMethods<T>().Keys;
 
             return new ObjectDescription(events, properties, methods);
+        }
+
+        internal static IReadOnlyDictionary<string, EventInfo> GetEvents<T>()
+        {
+            var dict = new Dictionary<string, EventInfo>();
+            foreach (var eventInfo in typeof(T).GetContractEvents())
+            {
+                string eventId = GetEventId<T>(eventInfo.Name);
+                dict.Add(eventId, eventInfo);
+            }
+            return dict;
+        }
+
+        internal static IReadOnlyDictionary<string, PropertyInfo> GetProperties<T>()
+        {
+            var dict = new Dictionary<string, PropertyInfo>();
+            foreach (var propertyInfo in typeof(T).GetContractProperties())
+            {
+                string propertyId = GetPropertyId<T>(propertyInfo.Name);
+                dict.Add(propertyId, propertyInfo);
+            }
+            return dict;
+        }
+
+        internal static IReadOnlyDictionary<string, MethodInfo> GetMethods<T>()
+        {
+            var dict = new Dictionary<string, MethodInfo>();
+            foreach (var methodInfo in typeof(T).GetContractMethods())
+            {
+                string methodId = GetMethodId<T>(methodInfo.Name);
+                dict.Add(methodId, methodInfo);
+            }
+            return dict;
         }
     }
 }

@@ -39,39 +39,35 @@ namespace AbstractBinding.RecipientInternals
 
             // Create events
             var events = new Dictionary<string, RegisteredEvent>();
-            foreach (var eventInfo in typeof(T).GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                                               .Where(e => !e.IsSpecialName))
+            foreach (var eventInfo in ObjectDescriptor.GetEvents<T>())
             {
                 // Create registered event
                 var registeredEvent = RegisteredEvent.Create(objectId, obj, eventInfo);
 
                 // Store registered event
-                events.Add(registeredEvent.EventId, registeredEvent);
+                events.Add(eventInfo.Key, registeredEvent);
             }
 
             // Create properties
             var properties = new Dictionary<string, RegisteredProperty>();
-            foreach (var propertyInfo in typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                                                  .Where(p => !p.IsSpecialName))
+            foreach (var propertyInfo in ObjectDescriptor.GetProperties<T>())
             {
                 // Create registered property
                 var registeredProperty = RegisteredProperty.Create(objectId, obj, propertyInfo);
 
                 // Store registered property
-                properties.Add(registeredProperty.PropertyId, registeredProperty);
+                properties.Add(propertyInfo.Key, registeredProperty);
             }
 
             // Create methods
             var methods = new Dictionary<string, RegisteredMethod>();
-            foreach (var methodInfo in typeof(T).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                                                .Where(m => !m.IsSpecialName &&
-                                                             m.GetBaseDefinition().DeclaringType != typeof(object)))
+            foreach (var methodInfo in ObjectDescriptor.GetMethods<T>())
             {
                 // Create registered method
                 var registeredMethod = RegisteredMethod.Create(objectId, obj, methodInfo);
 
                 // Store registered method
-                methods.Add(registeredMethod.MethodId, registeredMethod);
+                methods.Add(methodInfo.Key, registeredMethod);
             }
 
             return new RegisteredObject(objectId, objDesc, obj, events, properties, methods);

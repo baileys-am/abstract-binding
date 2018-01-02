@@ -10,21 +10,19 @@ namespace AbstractBinding.RecipientInternals
     internal class RegisteredMethod
     {
         private readonly object _obj;
-        private readonly MethodInfo _methodInfo;
+        private readonly KeyValuePair<string, MethodInfo> _methodInfo;
 
         internal string ObjectId { get; private set; }
-        internal string MethodId { get; private set; }
+        internal string MethodId => _methodInfo.Key;
 
-        internal RegisteredMethod(string objectId, object obj, MethodInfo methodInfo)
+        internal RegisteredMethod(string objectId, object obj, KeyValuePair<string, MethodInfo> methodInfo)
         {
-            _obj = obj ?? throw new ArgumentNullException(nameof(obj));
-            _methodInfo = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
-
             ObjectId = String.IsNullOrEmpty(objectId) ? throw new ArgumentNullException(nameof(objectId)) : objectId;
-            MethodId = _methodInfo.GetFullName();
+            _obj = obj ?? throw new ArgumentNullException(nameof(obj));
+            _methodInfo = methodInfo;
         }
 
-        internal static RegisteredMethod Create(string objectId, object obj, MethodInfo methodInfo)
+        internal static RegisteredMethod Create(string objectId, object obj, KeyValuePair<string, MethodInfo> methodInfo)
         {
             return new RegisteredMethod(objectId, obj, methodInfo);
         }
@@ -33,7 +31,7 @@ namespace AbstractBinding.RecipientInternals
         {
             try
             {
-                return _methodInfo.Invoke(_obj, objs);
+                return _methodInfo.Value.Invoke(_obj, objs);
             }
             catch (Exception ex)
             {

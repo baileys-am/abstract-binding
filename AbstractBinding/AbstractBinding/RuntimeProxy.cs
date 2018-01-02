@@ -61,21 +61,20 @@ namespace AbstractBinding
             typeBuilder.AddInterfaceImplementation(typeof(T));
 
             // Implement events
-            foreach (var eventInfo in typeof(T).GetContractEvents())
+            foreach (var eventInfo in ObjectDescriptor.GetEvents<T>())
             {
                 Expression<Func<RuntimeTypeHandle, object>> getTypeFromHandle = t => Type.GetTypeFromHandle(t);
-                EventBuilder eventBuilder = typeBuilder.DefineEvent(eventInfo.Name, eventInfo.Attributes, eventInfo.EventHandlerType);
-                FieldBuilder eventFieldBuilder = typeBuilder.DefineField($"_{eventInfo.Name}", eventInfo.EventHandlerType, FieldAttributes.Private);
+                EventBuilder eventBuilder = typeBuilder.DefineEvent(eventInfo.Value.Name, eventInfo.Value.Attributes, eventInfo.Value.EventHandlerType);
+                FieldBuilder eventFieldBuilder = typeBuilder.DefineField($"_{eventInfo.Value.Name}", eventInfo.Value.EventHandlerType, FieldAttributes.Private);
 
                 // Implement event handler add method
                 // add { ... }
                 {
-                    MethodInfo addMethodInfo = eventInfo.GetAddMethod();
-                    MethodBuilder getMb = typeBuilder.DefineMethod(addMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, typeof(void), new Type[] { eventInfo.EventHandlerType });
+                    MethodInfo addMethodInfo = eventInfo.Value.GetAddMethod();
+                    MethodBuilder getMb = typeBuilder.DefineMethod(addMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, typeof(void), new Type[] { eventInfo.Value.EventHandlerType });
                     ILGenerator ilGenerator = getMb.GetILGenerator();
-
-                    string eventName = eventInfo.Name;
-                    Type ehType = eventInfo.EventHandlerType;
+                    
+                    Type ehType = eventInfo.Value.EventHandlerType;
                     LocalBuilder typeLb = ilGenerator.DeclareLocal(typeof(Type), true);
                     LocalBuilder objectLb = ilGenerator.DeclareLocal(typeof(object), true);
                     LocalBuilder retLb = ilGenerator.DeclareLocal(typeof(bool), true);
@@ -93,7 +92,7 @@ namespace AbstractBinding
                     // this.Subscribe(eventId, value);
                     Expression<Func<RuntimeProxy, object>> addEventHandler = o => o.Subscribe(null, null);
                     ilGenerator.Emit(OpCodes.Ldarg_0);
-                    ilGenerator.Emit(OpCodes.Ldstr, eventName);
+                    ilGenerator.Emit(OpCodes.Ldstr, eventInfo.Key);
                     ilGenerator.Emit(OpCodes.Ldarg_0);
                     ilGenerator.Emit(OpCodes.Ldfld, eventFieldBuilder);
                     ilGenerator.EmitCall(OpCodes.Callvirt, addEventHandler.GetMethodInfo(), null);
@@ -106,12 +105,11 @@ namespace AbstractBinding
                 // Implement event handler remove method
                 // remove { ... }
                 {
-                    MethodInfo removeMethodInfo = eventInfo.GetRemoveMethod();
-                    MethodBuilder getMb = typeBuilder.DefineMethod(removeMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, typeof(void), new Type[] { eventInfo.EventHandlerType });
+                    MethodInfo removeMethodInfo = eventInfo.Value.GetRemoveMethod();
+                    MethodBuilder getMb = typeBuilder.DefineMethod(removeMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, typeof(void), new Type[] { eventInfo.Value.EventHandlerType });
                     ILGenerator ilGenerator = getMb.GetILGenerator();
-
-                    string eventName = eventInfo.Name;
-                    Type ehType = eventInfo.EventHandlerType;
+                    
+                    Type ehType = eventInfo.Value.EventHandlerType;
                     LocalBuilder typeLb = ilGenerator.DeclareLocal(typeof(Type), true);
                     LocalBuilder objectLb = ilGenerator.DeclareLocal(typeof(object), true);
                     LocalBuilder retLb = ilGenerator.DeclareLocal(typeof(bool), true);
@@ -129,7 +127,7 @@ namespace AbstractBinding
                     // this.Unsubscribe(eventId, value);
                     Expression<Func<RuntimeProxy, object>> removeEventHandler = o => o.Unsubscribe(null, null);
                     ilGenerator.Emit(OpCodes.Ldarg_0);
-                    ilGenerator.Emit(OpCodes.Ldstr, eventName);
+                    ilGenerator.Emit(OpCodes.Ldstr, eventInfo.Key);
                     ilGenerator.Emit(OpCodes.Ldarg_0);
                     ilGenerator.Emit(OpCodes.Ldfld, eventFieldBuilder);
                     ilGenerator.EmitCall(OpCodes.Callvirt, removeEventHandler.GetMethodInfo(), null);
@@ -142,19 +140,18 @@ namespace AbstractBinding
             }
 
             // Implement properties
-            foreach (var propertyInfo in typeof(T).GetContractProperties())
+            foreach (var propertyInfo in ObjectDescriptor.GetProperties<T>())
             {
                 Expression<Func<RuntimeTypeHandle, object>> getTypeFromHandle = t => Type.GetTypeFromHandle(t);
-                PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyInfo.Name, propertyInfo.Attributes, propertyInfo.PropertyType, null);
+                PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyInfo.Value.Name, propertyInfo.Value.Attributes, propertyInfo.Value.PropertyType, null);
 
-                if (propertyInfo.CanRead)
+                if (propertyInfo.Value.CanRead)
                 {
-                    MethodInfo getMethodInfo = propertyInfo.GetGetMethod();
+                    MethodInfo getMethodInfo = propertyInfo.Value.GetGetMethod();
 
-                    MethodBuilder getMb = typeBuilder.DefineMethod(getMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, propertyInfo.PropertyType, Type.EmptyTypes);
+                    MethodBuilder getMb = typeBuilder.DefineMethod(getMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, propertyInfo.Value.PropertyType, Type.EmptyTypes);
                     ILGenerator ilGenerator = getMb.GetILGenerator();
-
-                    string propertyName = propertyInfo.Name;
+                    
                     LocalBuilder typeLb = ilGenerator.DeclareLocal(typeof(Type), true);
                     LocalBuilder outObjectLb = ilGenerator.DeclareLocal(typeof(object), true);
                     LocalBuilder retLb = ilGenerator.DeclareLocal(typeof(bool), true);
@@ -163,7 +160,7 @@ namespace AbstractBinding
                     object obj = null;
                     Expression<Func<RuntimeProxy, object>> setValue = o => o.GetValue(null, out obj);
                     ilGenerator.Emit(OpCodes.Ldarg_0);
-                    ilGenerator.Emit(OpCodes.Ldstr, propertyName);
+                    ilGenerator.Emit(OpCodes.Ldstr, propertyInfo.Key);
                     ilGenerator.Emit(OpCodes.Ldloca_S, 1);
                     ilGenerator.EmitCall(OpCodes.Callvirt, setValue.GetMethodInfo(), null);
                     ilGenerator.Emit(OpCodes.Stloc_2);
@@ -171,7 +168,7 @@ namespace AbstractBinding
                     // Handle value return types
                     Expression<Func<object, object>> createInstance = a => Activator.CreateInstance(a.GetType());
                     ilGenerator.Emit(OpCodes.Ldloc_1);
-                    if (propertyInfo.PropertyType.IsValueType)
+                    if (propertyInfo.Value.PropertyType.IsValueType)
                     {
                         Label retisnull = ilGenerator.DefineLabel();
                         Label endofif = ilGenerator.DefineLabel();
@@ -181,13 +178,13 @@ namespace AbstractBinding
                         ilGenerator.Emit(OpCodes.Ceq);
                         ilGenerator.Emit(OpCodes.Brtrue_S, retisnull);
                         ilGenerator.Emit(OpCodes.Ldloc_1);
-                        ilGenerator.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
+                        ilGenerator.Emit(OpCodes.Unbox_Any, propertyInfo.Value.PropertyType);
                         ilGenerator.Emit(OpCodes.Br_S, endofif);
                         ilGenerator.MarkLabel(retisnull);
-                        ilGenerator.Emit(OpCodes.Ldtoken, propertyInfo.PropertyType);
+                        ilGenerator.Emit(OpCodes.Ldtoken, propertyInfo.Value.PropertyType);
                         ilGenerator.EmitCall(OpCodes.Call, getTypeFromHandle.GetMethodInfo(), null);
                         ilGenerator.EmitCall(OpCodes.Call, createInstance.GetMethodInfo(), null);
-                        ilGenerator.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
+                        ilGenerator.Emit(OpCodes.Unbox_Any, propertyInfo.Value.PropertyType);
                         ilGenerator.MarkLabel(endofif);
                     }
 
@@ -197,15 +194,14 @@ namespace AbstractBinding
                     typeBuilder.DefineMethodOverride(getMb, getMethodInfo);
                 }
 
-                if (propertyInfo.CanWrite)
+                if (propertyInfo.Value.CanWrite)
                 {
-                    MethodInfo setMethodInfo = propertyInfo.GetSetMethod();
-                    MethodBuilder setMb = typeBuilder.DefineMethod(setMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, typeof(void), new Type[] { propertyInfo.PropertyType });
+                    MethodInfo setMethodInfo = propertyInfo.Value.GetSetMethod();
+                    MethodBuilder setMb = typeBuilder.DefineMethod(setMethodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, typeof(void), new Type[] { propertyInfo.Value.PropertyType });
                     ILGenerator ilGenerator = setMb.GetILGenerator();
-
-                    string propertyName = propertyInfo.Name;
+                    
                     LocalBuilder typeLb = ilGenerator.DeclareLocal(typeof(Type), true);
-                    LocalBuilder objectLb = ilGenerator.DeclareLocal(propertyInfo.PropertyType, true);
+                    LocalBuilder objectLb = ilGenerator.DeclareLocal(propertyInfo.Value.PropertyType, true);
                     LocalBuilder retLb = ilGenerator.DeclareLocal(typeof(bool), true);
 
                     // this.SetValue(propertyId, value);
@@ -213,11 +209,11 @@ namespace AbstractBinding
                     ilGenerator.Emit(OpCodes.Stloc_1);
                     Expression<Func<RuntimeProxy, object>> setValue = o => o.SetValue(null, null);
                     ilGenerator.Emit(OpCodes.Ldarg_0);
-                    ilGenerator.Emit(OpCodes.Ldstr, propertyName);
+                    ilGenerator.Emit(OpCodes.Ldstr, propertyInfo.Key);
                     ilGenerator.Emit(OpCodes.Ldloc_1);
-                    if (propertyInfo.PropertyType.IsValueType)
+                    if (propertyInfo.Value.PropertyType.IsValueType)
                     {
-                        ilGenerator.Emit(OpCodes.Box, propertyInfo.PropertyType);
+                        ilGenerator.Emit(OpCodes.Box, propertyInfo.Value.PropertyType);
                     }
                     ilGenerator.EmitCall(OpCodes.Callvirt, setValue.GetMethodInfo(), null);
                     ilGenerator.Emit(OpCodes.Stloc_2);
@@ -230,7 +226,7 @@ namespace AbstractBinding
             }
 
             // Implement methods
-            foreach (var methodInfo in typeof(T).GetContractMethods())
+            foreach (var methodInfo in ObjectDescriptor.GetMethods<T>())
             {
                 object obj = null;
                 Expression<Func<RuntimeProxy, object>> invoke = o => o.Invoke(null, null, out obj);
@@ -238,10 +234,10 @@ namespace AbstractBinding
                 Expression<Func<RuntimeTypeHandle, object>> getTypeFromHandle = t => Type.GetTypeFromHandle(t);
                 Expression<Func<List<object>, object>> listToArray = l => l.ToArray();
                 Expression<Action<List<object>>> listAdd = l => l.Add(new object());
-                var parameterInfoArray = methodInfo.GetParameters();
-                var genericArgumentArray = methodInfo.GetGenericArguments();
+                var parameterInfoArray = methodInfo.Value.GetParameters();
+                var genericArgumentArray = methodInfo.Value.GetGenericArguments();
 
-                MethodBuilder mb = typeBuilder.DefineMethod(methodInfo.Name, MethodAttributes.Public | MethodAttributes.Virtual, methodInfo.ReturnType, parameterInfoArray.Select(pi => pi.ParameterType).ToArray());
+                MethodBuilder mb = typeBuilder.DefineMethod(methodInfo.Value.Name, MethodAttributes.Public | MethodAttributes.Virtual, methodInfo.Value.ReturnType, parameterInfoArray.Select(pi => pi.ParameterType).ToArray());
                 if (genericArgumentArray.Any())
                 {
                     mb.DefineGenericParameters(genericArgumentArray.Select(s => s.Name).ToArray());
@@ -257,7 +253,7 @@ namespace AbstractBinding
                 ilGenerator.Emit(OpCodes.Newobj, typeof(List<object>).GetConstructor(Type.EmptyTypes));
                 ilGenerator.Emit(OpCodes.Stloc_1);
                 int i = 0;
-                foreach (ParameterInfo pi in methodInfo.GetParameters())
+                foreach (ParameterInfo pi in methodInfo.Value.GetParameters())
                 {
                     i++;
                     ilGenerator.Emit(OpCodes.Ldloc_1);
@@ -271,19 +267,19 @@ namespace AbstractBinding
 
                 // this.Invoke(methodId, args, out result);
                 ilGenerator.Emit(OpCodes.Ldarg_0);
-                ilGenerator.Emit(OpCodes.Ldstr, methodInfo.GetFullName());
+                ilGenerator.Emit(OpCodes.Ldstr, methodInfo.Key);
                 ilGenerator.Emit(OpCodes.Ldloc_1);
                 ilGenerator.EmitCall(OpCodes.Callvirt, listToArray.GetMethodInfo(), null);
                 ilGenerator.Emit(OpCodes.Ldloca_S, 2);
                 ilGenerator.EmitCall(OpCodes.Callvirt, invoke.GetMethodInfo(), null);
                 ilGenerator.Emit(OpCodes.Stloc_3);
 
-                if (methodInfo.ReturnType != typeof(void))
+                if (methodInfo.Value.ReturnType != typeof(void))
                 {
                     ilGenerator.Emit(OpCodes.Ldloc_2);
 
                     // Handle value return types
-                    if (methodInfo.ReturnType.IsValueType)
+                    if (methodInfo.Value.ReturnType.IsValueType)
                     {
                         Label retisnull = ilGenerator.DefineLabel();
                         Label endofif = ilGenerator.DefineLabel();
@@ -293,20 +289,20 @@ namespace AbstractBinding
                         ilGenerator.Emit(OpCodes.Ceq);
                         ilGenerator.Emit(OpCodes.Brtrue_S, retisnull);
                         ilGenerator.Emit(OpCodes.Ldloc_2);
-                        ilGenerator.Emit(OpCodes.Unbox_Any, methodInfo.ReturnType);
+                        ilGenerator.Emit(OpCodes.Unbox_Any, methodInfo.Value.ReturnType);
                         ilGenerator.Emit(OpCodes.Br_S, endofif);
                         ilGenerator.MarkLabel(retisnull);
-                        ilGenerator.Emit(OpCodes.Ldtoken, methodInfo.ReturnType);
+                        ilGenerator.Emit(OpCodes.Ldtoken, methodInfo.Value.ReturnType);
                         ilGenerator.EmitCall(OpCodes.Call, getTypeFromHandle.GetMethodInfo(), null);
                         ilGenerator.EmitCall(OpCodes.Call, createInstance.GetMethodInfo(), null);
-                        ilGenerator.Emit(OpCodes.Unbox_Any, methodInfo.ReturnType);
+                        ilGenerator.Emit(OpCodes.Unbox_Any, methodInfo.Value.ReturnType);
                         ilGenerator.MarkLabel(endofif);
                     }
                 }
                 
                 ilGenerator.Emit(OpCodes.Ret);
 
-                typeBuilder.DefineMethodOverride(mb, methodInfo);
+                typeBuilder.DefineMethodOverride(mb, methodInfo.Value);
             }
 
             // Create and store new type instance
