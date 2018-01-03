@@ -69,5 +69,32 @@ namespace AbstractBinding.Tests
             _clientMock.VerifyAll();
             Assert.AreEqual(expectedValue, actualValue);
         }
+
+        [TestMethod]
+        [TestCategory(_testCategory)]
+        public void NestedPropertySetValue()
+        {
+            // Arrange
+            string objectId = "obj1Id";
+            var proxyObj = RuntimeProxy.Create<IRegisteredObject>(objectId, _clientMock.Object, new Type[] { typeof(INestedObject) });
+            string expectedValue = "actual value";
+            string actualValue = null;
+            _clientMock.Setup(o => o.Request(It.IsAny<PropertySetRequest>())).Returns<PropertySetRequest>(req =>
+            {
+                actualValue = req.value as string;
+                return new PropertySetResponse()
+                {
+                    objectId = req.objectId,
+                    propertyId = ObjectDescriptor.GetPropertyId<INestedObject>(nameof(INestedObject.StringProperty))
+                };
+            });
+
+            // Act
+            proxyObj.StringValueProperty = expectedValue;
+
+            // Assert
+            _clientMock.VerifyAll();
+            Assert.AreEqual(expectedValue, actualValue);
+        }
     }
 }

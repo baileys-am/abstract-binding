@@ -56,6 +56,10 @@ namespace AbstractBinding.Tests
             _serviceMock.Verify();
             _regObjectMock.Verify();
             Assert.AreEqual(2, resp.bindings.Count);
+            var propId = ObjectDescriptor.GetPropertyId<IRegisteredObject>(nameof(IRegisteredObject.NestedObject));
+            var parentIndx = resp.bindings.Keys.ToList().IndexOf(objectId);
+            Assert.IsTrue(resp.bindings.Values.ElementAt(parentIndx).properties.ContainsKey(propId));
+            Assert.IsTrue(resp.bindings.Values.ElementAt(parentIndx).properties[propId].isBinded);
         }
 
         [TestMethod]

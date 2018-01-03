@@ -32,10 +32,10 @@ namespace AbstractBinding.RecipientInternals
             _methods = methods ?? throw new ArgumentNullException(nameof(methods));
         }
 
-        internal static RegisteredObject Create<T>(string objectId, T obj)
+        internal static RegisteredObject Create<T>(string objectId, T obj, params Type[] nestedTypes)
         {
             // Create description
-            var objDesc = ObjectDescriptor.GetObjectDescription<T>();
+            var objDesc = ObjectDescriptor.GetObjectDescription<T>(nestedTypes);
 
             // Create events
             var events = new Dictionary<string, RegisteredEvent>();

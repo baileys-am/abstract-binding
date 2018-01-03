@@ -16,11 +16,11 @@ namespace AbstractBinding
         public void Register<T>(string objectId, T obj, params Type[] nestedTypes)
         {
             // Create registered object
-            var registeredObject = RegisteredObject.Create(objectId, obj);
+            var registeredObject = RegisteredObject.Create(objectId, obj, nestedTypes);
 
             // Register property objects
-            foreach (var property in typeof(T).GetContractProperties().Where(p => nestedTypes.Contains(p.PropertyType))
-)            {
+            foreach (var property in typeof(T).GetContractProperties().Where(p => nestedTypes.Contains(p.PropertyType)))
+            {
                 object value = property.GetValue(obj);
                 if (value != null)
                 {
@@ -62,10 +62,10 @@ namespace AbstractBinding
                 switch (request)
                 {
                     case GetBindingDescriptionsRequest getBindingsReq:
-                        var getBindingsResp = new GetBindingDescriptionsResponse();
+                        var getBindingsResponse = new GetBindingDescriptionsResponse();
                         foreach (var obj in _registeredObjects)
                         {
-                            getBindingsResp.bindings.Add(obj.Key, new ObjectBinding()
+                            getBindingsResponse.bindings.Add(obj.Key, new ObjectBinding()
                             {
                                 events = obj.Value.Description.Events,
                                 properties = obj.Value.Description.Properties.ToDictionary(p => p, p => new NestedObjectBinding()
@@ -77,7 +77,7 @@ namespace AbstractBinding
                                 methods = obj.Value.Description.Methods
                             });
                         }
-                        return getBindingsResp;
+                        return getBindingsResponse;
                     case SubscribeRequest subscribeReq:
                         var subscribeObj = _registeredObjects[subscribeReq.objectId];
                         subscribeObj.Subscribe(subscribeReq.eventId, callback);
