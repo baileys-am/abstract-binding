@@ -40,26 +40,6 @@ namespace AbstractBinding.Tests
 
         [TestMethod]
         [TestCategory(_testCategory)]
-        public void RegisterObjectWithNestedBindingTest()
-        {
-            // Arrange
-            var objectId = "objId1";
-            var server = new Recipient();
-            var nestedObjectMock = new Mock<INestedObject>();
-            _regObjectMock.SetupGet(o => o.NestedObject).Returns(nestedObjectMock.Object);
-
-            // Act
-            server.Register(objectId, _regObjectMock.Object, typeof(INestedObject));
-            var resp = server.Request(new GetBindingDescriptionsRequest()) as GetBindingDescriptionsResponse;
-
-            // Assert
-            _serviceMock.Verify();
-            _regObjectMock.Verify();
-            Assert.AreEqual(2, resp.bindings.Count);
-        }
-
-        [TestMethod]
-        [TestCategory(_testCategory)]
         public void GetBindingsDescriptionRequestTest()
         {
             // Arrange

@@ -24,7 +24,6 @@ namespace AbstractBinding.Tests
         event EventHandler<DataChangedEventArgs> NotifyOnDataChanged;
         
         string StringValueProperty { get; set; }
-        INestedObject NestedObject { get; set; }
 
         void VoidReturnMethod(params object[] args);
         void VoidReturnMethodStr(string str);

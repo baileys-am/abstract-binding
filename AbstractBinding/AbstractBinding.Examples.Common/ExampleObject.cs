@@ -38,21 +38,6 @@ namespace AbstractBinding.Examples
             }
         }
 
-        private INestedExampleClass _nestedObject = new NestedExampleClass();
-        public INestedExampleClass NestedObject
-        {
-            get
-            {
-                Console.WriteLine($"Property get: {nameof(NestedObject)}");
-                return _nestedObject;
-            }
-            set
-            {
-                Console.WriteLine($"Property set: {nameof(NestedObject)}; value: {value}");
-                _nestedObject = value;
-            }
-        }
-
         public void MethodVoidStr(string str)
         {
             Console.WriteLine($"Method invoke: {nameof(MethodVoidStr)}");

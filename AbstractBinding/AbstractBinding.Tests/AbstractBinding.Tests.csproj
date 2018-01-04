@@ -58,7 +58,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="INestedObject.cs" />
     <Compile Include="IRegisteredObject2.cs" />
     <Compile Include="MethodProxyTests.cs" />
     <Compile Include="RecipientEventApiTests.cs" />
