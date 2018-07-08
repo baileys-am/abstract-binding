@@ -1,16 +1,17 @@
-﻿using System.Reflection;
+﻿using System.Resources;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AbstractBinding")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Abstract Binding")]
+[assembly: AssemblyDescription("Provides dynamic proxies for RPC clients and servers.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("AbstractBinding")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCompany("Steven Cantrell")]
+[assembly: AssemblyProduct("Abstract Binding")]
+[assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -37,3 +38,5 @@ using System.Runtime.InteropServices;
 
 // Make internals visible for runtime assembly
 [assembly: InternalsVisibleTo("AbstractBinding.Runtime")]
+[assembly: NeutralResourcesLanguage("")]
+
